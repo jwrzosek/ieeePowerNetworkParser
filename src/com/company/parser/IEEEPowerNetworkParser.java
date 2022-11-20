@@ -24,7 +24,7 @@ public class IEEEPowerNetworkParser {
 
     public void parse() {
         InfoUtils.printInfo("> Parsing ieee power network data model started...");
-        readDataFile(PowerNetworkUtils.DIR_30_NODES);
+        readDataFile(PowerNetworkUtils.DIR_14_NODES);
 
         InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
         InfoUtils.printInfo("> parsing bus data...");
@@ -44,7 +44,7 @@ public class IEEEPowerNetworkParser {
         InfoUtils.printInfo("> AMPL model file writing finished");
     }
 
-    private void readDataFile(String directory) {
+    private void readDataFile(final String directory) {
         Path path = Paths.get(directory);
         try {
             powerNetworkDataLines = Files.readAllLines(path);
@@ -151,10 +151,10 @@ public class IEEEPowerNetworkParser {
     }
 
     private Double getAdmittanceValue(Branch branch, boolean dc) {
-        return dc ? calculateAdmittnaceDC(branch) : calculateAdmittanceAC(branch);
+        return dc ? calculateAdmittanceDC(branch) : calculateAdmittanceAC(branch);
     }
 
-    private Double calculateAdmittnaceDC(Branch branch) {
+    private Double calculateAdmittanceDC(Branch branch) {
         Double r = branch.getBranchResistanceR();
         return 1/r;
     }
