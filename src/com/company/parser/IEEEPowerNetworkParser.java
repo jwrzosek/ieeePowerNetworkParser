@@ -4,6 +4,8 @@ import com.company.parser.exceptions.DataNotFoundException;
 import com.company.parser.exceptions.TooManyNumbersException;
 import com.company.parser.model.Branch;
 import com.company.parser.model.Bus;
+import com.company.parser.util.InfoUtils;
+import com.company.parser.util.PowerNetworkUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,33 +18,30 @@ import java.util.regex.Pattern;
 
 public class IEEEPowerNetworkParser {
 
-    private static final String MODEL_DIR = "resources/models/";
-    private static final String dir14nodes = "resources/ieee14nodesnetwork.txt";
-    private static final String dir30nodes = "resources/ieee30nodesnetwork.txt";
-    private static final String dir57nodes = "resources/ieee57nodesnetwork.txt";
-    private static final String dir118nodes = "resources/ieee118nodesnetwork.txt";
-    private static final String dir300nodes = "resources/ieee300nodesnetwork.txt";
-
     private List<String> powerNetworkDataLines = new ArrayList<>();
-    private List<String> busDataLines = new ArrayList<>();
     private List<Bus> buses = new ArrayList<>();
     private List<Branch> branches = new ArrayList<>();
 
     public void parse() {
-        System.out.println("> Parsing ieee power network data model started...");
-        readDataFile(dir14nodes);
-        System.out.println("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
-        System.out.println("> parsing bus data...");
-        parseBusDataLines();
-        System.out.println("> parsing bus data finished");
+        InfoUtils.printInfo("> Parsing ieee power network data model started...");
+        readDataFile(PowerNetworkUtils.DIR_30_NODES);
 
-        System.out.println("> parsing branch data...");
+        InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
+        InfoUtils.printInfo("> parsing bus data...");
+        parseBusDataLines();
+        InfoUtils.printInfo("> parsing bus data finished");
+
+        InfoUtils.printInfo("> parsing branch data...");
         parseBranchDataLines();
-        System.out.println("> parsing branch data finished");
-        System.out.println("> Parsing finished");
-        System.out.println("> Parsing ieee power network data model finished successfully");
+        InfoUtils.printInfo("> parsing branch data finished");
+
+        InfoUtils.printInfo("> Parsing finished");
+        InfoUtils.printInfo("> Parsing ieee power network data model finished successfully");
+
+        InfoUtils.printInfo("> Writing AMPL model file...");
         ModelAmplWriter modelAmplWriter = new ModelAmplWriter();
         modelAmplWriter.writeAmplModelToFile("model.dat", buses, branches);
+        InfoUtils.printInfo("> AMPL model file writing finished");
     }
 
     private void readDataFile(String directory) {
@@ -56,7 +55,7 @@ public class IEEEPowerNetworkParser {
 
     private Integer getNumberOfNodes() {
         final var busData = powerNetworkDataLines.stream()
-                .filter(line -> line.contains("BUS DATA"))
+                .filter(line -> line.contains(PowerNetworkUtils.CDF_BUS_SECTION_START_INDICATOR))
                 .findAny()
                 .orElseThrow(() -> new DataNotFoundException("Number of nodes data line not found"));
         return findNumberOfDataEntities(busData);
@@ -64,7 +63,7 @@ public class IEEEPowerNetworkParser {
 
     private Integer getNumberOfBranches() {
         final var busData = powerNetworkDataLines.stream()
-                .filter(line -> line.contains("BRANCH DATA"))
+                .filter(line -> line.contains(PowerNetworkUtils.CDF_BRANCH_SECTION_START_INDICATOR))
                 .findAny()
                 .orElseThrow(() -> new DataNotFoundException("Number of nodes data line not found"));
         return findNumberOfDataEntities(busData);
@@ -87,11 +86,11 @@ public class IEEEPowerNetworkParser {
     private void parseBranchDataLines() {
         boolean branchDataStarted = false;
         for (String line : powerNetworkDataLines) {
-            if (line.contains("BRANCH DATA") && !branchDataStarted) {
+            if (line.contains(PowerNetworkUtils.CDF_BRANCH_SECTION_START_INDICATOR) && !branchDataStarted) {
                 branchDataStarted = true;
                 continue;
             }
-            if (line.contains("-999") && branchDataStarted) {
+            if (line.contains(PowerNetworkUtils.CDF_SECTION_END_INDICATOR) && branchDataStarted) {
                 branchDataStarted = false;
             }
             if (branchDataStarted) {
@@ -152,30 +151,30 @@ public class IEEEPowerNetworkParser {
     }
 
     private Double getAdmittanceValue(Branch branch, boolean dc) {
-        return dc ? calculateYabDC(branch) : calculateYabAC(branch);
+        return dc ? calculateAdmittnaceDC(branch) : calculateAdmittanceAC(branch);
     }
 
-    private Double calculateYabDC(Branch branch) {
+    private Double calculateAdmittnaceDC(Branch branch) {
         Double r = branch.getBranchResistanceR();
         return 1/r;
     }
 
-    private Double calculateYabAC(Branch branch) {
+    private Double calculateAdmittanceAC(Branch branch) {
         Double r = branch.getBranchResistanceR();
         Double x = branch.getBranchReactanceX();
-        Double Gab = r / ((r * r) + (x * x));
-        Double Omab = x / ((r * r) + (x * x));
-        return Math.sqrt((Gab * Gab) + (Omab * Omab));
+        Double conductanceG = r / ((r * r) + (x * x));
+        Double susceptanceOm = x / ((r * r) + (x * x));
+        return Math.sqrt((conductanceG * conductanceG) + (susceptanceOm * susceptanceOm));
     }
 
     private void parseBusDataLines() {
         boolean busDataStarted = false;
         for (String line : powerNetworkDataLines) {
-            if (line.contains("BUS DATA") && !busDataStarted) {
+            if (line.contains(PowerNetworkUtils.CDF_BUS_SECTION_START_INDICATOR) && !busDataStarted) {
                 busDataStarted = true;
                 continue;
             }
-            if (line.contains("-999") && busDataStarted) {
+            if (line.contains(PowerNetworkUtils.CDF_SECTION_END_INDICATOR) && busDataStarted) {
                 busDataStarted = false;
             }
             if (busDataStarted) {
@@ -187,41 +186,41 @@ public class IEEEPowerNetworkParser {
 
     private Bus parseBusDataLine(final String busDataLine) {
         Bus bus = new Bus();
-        final var busNumber = busDataLine.substring(0, 4).trim(); // bus number
+        final var busNumber = busDataLine.substring(0, 4).trim();
         bus.withBusNumber(Integer.parseInt(busNumber));
-        final var busName = busDataLine.substring(5, 17).trim();// bus name
+        final var busName = busDataLine.substring(5, 17).trim();
         bus.withBusName(busName);
-        final var loadFlowAreaNumber = busDataLine.substring(18, 20).trim(); // load flow area number
+        final var loadFlowAreaNumber = busDataLine.substring(18, 20).trim();
         bus.withLoadFlowAreaNumber(Integer.parseInt(loadFlowAreaNumber));
-        final var lossZoneNumber = busDataLine.substring(20, 23).trim(); // loss zone number
+        final var lossZoneNumber = busDataLine.substring(20, 23).trim();
         bus.withLossZoneNumber(Integer.parseInt(lossZoneNumber));
-        final var type = busDataLine.substring(24, 26).trim(); // type
+        final var type = busDataLine.substring(24, 26).trim();
         bus.withType(Integer.parseInt(type));
-        final var finalVoltage = busDataLine.substring(27, 33).trim(); // final voltage
+        final var finalVoltage = busDataLine.substring(27, 33).trim();
         bus.withFinalVoltage(Double.parseDouble(finalVoltage));
-        final var finalAngle = busDataLine.substring(33, 40).trim(); // final angle
+        final var finalAngle = busDataLine.substring(33, 40).trim();
         bus.withFinalAngle(Double.parseDouble(finalAngle));
-        final var loadMW = busDataLine.substring(40, 49).trim(); // load MW
+        final var loadMW = busDataLine.substring(40, 49).trim();
         bus.withLoadMW(Double.parseDouble(loadMW));
-        final var loadMVAR = busDataLine.substring(49, 59).trim(); // load MVAR
+        final var loadMVAR = busDataLine.substring(49, 59).trim();
         bus.withLoadMVAR(Double.parseDouble(loadMVAR));
-        final var generationMW = busDataLine.substring(59, 67); // generation MW
+        final var generationMW = busDataLine.substring(59, 67);
         bus.withGenerationMW(Double.parseDouble(generationMW));
-        final var generationMVAR = busDataLine.substring(67, 75).trim(); // generatrion MVAR
+        final var generationMVAR = busDataLine.substring(67, 75).trim();
         bus.withGenerationMVAR(Double.parseDouble(generationMVAR));
-        final var baseKV = busDataLine.substring(76, 84).trim(); // base kV
+        final var baseKV = busDataLine.substring(76, 84).trim();
         bus.withBaseKV(Double.parseDouble(baseKV));
-        final var desiredVolts = busDataLine.substring(84, 90).trim(); // desired volts
+        final var desiredVolts = busDataLine.substring(84, 90).trim();
         bus.withDesiredVolts(Double.parseDouble(desiredVolts));
-        final var maximumMVARorVoltageLimit = busDataLine.substring(90, 98).trim(); // maximum MVAR or voltage limit
+        final var maximumMVARorVoltageLimit = busDataLine.substring(90, 98).trim();
         bus.withMaximumMVARorVoltageLimit(Double.parseDouble(maximumMVARorVoltageLimit));
-        final var minimumMVARorVoltageLimit = busDataLine.substring(98, 106).trim(); // minimum MVAR or voltage limit
+        final var minimumMVARorVoltageLimit = busDataLine.substring(98, 106).trim();
         bus.withMinimumMVARorVoltageLimit(Double.parseDouble(minimumMVARorVoltageLimit));
-        final var shuntConductanceG = busDataLine.substring(106, 114).trim(); // shunt conductance G (per unit)
+        final var shuntConductanceG = busDataLine.substring(106, 114).trim();
         bus.withShuntConductanceG(Double.parseDouble(shuntConductanceG));
-        final var shuntSusceptanceB = busDataLine.substring(114, 122).trim(); // shunt susceptance B (per unit)
+        final var shuntSusceptanceB = busDataLine.substring(114, 122).trim();
         bus.withShuntSusceptanceB(Double.parseDouble(shuntSusceptanceB));
-        final var remoteControlledBusNumber = busDataLine.substring(123, 127).trim(); // remote controlled bus number
+        final var remoteControlledBusNumber = busDataLine.substring(123, 127).trim();
         bus.withRemoteControlledBusNumber(Integer.parseInt(remoteControlledBusNumber));
 
         return bus;
