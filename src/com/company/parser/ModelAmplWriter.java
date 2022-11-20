@@ -29,11 +29,11 @@ public class ModelAmplWriter {
     private String createFullModel(final List<Bus> buses, final List<Branch> branches) {
         StringBuilder sb = new StringBuilder();
         final var modelInfo = generateAmplModelInfo(buses.size(), branches.size());
-        final var busInfo = generateSet("BUSES", buses.size(), AmplUtils.BUS_SYMBOL);
+        final var busInfo = generateSet(AmplUtils.BUS_NAME, buses.size(), AmplUtils.BUS_SYMBOL);
         final var busParameters = generateBusParameters(buses);
         final var pgenParameter = generatePgenParameter(buses);
         final var qBusParameter = generateQBusParameter2(buses, branches);
-        final var yabParameter = generateYabParameter2(buses, branches);
+        final var yabParameter = generateAdmittanceParameter(buses, branches);
         return sb
                 .append(modelInfo)
                 .append(busInfo)
@@ -44,11 +44,13 @@ public class ModelAmplWriter {
                 .toString();
     }
 
-    private String generateYabParameter2(List<Bus> buses, List<Branch> branches) {
-        StringBuilder sb = new StringBuilder(String.format("%-12s", "param Y_ab:\n"));
-        sb.append(String.format("%-12s", " "));
+    private String generateAdmittanceParameter(List<Bus> buses, List<Branch> branches) {
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_ADMITTANCE_SYMBOL + ":\n"));
+        sb.append(String.format(AmplUtils.PARAM_FORMAT, " "));
         for (int i = 1; i < buses.size() + 1; i++) {
-            sb.append(String.format("%-12s", AmplUtils.BUS_SYMBOL + i));
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i));
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
         final var admittanceArray = getAdmittanceArray(buses, branches);
@@ -57,12 +59,12 @@ public class ModelAmplWriter {
             final var tapBusNumber = i + 1;
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < buses.size(); j++) {
-                sb.append(String.format("%-12s", admittanceArray[i][j] != null ? formatFPVariables(admittanceArray[i][j]) : 0.0));
+                sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? formatFPVariables(admittanceArray[i][j]) : 0.0));
             }
             sb.append("\n");
         }
 
-        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString().replace(",", ".");
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
     }
 
     private Double[][] getAdmittanceArray(List<Bus> buses, List<Branch> branches) {
@@ -92,6 +94,93 @@ public class ModelAmplWriter {
             }
         }
         return admittanceArray;
+    }
+
+    private String generateQBusParameter2(List<Bus> buses, List<Branch> branches) {
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_LINE_CAPACITY_SYMBOL + ":\n"));
+        sb.append(String.format(AmplUtils.PARAM_FORMAT, " "));
+        for (int i = 1; i < buses.size() + 1; i++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        final var admittanceArray = getAdmittanceArray(buses, branches);
+
+        for (int i = 0; i < buses.size(); i++) {
+            final var tapBusNumber = i + 1;
+            sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
+            for (int j = 0; j < buses.size(); j++) {
+                sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? 99999 : 0));
+            }
+            sb.append("\n");
+        }
+
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
+    private String generateBusParameters(List<Bus> buses) {
+        final var params = List.of("Ka_load", "Ka_gen", "Pa_loadMin", "Pa_loadMax", "Pa_genMax", "V");
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + ":"));
+        for (String param : params) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        int i = 0;
+        for (var bus : buses) {
+            i++;
+            final var offerPrice = getRandomInteger(50, 300);
+            sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(i).append("\t\t")
+                    .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice - 20))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getLoadMW() - 0.5*bus.getLoadMW()))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getLoadMW()))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getGenerationMW()))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getFinalVoltage()))
+                    .append("\n");
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
+        return sb.toString();
+    }
+
+    private String generatePgenParameter(List<Bus> buses) {
+        final var paramName = "Pa_gen";
+        StringBuilder sb = new StringBuilder("param " + paramName + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        int i = 0;
+        for (var bus : buses) {
+            i++;
+            sb.append("\t" + AmplUtils.BUS_SYMBOL).append(i);
+            sb.append("\t\t").append(bus.getGenerationMW());
+            sb.append("\n");
+        }
+
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
+    private String generateSet(final String name, final int quantity, final String symbol) {
+        StringBuilder sb = new StringBuilder("set " + name + " :=");
+        for (int i = 0; i < quantity; i++) {
+            sb.append(AmplUtils.DEFAULT_SET_SEPARATOR).append(symbol).append(i + 1);
+        }
+        sb.append(";\n\n");
+        return sb.toString();
+    }
+
+    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfBranches) {
+        DateTimeFormatter dataPattern = DateTimeFormatter.ofPattern(AmplUtils.INFO_SECTION_DATA_PATTERN);
+        return "# " + numberOfBuses + "-nodes power network with " + numberOfBranches + " branches\n" +
+                "# Author: Jakub Wrzosek\n" +
+                "# Created: " + LocalDateTime.now().format(dataPattern) + "\n\n";
+    }
+
+    private static int getRandomInteger(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
+    }
+
+    private String formatFPVariables(final Double var) {
+        return String.format("%.4f", var).replace(",", ".");
     }
 
     @Deprecated
@@ -139,27 +228,6 @@ public class ModelAmplWriter {
         return Math.sqrt((Gab * Gab) + (Omab * Omab));
     }
 
-    private String generateQBusParameter2(List<Bus> buses, List<Branch> branches) {
-        StringBuilder sb = new StringBuilder(String.format("%-12s", "param Q_ab:\n"));
-        sb.append(String.format("%-12s", " "));
-        for (int i = 1; i < buses.size() + 1; i++) {
-            sb.append(String.format("%-12s", AmplUtils.BUS_SYMBOL + i));
-        }
-        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
-        final var admittanceArray = getAdmittanceArray(buses, branches);
-
-        for (int i = 0; i < buses.size(); i++) {
-            final var tapBusNumber = i + 1;
-            sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
-            for (int j = 0; j < buses.size(); j++) {
-                sb.append(String.format("%-12s", admittanceArray[i][j] != null ? 99999 : 0));
-            }
-            sb.append("\n");
-        }
-
-        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
-    }
-
     @Deprecated
     private String generateQBusParameter(List<Bus> buses, List<Branch> branches) {
         StringBuilder sb = new StringBuilder(String.format("%-12s", "param Q_ab:\n"));
@@ -183,69 +251,4 @@ public class ModelAmplWriter {
         sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
         return sb.toString();
     }
-
-    private String generateBusParameters(List<Bus> buses) {
-        //final var params = List.of("Ka_load", "Ka_gen", "Pa_load", "Pa_loadMax", "Pa_genMax", "theta", "V");
-        final var params = List.of("Ka_load", "Ka_gen", "Pa_loadMin", "Pa_loadMax", "Pa_genMax", "V");
-        StringBuilder sb = new StringBuilder(String.format("%-12s", "param:"));
-        for (String param : params) {
-            sb.append(String.format("%-12s", param));
-        }
-        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
-        int i = 0;
-        for (var bus : buses) {
-            i++;
-            final var offerPrice = getRandomInteger(50, 300);
-            sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(i).append("\t\t")
-                    .append(String.format("%-12s", offerPrice))
-                    .append(String.format("%-12s", offerPrice - 20))
-                    .append(String.format("%-12s", bus.getLoadMW() - 0.5*bus.getLoadMW()))
-                    .append(String.format("%-12s", bus.getLoadMW()))
-                    .append(String.format("%-12s", bus.getGenerationMW()))
-                    //.append(String.format("%-12s", bus.getFinalAngle()))
-                    .append(String.format("%-12s", bus.getFinalVoltage()))
-                    .append("\n");
-        }
-        sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
-        return sb.toString();
-    }
-
-    private String generatePgenParameter(List<Bus> buses) {
-        final var paramName = "Pa_gen";
-        StringBuilder sb = new StringBuilder("param " + paramName + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
-        int i = 0;
-        for (var bus : buses) {
-            i++;
-            sb.append("\t" + AmplUtils.BUS_SYMBOL).append(i);
-            sb.append("\t\t").append(bus.getGenerationMW());
-            sb.append("\n");
-        }
-
-        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
-    }
-
-    private String generateSet(final String name,final int quantity, final String symbol) {
-        StringBuilder sb = new StringBuilder("set " + name + " :=");
-        for (int i = 0; i < quantity; i++) {
-            sb.append(AmplUtils.DEFAULT_SET_SEPARATOR).append(symbol).append(i + 1);
-        }
-        sb.append(";\n\n");
-        return sb.toString();
-    }
-
-    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfBranches) {
-        DateTimeFormatter dataPattern = DateTimeFormatter.ofPattern(AmplUtils.INFO_SECTION_DATA_PATTERN);
-        return "# " + numberOfBuses + "-nodes power network with " + numberOfBranches + " branches\n" +
-                "# Author: Jakub Wrzosek\n" +
-                "# Created: " + LocalDateTime.now().format(dataPattern) + "\n\n";
-    }
-
-    private static int getRandomInteger(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
-    }
-
-    private String formatFPVariables(final Double var) {
-        return String.format("%.4f", var);
-    }
-
 }
