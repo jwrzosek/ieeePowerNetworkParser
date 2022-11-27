@@ -4,6 +4,7 @@ import com.company.parser.exceptions.DataNotFoundException;
 import com.company.parser.exceptions.TooManyNumbersException;
 import com.company.parser.model.Branch;
 import com.company.parser.model.Bus;
+import com.company.parser.model.HourlyLoad;
 import com.company.parser.util.InfoUtils;
 import com.company.parser.util.PowerNetworkUtils;
 
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,8 +21,10 @@ import java.util.regex.Pattern;
 public class IEEEPowerNetworkParser {
 
     private List<String> powerNetworkDataLines = new ArrayList<>();
+    private List<String> hourlyLoadDataLines = new ArrayList<>();
     private List<Bus> buses = new ArrayList<>();
     private List<Branch> branches = new ArrayList<>();
+    private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
     public void parse() {
         InfoUtils.printInfo("> Parsing ieee power network data model started...");
@@ -44,10 +48,48 @@ public class IEEEPowerNetworkParser {
         InfoUtils.printInfo("> AMPL model file writing finished");
     }
 
+    public void parseWithHourlyLoad() {
+        InfoUtils.printInfo("> Parsing ieee power network data model started...");
+        readDataFile(PowerNetworkUtils.DIR_14_NODES);
+
+        // parsing hourly load data file
+        InfoUtils.printInfo("> parsing hourly load data...");
+        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA);
+        parseHourlyLoadDataLines();
+        InfoUtils.printInfo("> parsing hourly load data finished");
+
+        InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
+        InfoUtils.printInfo("> parsing bus data...");
+        parseBusDataLines();
+        InfoUtils.printInfo("> number of generators in the network" + getNumberOfGenerators());
+        InfoUtils.printInfo("> parsing bus data finished");
+
+        InfoUtils.printInfo("> parsing branch data...");
+        parseBranchDataLines();
+        InfoUtils.printInfo("> parsing branch data finished");
+
+        InfoUtils.printInfo("> Parsing finished");
+        InfoUtils.printInfo("> Parsing ieee power network data model finished successfully");
+
+        InfoUtils.printInfo("> Writing AMPL model file...");
+        ModelAmplWriter modelAmplWriter = new ModelAmplWriter();
+        modelAmplWriter.writeAmplModelToFile("hourlyLoads.dat", buses, branches);
+        InfoUtils.printInfo("> AMPL model file writing finished");
+    }
+
     private void readDataFile(final String directory) {
         Path path = Paths.get(directory);
         try {
             powerNetworkDataLines = Files.readAllLines(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readHourlyLoadDataFile(final String directory) {
+        Path path = Paths.get(directory);
+        try {
+            hourlyLoadDataLines = Files.readAllLines(path);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,6 +101,14 @@ public class IEEEPowerNetworkParser {
                 .findAny()
                 .orElseThrow(() -> new DataNotFoundException("Number of nodes data line not found"));
         return findNumberOfDataEntities(busData);
+    }
+
+    private long getNumberOfGenerators() {
+        return buses.stream()
+                .map(Bus::getGenerationMW)
+                .flatMap(Collection::stream)
+                .filter(generation -> generation > 0.01)
+                .count();
     }
 
     private Integer getNumberOfBranches() {
@@ -224,5 +274,52 @@ public class IEEEPowerNetworkParser {
         bus.withRemoteControlledBusNumber(Integer.parseInt(remoteControlledBusNumber));
 
         return bus;
+    }
+
+    private void parseHourlyLoadDataLines() {
+        boolean hourlyLoadDataStarted = false;
+        for (String line : hourlyLoadDataLines) {
+            if (line.contains(PowerNetworkUtils.HOURLY_LOAD_DATA_START_INDICATOR) && !hourlyLoadDataStarted) {
+                hourlyLoadDataStarted = true;
+                continue;
+            }
+            if (line.contains(PowerNetworkUtils.CDF_SECTION_END_INDICATOR) && hourlyLoadDataStarted) {
+                hourlyLoadDataStarted = false;
+            }
+            if (hourlyLoadDataStarted) {
+                final var hourlyLoad = parseHourlyLoad(line);
+                hourlyLoads.add(hourlyLoad);
+            }
+        }
+    }
+
+    private HourlyLoad parseHourlyLoad(final String hourlyLoadDataLine) {
+        HourlyLoad hourlyLoad = new HourlyLoad();
+        final var period = hourlyLoadDataLine.substring(0, 9).trim();
+        hourlyLoad.withPeriod(period);
+
+        final var summerPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(9, 12).trim();
+        hourlyLoad.withSummerPeakLoadPercentageWkdy(getHourlyLoadValue(summerPeakLoadPercentageWkdy));
+        final var summerPeakLoadPercentageWknd = hourlyLoadDataLine.substring(18, 21).trim();
+        hourlyLoad.withSummerPeakLoadPercentageWknd(getHourlyLoadValue(summerPeakLoadPercentageWknd));
+
+        final var winterPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(27, 30).trim();
+        hourlyLoad.withWinterPeakLoadPercentageWkdy(getHourlyLoadValue(winterPeakLoadPercentageWkdy));
+        final var winterPeakLoadPercentageWknd = hourlyLoadDataLine.substring(36, 39).trim();
+        hourlyLoad.withWinterPeakLoadPercentageWknd(getHourlyLoadValue(winterPeakLoadPercentageWknd));
+
+        final var springFallPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(45, 48).trim();
+        hourlyLoad.withSpringFallPeakLoadPercentageWkdy(getHourlyLoadValue(springFallPeakLoadPercentageWkdy));
+        final var springFallPeakLoadPercentageWknd = hourlyLoadDataLine.substring(54, 57).trim();
+        hourlyLoad.withSpringFallPeakLoadPercentageWknd(getHourlyLoadValue(springFallPeakLoadPercentageWknd));
+
+        return hourlyLoad;
+    }
+
+    /**
+     * Returns parsed percentage value of peak load in 0.xx - 1.00 format.
+     */
+    private Double getHourlyLoadValue(final String value) {
+        return Double.parseDouble(value) / 100;
     }
 }

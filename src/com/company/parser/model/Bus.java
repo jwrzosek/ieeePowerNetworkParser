@@ -1,5 +1,8 @@
 package com.company.parser.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bus {
     private Integer busNumber;
     private String busName;
@@ -16,7 +19,7 @@ public class Bus {
     private Double finalAngle; //degrees
     private Double loadMW;
     private Double loadMVAR;
-    private Double generationMW;
+    private List<Double> generationMW = new ArrayList<>();
     private Double generationMVAR;
     private Double baseKV;
     /**
@@ -101,11 +104,11 @@ public class Bus {
         this.loadMVAR = loadMVAR;
     }
 
-    public Double getGenerationMW() {
+    public List<Double> getGenerationMW() {
         return generationMW;
     }
 
-    public void setGenerationMW(final Double generationMW) {
+    public void setGenerationMW(final List<Double> generationMW) {
         this.generationMW = generationMW;
     }
 
@@ -215,7 +218,7 @@ public class Bus {
     }
 
     public Bus withGenerationMW(final Double generationMW) {
-        this.generationMW = generationMW;
+        this.generationMW.add(generationMW);
         return this;
     }
 
