@@ -19,7 +19,7 @@ public class Bus {
     private Double finalAngle; //degrees
     private Double loadMW;
     private Double loadMVAR;
-    private List<Double> generationMW = new ArrayList<>();
+    private List<Generator> generators = new ArrayList<>();
     private Double generationMVAR;
     private Double baseKV;
     /**
@@ -104,12 +104,12 @@ public class Bus {
         this.loadMVAR = loadMVAR;
     }
 
-    public List<Double> getGenerationMW() {
-        return generationMW;
+    public List<Generator> getGenerators() {
+        return generators;
     }
 
-    public void setGenerationMW(final List<Double> generationMW) {
-        this.generationMW = generationMW;
+    public void setGenerationMW(final List<Generator> generators) {
+        this.generators = generators;
     }
 
     public Double getGenerationMVAR() {
@@ -217,8 +217,8 @@ public class Bus {
         return this;
     }
 
-    public Bus withGenerationMW(final Double generationMW) {
-        this.generationMW.add(generationMW);
+    public Bus withGenerator(final Generator generator) {
+        this.generators.add(generator);
         return this;
     }
 
@@ -274,7 +274,7 @@ public class Bus {
                 ", finalAngle=" + finalAngle +
                 ", loadMW=" + loadMW +
                 ", loadMVAR=" + loadMVAR +
-                ", generationMW=" + generationMW +
+                ", generators=" + generators +
                 ", generationMVAR=" + generationMVAR +
                 ", baseKV=" + baseKV +
                 ", desiredVolts=" + desiredVolts +

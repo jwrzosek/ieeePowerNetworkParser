@@ -4,6 +4,7 @@ import com.company.parser.exceptions.DataNotFoundException;
 import com.company.parser.exceptions.TooManyNumbersException;
 import com.company.parser.model.Branch;
 import com.company.parser.model.Bus;
+import com.company.parser.model.Generator;
 import com.company.parser.model.HourlyLoad;
 import com.company.parser.util.InfoUtils;
 import com.company.parser.util.PowerNetworkUtils;
@@ -61,7 +62,7 @@ public class IEEEPowerNetworkParser {
         InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
         InfoUtils.printInfo("> parsing bus data...");
         parseBusDataLines();
-        InfoUtils.printInfo("> number of generators in the network" + getNumberOfGenerators());
+        InfoUtils.printInfo("> number of generators in the network: " + getNumberOfGenerators());
         InfoUtils.printInfo("> parsing bus data finished");
 
         InfoUtils.printInfo("> parsing branch data...");
@@ -73,7 +74,36 @@ public class IEEEPowerNetworkParser {
 
         InfoUtils.printInfo("> Writing AMPL model file...");
         ModelAmplWriter modelAmplWriter = new ModelAmplWriter();
-        modelAmplWriter.writeAmplModelToFile("hourlyLoads.dat", buses, branches);
+        modelAmplWriter.writeAmplModelWithHourlyLoadsToFile("hourlyLoads.dat", buses, branches, hourlyLoads, getNumberOfGenerators());
+        InfoUtils.printInfo("> AMPL model file writing finished");
+    }
+
+    public void parseMultiStageCase() {
+        InfoUtils.printInfo("> Parsing ieee power network data model started...");
+        readDataFile(PowerNetworkUtils.DIR_14_NODES);
+
+        // parsing hourly load data file
+        InfoUtils.printInfo("> parsing hourly load data...");
+        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA);
+        parseHourlyLoadDataLines();
+        InfoUtils.printInfo("> parsing hourly load data finished");
+
+        InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
+        InfoUtils.printInfo("> parsing bus data...");
+        parseBusDataLines();
+        InfoUtils.printInfo("> number of generators in the network: " + getNumberOfGenerators());
+        InfoUtils.printInfo("> parsing bus data finished");
+
+        InfoUtils.printInfo("> parsing branch data...");
+        parseBranchDataLines();
+        InfoUtils.printInfo("> parsing branch data finished");
+
+        InfoUtils.printInfo("> Parsing finished");
+        InfoUtils.printInfo("> Parsing ieee power network data model finished successfully");
+
+        InfoUtils.printInfo("> Writing AMPL model file...");
+        ModelAmplWriter modelAmplWriter = new ModelAmplWriter();
+        modelAmplWriter.writeAmplModelWithHourlyLoadsToFile("multiStageCase.dat", buses, branches, hourlyLoads, getNumberOfGenerators());
         InfoUtils.printInfo("> AMPL model file writing finished");
     }
 
@@ -105,8 +135,9 @@ public class IEEEPowerNetworkParser {
 
     private long getNumberOfGenerators() {
         return buses.stream()
-                .map(Bus::getGenerationMW)
+                .map(Bus::getGenerators)
                 .flatMap(Collection::stream)
+                .map(Generator::getGenerationMW)
                 .filter(generation -> generation > 0.01)
                 .count();
     }
@@ -255,7 +286,10 @@ public class IEEEPowerNetworkParser {
         final var loadMVAR = busDataLine.substring(49, 59).trim();
         bus.withLoadMVAR(Double.parseDouble(loadMVAR));
         final var generationMW = busDataLine.substring(59, 67);
-        bus.withGenerationMW(Double.parseDouble(generationMW));
+        bus.withGenerator(new Generator()
+                .withBusNumber(Integer.parseInt(busNumber))
+                .withGenerationMW(Double.parseDouble(generationMW))
+        );
         final var generationMVAR = busDataLine.substring(67, 75).trim();
         bus.withGenerationMVAR(Double.parseDouble(generationMVAR));
         final var baseKV = busDataLine.substring(76, 84).trim();

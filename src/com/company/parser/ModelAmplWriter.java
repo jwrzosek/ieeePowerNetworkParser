@@ -2,6 +2,7 @@ package com.company.parser;
 
 import com.company.parser.model.Branch;
 import com.company.parser.model.Bus;
+import com.company.parser.model.Generator;
 import com.company.parser.model.HourlyLoad;
 import com.company.parser.util.AmplUtils;
 
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,18 +23,6 @@ public class ModelAmplWriter {
                                      final List<Branch> branches) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileName);
         final var fullModel = createFullModel(buses, branches);
-        try {
-            Files.deleteIfExists(path);
-            Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void writeAmplModelWithHourlyLoadsToFile(final String fileName, final List<Bus> buses, final List<Branch> branches,
-                                                    final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
-        final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileName);
-        final var fullModel = createFullModelWithHourlyLoads(buses, branches);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
@@ -59,18 +49,32 @@ public class ModelAmplWriter {
                 .toString();
     }
 
+    public void writeAmplModelWithHourlyLoadsToFile(final String fileName, final List<Bus> buses, final List<Branch> branches,
+                                                    final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileName);
+        final var fullModel = createFullModelWithHourlyLoads(buses, branches, hourlyLoads, numberOfGenerators);
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private String createFullModelWithHourlyLoads(final List<Bus> buses, final List<Branch> branches,
                                    final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
         StringBuilder sb = new StringBuilder();
         final var modelInfo = generateAmplModelInfo(buses.size(), branches.size());
         final var busInfo = generateSet(AmplUtils.BUS_NAME, buses.size(), AmplUtils.BUS_SYMBOL);
-        final var busParameters = generateBusParametersWithFixedLoad(buses);
-        final var pgenParameter = generatePgenParameter(buses);
+        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
+        final var busParameters = generateBusParametersWithFixedLoadAndHourlyLoads(buses);
+        final var pgenParameter = generateGeneratorsPgenParameter(buses);
         final var qBusParameter = generateQBusParameter2(buses, branches);
         final var yabParameter = generateAdmittanceParameter(buses, branches);
         return sb
                 .append(modelInfo)
                 .append(busInfo)
+                .append(generatorsInfo)
                 .append(busParameters)
                 .append(pgenParameter)
                 .append(qBusParameter)
@@ -171,7 +175,31 @@ public class ModelAmplWriter {
                     .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice - 20))
                     .append(String.format(AmplUtils.PARAM_FORMAT, bus.getLoadMW() - 0.5*bus.getLoadMW()))
                     .append(String.format(AmplUtils.PARAM_FORMAT, bus.getLoadMW()))
-                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getGenerationMW()))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getGenerators().get(0).getGenerationMW()))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getFinalVoltage()))
+                    .append("\n");
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
+        return sb.toString();
+    }
+
+    private String generateBusParametersWithFixedLoadAndHourlyLoads(List<Bus> buses) {
+        final var params = List.of("Ka_load", "Ka_gen", "Pa_load", "V");
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + ":"));
+        for (String param : params) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        int i = 0;
+        for (var bus : buses) {
+            i++;
+            final var offerPrice = getRandomInteger(50, 300);
+            sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(i).append("\t\t")
+                    .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice - 20))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getLoadMW()))
                     .append(String.format(AmplUtils.PARAM_FORMAT, bus.getFinalVoltage()))
                     .append("\n");
         }
@@ -196,13 +224,48 @@ public class ModelAmplWriter {
                     .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice))
                     .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice - 20))
                     .append(String.format(AmplUtils.PARAM_FORMAT, bus.getLoadMW()))
-                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getGenerationMW().get(0)))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, bus.getGenerators().get(0).getGenerationMW()))
                     .append(String.format(AmplUtils.PARAM_FORMAT, bus.getFinalVoltage()))
                     .append("\n");
         }
         sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
         return sb.toString();
     }
+
+    private String generateGeneratorsPgenParameter(List<Bus> buses) {
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MAX_SYMBOL + ":\n"));
+        sb.append(String.format(AmplUtils.PARAM_FORMAT, " "));
+
+        buses.get(0).getGenerators().add(new Generator().withBusNumber(1).withGenerationMW(15.0));
+        final var generators = buses.stream()
+                .map(Bus::getGenerators)
+                .flatMap(Collection::stream)
+                .filter(generator -> generator.getGenerationMW() > 0.01)
+                .collect(Collectors.toList());
+
+        for (int i = 1; i < generators.size() + 1; i++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+
+        for (int i = 0; i < buses.size(); i++) {
+            final var tapBusNumber = i + 1;
+            sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
+            for (int j = 0; j < generators.size(); j++) {
+                final var generator = generators.get(j);
+                sb.append(String.format(
+                        AmplUtils.PARAM_FORMAT,
+                        generator.getBusNumber()-1 == i ? generator.getGenerationMW() : 0)
+                );
+            }
+            sb.append("\n");
+        }
+
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
 
     private String generatePgenParameter(List<Bus> buses) {
         final var paramName = "Pa_gen";
@@ -211,7 +274,7 @@ public class ModelAmplWriter {
         for (var bus : buses) {
             i++;
             sb.append("\t" + AmplUtils.BUS_SYMBOL).append(i);
-            sb.append("\t\t").append(bus.getGenerationMW().get(0));
+            sb.append("\t\t").append(bus.getGenerators().get(0).getGenerationMW());
             sb.append("\n");
         }
 

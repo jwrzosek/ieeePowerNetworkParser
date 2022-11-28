@@ -9,6 +9,12 @@ public class AmplUtils {
     public static final String BUS_SYMBOL = "B";
     public static final String BUS_NAME = "BUSES";
 
+    public static final String GENERATOR_SYMBOL = "J";
+    public static final String GENERATOR_NAME = "GENS";
+
+    public static final String TIME_PERIOD_SYMBOL = "J";
+    public static final String TIME_PERIOD_NAME = "HOURS";
+
     public static final String DEFAULT_SET_SEPARATOR = " ";
     public static final String DEFAULT_PARAM_SEPARATOR = "\t";
     public static final String DEFAULT_PARAM_END_SEPARATOR = "\t;\n\n";
@@ -20,6 +26,7 @@ public class AmplUtils {
     public static final String PARAM_SYMBOL = "param";
     public static final String PARAM_ADMITTANCE_SYMBOL = "Y_ab";
     public static final String PARAM_LINE_CAPACITY_SYMBOL = "Q_ab";
+    public static final String PARAM_PGEN_MAX_SYMBOL = "p_jhMax";
 
     private AmplUtils() {
         // private constructor for Util class
