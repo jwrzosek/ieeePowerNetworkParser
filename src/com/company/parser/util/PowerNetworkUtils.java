@@ -15,6 +15,8 @@ public class PowerNetworkUtils {
     public static final String HOURLY_LOAD_DATA_24_HOURS = "resources/timeperioddata/hourlyLoad.txt";
     public static final String HOURLY_LOAD_DATA_10HOURS = "resources/timeperioddata/hourlyLoadTmp.txt";
 
+    public static final String MULTI_STAGE_MODEL_DIR = "resources/models/model.mod";
+
     /**
      * End of data section indicator in IEEE Power Network Common Data Format
      */

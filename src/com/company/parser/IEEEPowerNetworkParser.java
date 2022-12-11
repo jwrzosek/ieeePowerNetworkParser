@@ -53,7 +53,6 @@ public class IEEEPowerNetworkParser {
     }
 
     public void parseMultiStageCase(final String directoryName, final String filename, boolean unconstrained, int lmpNode) {
-
         InfoUtils.printInfo("> Writing AMPL model file...");
         MultiStageModelAmplWriter modelAmplWriter = new MultiStageModelAmplWriter(unconstrained);
         modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, buses, branches, hourlyLoads, getNumberOfGenerators(), lmpNode);
