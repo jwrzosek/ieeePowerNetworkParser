@@ -27,6 +27,49 @@ public class IEEEPowerNetworkParser {
     private List<Branch> branches = new ArrayList<>();
     private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
+    public IEEEPowerNetworkParser() {
+        InfoUtils.printInfo("> Parsing ieee power network data model started...");
+        //readDataFile(PowerNetworkUtils.DIR_30_NODES);
+        readDataFile("resources/powernetworkdata/ieee30nodesnetworkTmp.txt");
+
+        // parsing hourly load data file
+        InfoUtils.printInfo("> parsing hourly load data...");
+        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA_10HOURS);
+        parseHourlyLoadDataLines();
+        InfoUtils.printInfo("> parsing hourly load data finished");
+
+        InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
+        InfoUtils.printInfo("> parsing bus data...");
+        parseBusDataLines();
+        InfoUtils.printInfo("> number of generators in the network: " + getNumberOfGenerators());
+        InfoUtils.printInfo("> parsing bus data finished");
+
+        InfoUtils.printInfo("> parsing branch data...");
+        parseBranchDataLines();
+        InfoUtils.printInfo("> parsing branch data finished");
+
+        InfoUtils.printInfo("> Parsing finished");
+        InfoUtils.printInfo("> Parsing ieee power network data model finished successfully");
+    }
+
+    public void parseMultiStageCase(final String directoryName, final String filename, boolean unconstrained, int lmpNode) {
+
+        InfoUtils.printInfo("> Writing AMPL model file...");
+        MultiStageModelAmplWriter modelAmplWriter = new MultiStageModelAmplWriter(unconstrained);
+        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, buses, branches, hourlyLoads, getNumberOfGenerators(), lmpNode);
+        InfoUtils.printInfo("> AMPL model file writing finished");
+    }
+
+    public void writeCommonData(String directory) {
+        MultiStageModelAmplWriter modelAmplWriter = new MultiStageModelAmplWriter(true);
+        modelAmplWriter.writeCommonDataToFile(buses, directory);
+    }
+
+    public void writeRunScript(final String directory, final int size) {
+        MultiStageModelAmplWriter modelAmplWriter = new MultiStageModelAmplWriter(true);
+        modelAmplWriter.writeRunScriptToFile(directory, size);
+    }
+
     public void parse() {
         InfoUtils.printInfo("> Parsing ieee power network data model started...");
         readDataFile(PowerNetworkUtils.DIR_14_NODES);
@@ -51,11 +94,11 @@ public class IEEEPowerNetworkParser {
 
     public void parseWithHourlyLoad() {
         InfoUtils.printInfo("> Parsing ieee power network data model started...");
-        readDataFile(PowerNetworkUtils.DIR_14_NODES);
+        readDataFile(PowerNetworkUtils.DIR_30_NODES);
 
         // parsing hourly load data file
         InfoUtils.printInfo("> parsing hourly load data...");
-        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA);
+        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA_24_HOURS);
         parseHourlyLoadDataLines();
         InfoUtils.printInfo("> parsing hourly load data finished");
 
@@ -74,36 +117,7 @@ public class IEEEPowerNetworkParser {
 
         InfoUtils.printInfo("> Writing AMPL model file...");
         ModelAmplWriter modelAmplWriter = new ModelAmplWriter();
-        modelAmplWriter.writeAmplModelWithHourlyLoadsToFile("hourlyLoads.dat", buses, branches, hourlyLoads, getNumberOfGenerators());
-        InfoUtils.printInfo("> AMPL model file writing finished");
-    }
-
-    public void parseMultiStageCase() {
-        InfoUtils.printInfo("> Parsing ieee power network data model started...");
-        readDataFile(PowerNetworkUtils.DIR_14_NODES);
-
-        // parsing hourly load data file
-        InfoUtils.printInfo("> parsing hourly load data...");
-        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA);
-        parseHourlyLoadDataLines();
-        InfoUtils.printInfo("> parsing hourly load data finished");
-
-        InfoUtils.printInfo("> analyzing network of " + getNumberOfNodes() + " nodes and " + getNumberOfBranches() + " branches");
-        InfoUtils.printInfo("> parsing bus data...");
-        parseBusDataLines();
-        InfoUtils.printInfo("> number of generators in the network: " + getNumberOfGenerators());
-        InfoUtils.printInfo("> parsing bus data finished");
-
-        InfoUtils.printInfo("> parsing branch data...");
-        parseBranchDataLines();
-        InfoUtils.printInfo("> parsing branch data finished");
-
-        InfoUtils.printInfo("> Parsing finished");
-        InfoUtils.printInfo("> Parsing ieee power network data model finished successfully");
-
-        InfoUtils.printInfo("> Writing AMPL model file...");
-        ModelAmplWriter modelAmplWriter = new ModelAmplWriter();
-        modelAmplWriter.writeAmplModelWithHourlyLoadsToFile("multiStageCase.dat", buses, branches, hourlyLoads, getNumberOfGenerators());
+        modelAmplWriter.writeAmplModelWithHourlyLoadsToFile("hourlyLoadsTmp.dat", buses, branches, hourlyLoads, getNumberOfGenerators());
         InfoUtils.printInfo("> AMPL model file writing finished");
     }
 
@@ -331,16 +345,18 @@ public class IEEEPowerNetworkParser {
         HourlyLoad hourlyLoad = new HourlyLoad();
         final var period = hourlyLoadDataLine.substring(0, 9).trim();
         hourlyLoad.withPeriod(period);
-
-        final var summerPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(9, 12).trim();
-        hourlyLoad.withSummerPeakLoadPercentageWkdy(getHourlyLoadValue(summerPeakLoadPercentageWkdy));
-        final var summerPeakLoadPercentageWknd = hourlyLoadDataLine.substring(18, 21).trim();
-        hourlyLoad.withSummerPeakLoadPercentageWknd(getHourlyLoadValue(summerPeakLoadPercentageWknd));
-
-        final var winterPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(27, 30).trim();
+        // winter 9,12 -> 18,21
+        // summer 27,30 -> 36,39
+        // spring 45,48 -> 54,57
+        final var winterPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(9, 12).trim();
         hourlyLoad.withWinterPeakLoadPercentageWkdy(getHourlyLoadValue(winterPeakLoadPercentageWkdy));
-        final var winterPeakLoadPercentageWknd = hourlyLoadDataLine.substring(36, 39).trim();
+        final var winterPeakLoadPercentageWknd = hourlyLoadDataLine.substring(18, 21).trim();
         hourlyLoad.withWinterPeakLoadPercentageWknd(getHourlyLoadValue(winterPeakLoadPercentageWknd));
+
+        final var summerPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(27, 30).trim();
+        hourlyLoad.withSummerPeakLoadPercentageWkdy(getHourlyLoadValue(summerPeakLoadPercentageWkdy));
+        final var summerPeakLoadPercentageWknd = hourlyLoadDataLine.substring(36, 39).trim();
+        hourlyLoad.withSummerPeakLoadPercentageWknd(getHourlyLoadValue(summerPeakLoadPercentageWknd));
 
         final var springFallPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(45, 48).trim();
         hourlyLoad.withSpringFallPeakLoadPercentageWkdy(getHourlyLoadValue(springFallPeakLoadPercentageWkdy));
@@ -355,5 +371,9 @@ public class IEEEPowerNetworkParser {
      */
     private Double getHourlyLoadValue(final String value) {
         return Double.parseDouble(value) / 100;
+    }
+
+    public List<Bus> getBuses() {
+        return buses;
     }
 }

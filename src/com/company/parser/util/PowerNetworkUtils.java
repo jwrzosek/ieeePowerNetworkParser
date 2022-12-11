@@ -12,7 +12,8 @@ public class PowerNetworkUtils {
     public static final String DIR_118_NODES = "resources/powernetworkdata/ieee118nodesnetwork.txt";
     public static final String DIR_300_NODES = "resources/powernetworkdata/ieee300nodesnetwork.txt";
 
-    public static final String HOURLY_LOAD_DATA = "resources/timeperioddata/hourlyLoad.txt";
+    public static final String HOURLY_LOAD_DATA_24_HOURS = "resources/timeperioddata/hourlyLoad.txt";
+    public static final String HOURLY_LOAD_DATA_10HOURS = "resources/timeperioddata/hourlyLoadTmp.txt";
 
     /**
      * End of data section indicator in IEEE Power Network Common Data Format

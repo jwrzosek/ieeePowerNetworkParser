@@ -2,7 +2,6 @@ package com.company.parser;
 
 import com.company.parser.model.Branch;
 import com.company.parser.model.Bus;
-import com.company.parser.model.Generator;
 import com.company.parser.model.HourlyLoad;
 import com.company.parser.util.AmplUtils;
 
@@ -52,7 +51,7 @@ public class ModelAmplWriter {
     public void writeAmplModelWithHourlyLoadsToFile(final String fileName, final List<Bus> buses, final List<Branch> branches,
                                                     final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileName);
-        final var fullModel = createFullModelWithHourlyLoads(buses, branches, hourlyLoads, numberOfGenerators);
+        final var fullModel = createFullModelWithHourlyLoads(buses, branches, numberOfGenerators);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
@@ -62,7 +61,40 @@ public class ModelAmplWriter {
     }
 
     private String createFullModelWithHourlyLoads(final List<Bus> buses, final List<Branch> branches,
-                                   final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
+                                                  long numberOfGenerators) {
+        StringBuilder sb = new StringBuilder();
+        final var modelInfo = generateAmplModelInfo(buses.size(), branches.size());
+        final var busInfo = generateSet(AmplUtils.BUS_NAME, buses.size(), AmplUtils.BUS_SYMBOL);
+        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
+        final var busParameters = generateBusParametersWithFixedLoadAndHourlyLoads(buses);
+        final var pgenParameter = generateGeneratorsPgenParameter(buses);
+        final var qBusParameter = generateQBusParameter2(buses, branches);
+        final var yabParameter = generateAdmittanceParameter(buses, branches);
+        return sb
+                .append(modelInfo)
+                .append(busInfo)
+                .append(generatorsInfo)
+                .append(busParameters)
+                .append(pgenParameter)
+                .append(qBusParameter)
+                .append(yabParameter)
+                .toString();
+    }
+
+    public void writeAmplFullMultiStageModel(final String fileName, final List<Bus> buses, final List<Branch> branches,
+                                                    final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileName);
+        final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, numberOfGenerators);
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String createFullMultiStageModel(final List<Bus> buses, final List<Branch> branches,
+                                                  final List<HourlyLoad> hourlyLoads, long numberOfGenerators) {
         StringBuilder sb = new StringBuilder();
         final var modelInfo = generateAmplModelInfo(buses.size(), branches.size());
         final var busInfo = generateSet(AmplUtils.BUS_NAME, buses.size(), AmplUtils.BUS_SYMBOL);
@@ -238,7 +270,6 @@ public class ModelAmplWriter {
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MAX_SYMBOL + ":\n"));
         sb.append(String.format(AmplUtils.PARAM_FORMAT, " "));
 
-        buses.get(0).getGenerators().add(new Generator().withBusNumber(1).withGenerationMW(15.0));
         final var generators = buses.stream()
                 .map(Bus::getGenerators)
                 .flatMap(Collection::stream)
