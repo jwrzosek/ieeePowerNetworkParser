@@ -30,7 +30,7 @@ public class IEEEPowerNetworkParser {
     public IEEEPowerNetworkParser() {
         InfoUtils.printInfo("> Parsing ieee power network data model started...");
         //readDataFile(PowerNetworkUtils.DIR_30_NODES);
-        readDataFile("resources/powernetworkdata/ieee30nodesnetworkTmp.txt");
+        readDataFile("resources/powernetworkdata/ieee30nodesnetworkTmpGensUpdate.txt");
 
         // parsing hourly load data file
         InfoUtils.printInfo("> parsing hourly load data...");
@@ -52,10 +52,10 @@ public class IEEEPowerNetworkParser {
         InfoUtils.printInfo("> Parsing ieee power network data model finished successfully");
     }
 
-    public void parseMultiStageCase(final String directoryName, final String filename, boolean unconstrained, int lmpNode) {
+    public void parseMultiStageCase(final String directoryName, final String filename, boolean unconstrained, int lmpNode, double peak) {
         InfoUtils.printInfo("> Writing AMPL model file...");
         MultiStageModelAmplWriter modelAmplWriter = new MultiStageModelAmplWriter(unconstrained);
-        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, buses, branches, hourlyLoads, getNumberOfGenerators(), lmpNode);
+        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, buses, branches, hourlyLoads, getNumberOfGenerators(), lmpNode, peak);
         InfoUtils.printInfo("> AMPL model file writing finished");
     }
 
@@ -374,5 +374,9 @@ public class IEEEPowerNetworkParser {
 
     public List<Bus> getBuses() {
         return buses;
+    }
+
+    public List<HourlyLoad> getHourlyLoads() {
+        return hourlyLoads;
     }
 }

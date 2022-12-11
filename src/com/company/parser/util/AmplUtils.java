@@ -3,7 +3,7 @@ package com.company.parser.util;
 public class AmplUtils {
 
     //public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\intellij";
-    public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\tmp";
+    public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\30nodes";
 
     public static final boolean DC_MODEL_ON = false;
 

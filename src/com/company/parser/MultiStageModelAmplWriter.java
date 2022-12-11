@@ -25,9 +25,9 @@ public class MultiStageModelAmplWriter {
     }
 
     public void writeAmplFullMultiStageModel(final String directoryName, final String fileName, final List<Bus> buses,
-                                             final List<Branch> branches, final List<HourlyLoad> hourlyLoads, long numberOfGenerators, int lmpNode) {
+                                             final List<Branch> branches, final List<HourlyLoad> hourlyLoads, long numberOfGenerators, int lmpNode, double peak) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, directoryName, fileName);
-        final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, numberOfGenerators, lmpNode);
+        final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, numberOfGenerators, lmpNode, peak);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
@@ -93,14 +93,14 @@ public class MultiStageModelAmplWriter {
     }
 
     private String createFullMultiStageModel(final List<Bus> buses, final List<Branch> branches,
-                                             final List<HourlyLoad> hourlyLoads, long numberOfGenerators, int lmpNode) {
+                                             final List<HourlyLoad> hourlyLoads, long numberOfGenerators, int lmpNode, double peak) {
         StringBuilder sb = new StringBuilder();
-        final var modelInfo = generateAmplModelInfo(buses.size(), branches.size());
+        final var modelInfo = generateAmplModelInfo(buses.size(), branches.size(), peak);
         final var busInfo = generateSet(AmplUtils.BUS_NAME, buses.size(), AmplUtils.BUS_SYMBOL);
         final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
         final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
         final var busParameters = generateBusParametersForMultiStageCase(buses);
-        final var loadParameter = generateMultiStageLoadMWData(buses, hourlyLoads, lmpNode);
+        final var loadParameter = generateMultiStageLoadMWData(buses, hourlyLoads, lmpNode, peak);
         final var pgenParameter = generateGeneratorsPgenParameter(buses, hourlyLoads);
         final var qBusParameter = generateQBusParameter(buses, branches);
         final var yabParameter = generateAdmittanceParameter(buses, branches);
@@ -217,7 +217,7 @@ public class MultiStageModelAmplWriter {
         return sb.toString();
     }
 
-    private String generateMultiStageLoadMWData(List<Bus> buses, List<HourlyLoad> hourlyLoads, int lmpNode) {
+    private String generateMultiStageLoadMWData(List<Bus> buses, List<HourlyLoad> hourlyLoads, int lmpNode, double peak) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PLOAD_SYMBOL + ":\n"));
@@ -233,8 +233,9 @@ public class MultiStageModelAmplWriter {
             final var bus = buses.get(i);
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < hourlyLoads.size(); j++) {
-                final var hourlyLoadPercentage = hourlyLoads.get(j).getSummerPeakLoadPercentageWkdy();
-                final var load = bus.getLoadMW() * hourlyLoadPercentage;
+                //final var hourlyLoadPercentage = hourlyLoads.get(j).getSummerPeakLoadPercentageWkdy();
+                //final var load = bus.getLoadMW() * hourlyLoadPercentage;
+                final var load = bus.getLoadMW() * peak;
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,
                         formatFPVariables(i == lmpNode ? load + 1.0 : load))
@@ -305,11 +306,12 @@ public class MultiStageModelAmplWriter {
                 .orElse(99999);
     }
 
-    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfBranches) {
+    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfBranches, final double peak) {
         DateTimeFormatter dataPattern = DateTimeFormatter.ofPattern(AmplUtils.INFO_SECTION_DATA_PATTERN);
         return "# " + numberOfBuses + "-nodes power network with " + numberOfBranches + " branches\n" +
                 "# Author: Jakub Wrzosek\n" +
-                "# Created: " + LocalDateTime.now().format(dataPattern) + "\n\n";
+                "# Created: " + LocalDateTime.now().format(dataPattern) + "\n" +
+                "# with peak: " + peak + "\n\n";
     }
 
     private static int getRandomInteger(int min, int max) {

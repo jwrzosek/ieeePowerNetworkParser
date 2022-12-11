@@ -9,6 +9,6 @@ public class Parser {
         //parser.parseMultiStageCase("multiStageCaseTmp.dat", false);
 
         MultiCaseWriter multiCaseWriter = new MultiCaseWriter();
-        multiCaseWriter.writeMultipleCasesLMP();
+        multiCaseWriter.runWithHourlyLoads();
     }
 }
