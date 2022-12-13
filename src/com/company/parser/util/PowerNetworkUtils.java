@@ -12,6 +12,10 @@ public class PowerNetworkUtils {
     public static final String DIR_118_NODES = "resources/powernetworkdata/ieee118nodesnetwork.txt";
     public static final String DIR_300_NODES = "resources/powernetworkdata/ieee300nodesnetwork.txt";
 
+    public static final String DIR_KSE_POWER_NETWORK_NODES_DATA = "resources/powernetworkdata/kse_nodes.txt";
+    public static final String DIR_KSE_POWER_NETWORK_LINES_DATA = "resources/powernetworkdata/kse_lines.txt";
+    public static final String DIR_KSE_POWER_NETWORK_GENERATORS_DATA = "resources/powernetworkdata/kse_generators.txt";
+
     public static final String HOURLY_LOAD_DATA_24_HOURS = "resources/timeperioddata/hourlyLoad.txt";
     public static final String HOURLY_LOAD_DATA_10HOURS = "resources/timeperioddata/hourlyLoadTmp.txt";
 
@@ -33,6 +37,11 @@ public class PowerNetworkUtils {
     public static final String CDF_BRANCH_SECTION_START_INDICATOR = "BRANCH DATA";
 
     public static final String HOURLY_LOAD_DATA_START_INDICATOR = "---";
+
+    public static final String KSE_NODES_SECTION_START_INDICATOR = "NODES DATA";
+    public static final String KSE_LINES_SECTION_START_INDICATOR = "LINES DATA";
+    public static final String KSE_GENERATORS_SECTION_START_INDICATOR = "GENERATORS DATA";
+    public static final String KSE_SECTION_END_INDICATOR = "-999";
 
     private PowerNetworkUtils() {
         // private constructor for Util class

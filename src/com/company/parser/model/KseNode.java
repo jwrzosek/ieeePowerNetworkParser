@@ -10,7 +10,7 @@ public class KseNode {
     private Double generationCost;
     private Double loadCost;
     private Double loadMW;
-    private List<Generator> generators = new ArrayList<>();
+    private List<KseGenerator> generators = new ArrayList<>();
 
     public Integer getNumber() {
         return number;
@@ -63,15 +63,15 @@ public class KseNode {
         return this;
     }
 
-    public List<Generator> getGenerators() {
+    public List<KseGenerator> getGenerators() {
         return generators;
     }
 
-    public void setGenerators(final List<Generator> generators) {
+    public void setGenerators(final List<KseGenerator> generators) {
         this.generators = generators;
     }
 
-    public void addGenerator(final Generator generator) {
+    public void addGenerator(final KseGenerator generator) {
         this.generators.add(generator);
     }
 
@@ -90,7 +90,7 @@ public class KseNode {
         return this;
     }
 
-    public KseNode withGenerator(final Generator generator) {
+    public KseNode withGenerator(final KseGenerator generator) {
         this.generators.add(generator);
         return this;
     }

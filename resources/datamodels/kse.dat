@@ -1,3 +1,4 @@
+#todo: backup - delete in the future
 from    to      from    to	    capacity    admitance	    voltage_src	    voltage_dst
 REC	    MON      88	     59	    510	        0,02	        220	            220
 REC	    GLN      88	     26	    510	        0,02	        220	            220
