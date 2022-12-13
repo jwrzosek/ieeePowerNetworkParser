@@ -49,7 +49,7 @@ public class MultiStageModelAmplWriter {
 
     public void writeRunScriptToFile(final String directory, final int size) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, directory, "batch.run");
-        final var runScript = createRunScript(size);
+        final var runScript = createRunScript(size, directory);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, runScript, StandardOpenOption.CREATE_NEW);
@@ -58,31 +58,31 @@ public class MultiStageModelAmplWriter {
         }
     }
 
-    public String createRunScript(int size) {
+    public String createRunScript(int size, final String directory) {
         StringBuilder sb = new StringBuilder();
-        sb.append("printf \"Results:\\n\" >> results.out;\n\n");
+        sb.append("printf \"Results:\\n\" >> "+ directory +"/results.out;\n\n");
 
         sb.append("reset;\n")
-                .append("model model.mod\n")
-                .append("data common.dat\n")
-                .append("data unconstrained").append(".dat\n")
+                .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                .append("data " + directory + "/common.dat\n")
+                .append("data " + directory + "/unconstrained").append(".dat\n")
                 .append("solve;\n")
-                .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> results.out;\n\n");
+                .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> " + directory + "/results.out;\n\n");
         sb.append("reset;\n")
-                .append("model model.mod\n")
-                .append("data common.dat\n")
-                .append("data balanced").append(".dat\n")
+                .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                .append("data " + directory + "/common.dat\n")
+                .append("data " + directory + "/balanced").append(".dat\n")
                 .append("solve;\n")
-                .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> results.out;\n\n");
+                .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> " + directory + "/results.out;\n\n");
         for (int i = 0; i<size; i++) {
             sb.append("reset;\n")
-                    .append("model model.mod\n")
-                    .append("data common.dat\n")
-                    .append("data ").append(i + 1).append(".dat\n")
+                    .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                    .append("data " + directory + "/common.dat\n")
+                    .append("data " + directory + "/").append(i + 1).append(".dat\n")
                     .append("solve;\n")
-                    .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> results.out;\n\n");
+                    .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> " + directory + "/results.out;\n\n");
         }
-        sb.append("printf \"----> RESULT SET END\\n\\n\" >> results.out;\n");
+        sb.append("printf \"----> RESULT SET END\\n\\n\" >> " + directory + "/results.out;\n");
         return sb.toString();
     }
 

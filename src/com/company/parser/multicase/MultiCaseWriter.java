@@ -68,8 +68,8 @@ public class MultiCaseWriter {
 
 
     private void writeModelFile(final String directory) {
-        final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_MODEL_DIR);
-        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH, directory, "model.mod");
+        final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_MIN_BALANCING_COST_MODEL_DIR);
+        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH, directory, "model_min_balancing_cost.mod");
         try {
             final List<String> modelData = Files.readAllLines(origin);
             final var modelString = String.join("\n", modelData);
