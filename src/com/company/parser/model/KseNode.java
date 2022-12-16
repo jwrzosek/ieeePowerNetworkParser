@@ -9,7 +9,9 @@ public class KseNode {
     private String name;
     private Double generationCost;
     private Double loadCost;
-    private Double loadMW;
+    private Double loadMin;
+    private Double loadSr;
+    private Double loadMax;
     private List<KseGenerator> generators = new ArrayList<>();
 
     public Integer getNumber() {
@@ -44,12 +46,36 @@ public class KseNode {
         this.loadCost = loadCost;
     }
 
-    public Double getLoadMW() {
-        return loadMW;
+    public Double getLoadSr() {
+        return loadSr;
     }
 
-    public void setLoadMW(final Double loadMW) {
-        this.loadMW = loadMW;
+    public void setLoadSr(final Double loadSr) {
+        this.loadSr = loadSr;
+    }
+
+    public List<KseGenerator> getGenerators() {
+        return generators;
+    }
+
+    public void setGenerators(final List<KseGenerator> generators) {
+        this.generators = generators;
+    }
+
+    public Double getLoadMin() {
+        return loadMin;
+    }
+
+    public void setLoadMin(final Double loadMin) {
+        this.loadMin = loadMin;
+    }
+
+    public Double getLoadMax() {
+        return loadMax;
+    }
+
+    public void setLoadMax(final Double loadMax) {
+        this.loadMax = loadMax;
     }
 
     // ---
@@ -61,14 +87,6 @@ public class KseNode {
     public KseNode withName(final String name) {
         this.name = name;
         return this;
-    }
-
-    public List<KseGenerator> getGenerators() {
-        return generators;
-    }
-
-    public void setGenerators(final List<KseGenerator> generators) {
-        this.generators = generators;
     }
 
     public void addGenerator(final KseGenerator generator) {
@@ -85,8 +103,18 @@ public class KseNode {
         return this;
     }
 
-    public KseNode withLoadMW(final Double loadMW) {
-        this.loadMW = loadMW;
+    public KseNode withLoadSr(final Double loadSr) {
+        this.loadSr = loadSr;
+        return this;
+    }
+
+    public KseNode withLoadMin(final Double loadMin) {
+        this.loadMin = loadMin;
+        return this;
+    }
+
+    public KseNode withLoadMax(final Double loadMax) {
+        this.loadMax = loadMax;
         return this;
     }
 

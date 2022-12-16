@@ -4,6 +4,7 @@ public class AmplUtils {
 
     //public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\intellij";
     public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\30nodes";
+    public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse";
 
     public static final boolean DC_MODEL_ON = false;
 
@@ -21,6 +22,7 @@ public class AmplUtils {
     public static final String DEFAULT_PARAM_END_SEPARATOR = "\t;\n\n";
     public static final String DEFAULT_PARAM_EQUALS_SIGN = " :=\n";
     public static final String PARAM_FORMAT = "%-12s";
+    public static final String PARAM_BEGIN = String.format("%-4s", " ");
 
     public static final String INFO_SECTION_DATA_PATTERN = "yyyy-MM-dd HH:mm:ss";
 

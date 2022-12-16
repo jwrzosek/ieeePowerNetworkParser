@@ -1,6 +1,5 @@
 GenCo                                               Power plant             Block           Pmin        Pmax        Voltage     Node    NodeNumber
 GENERATORS DATA:
-ZE PAK S.A.                                         Adamow                  --------        ---         ---         ---         ROG      89
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-02        290         370         220         ROG      89
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-03        290         380         220         ROG      89
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-04        290         380         220         ROG      89
@@ -13,14 +12,12 @@ PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-11        290         390         400         ROG      89
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-12        290         390         400         ROG      89
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-14        472         858         400         TRE     104
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 2-05        93          222         220         ---     ---
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD_2-06        93          222         220         KRA      46
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 4-07        135         224         400         KRA      46
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 4-08        135         232         400         KRA      46
 PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-01        0           30          110         LSN      53
 PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-02        0           30          110         LSN      53
 PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-03        0           30          110         LSN      53
-----------------------------------------------      Grudziąc                --------        ---         ---         ---         ---     ---
 Nowe Jaworzno Grupa TAURON Sp. z o.o.               Jaworzno II             JW2 4-07        500         910         400         BYC      11
 TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 1-03        160         225         110         BYC      11
 TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-01        160         225         220         BYC      11
@@ -30,7 +27,6 @@ TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 
 TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-06        160         225         220         BYC      11
 Veolia Energia Poznań S.A.                          Karolin2                KAR 1-02        55          100         110         PPD      83
 Veolia Energia Poznań S.A.                          Karolin2                KAR 1-03        62          112         110         PPD      83
-Veolia Energia Poznań S.A.                          Karolin2                KAR_1-04        ---         ---         ---         ---     ---
 ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ11-02        130         228         110         KOZ      44
 ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ11-06        130         228         110         KOZ      44
 ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-01        130         228         220         KOZ      44
@@ -56,7 +52,6 @@ PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL
 ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 1-03        140         230         110         OST      69
 ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 2-01        140         230         220         OST      69
 ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 2-02        140         230         220         OST      69
-CCGT Ostrołęka Sp. z o.o.                           Ostroleka C             --------        ---         ---         ---         ---     ---
 Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT11-01        150         222         110         PAT      72
 Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT12-02        150         222         220         PAT      72
 Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT12-05        150         200         220         PAT      72

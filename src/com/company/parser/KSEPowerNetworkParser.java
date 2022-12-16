@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KSEModelParser {
+public class KSEPowerNetworkParser {
 
     private List<String> powerNetworkNodesDataLines = new ArrayList<>();
     private List<String> powerNetworkLinesDataLines = new ArrayList<>();
@@ -24,7 +24,7 @@ public class KSEModelParser {
     private List<KseGenerator> generators = new ArrayList<>();
     private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
-    public KSEModelParser() {
+    public KSEPowerNetworkParser() {
         // read all necessary data from files
         powerNetworkNodesDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_NODES_DATA);
         powerNetworkLinesDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_LINES_DATA);
@@ -33,10 +33,15 @@ public class KSEModelParser {
 
         // parse data loaded from files
         parseHourlyLoadDataLines();
-
         parseNodesDataLines();
         parseTransmissionLinesDataLines();
-        //parseGeneratorsDataLines();
+        parseGeneratorsDataLines();
+        System.out.println("a");
+    }
+
+    public void parseMultiStageKSECase(final String directoryName, final String filename, boolean unconstrained, int lmpNode, double peak) {
+        MultiStageKSEModelAmplWriter modelAmplWriter = new MultiStageKSEModelAmplWriter(unconstrained);
+        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, nodes, transmissionLines, hourlyLoads, generators, lmpNode, peak);
     }
 
     private void parseNodesDataLines() {
@@ -63,6 +68,15 @@ public class KSEModelParser {
         kseNode.withNumber(Integer.parseInt(nodeNumber));
         final var nodeName = line.substring(8, 11).trim();
         kseNode.withName(nodeName);
+
+        final var loadMin = line.substring(20, 30).trim();
+        kseNode.withLoadMin(Double.parseDouble(loadMin));
+
+        final var loadSr = line.substring(37, 47).trim();
+        kseNode.withLoadSr(Double.parseDouble(loadSr));
+
+        final var loadMax = line.substring(52, 62).trim();
+        kseNode.withLoadMax(Double.parseDouble(loadMax));
         return kseNode;
     }
 
@@ -84,7 +98,29 @@ public class KSEModelParser {
     }
 
     private KseLine parseTransmissionLineDataLine(final String line) {
-        return null;
+        KseLine kseLine = new KseLine();
+
+        final var fromNodeName = line.substring(0, 4).trim();
+        kseLine.withFromNodeName(fromNodeName);
+        final var toNodeName = line.substring(8, 12).trim();
+        kseLine.withToNodeName(toNodeName);
+
+        final var fromNodeNumber = line.substring(16, 20).trim();
+        kseLine.withFromNodeNumber(Integer.parseInt(fromNodeNumber));
+        final var toNodeNumber = line.substring(24, 28).trim();
+        kseLine.withToNodeNumber(Integer.parseInt(toNodeNumber));
+
+        final var lineCapacity = line.substring(32, 36).trim();
+        kseLine.withLineCapacity(Integer.parseInt(lineCapacity));
+        final var admittance = line.substring(44, 52).trim();
+        kseLine.withAdmittance(Double.parseDouble(admittance));
+
+        final var voltageSource = line.substring(60, 64).trim();
+        kseLine.withVoltageSource(Integer.parseInt(voltageSource));
+        final var voltageDestination = line.substring(76, 78).trim();
+        kseLine.withVoltageDestination(Integer.parseInt(voltageDestination));
+
+        return kseLine;
     }
 
     private void parseGeneratorsDataLines() {
@@ -105,7 +141,25 @@ public class KSEModelParser {
     }
 
     private KseGenerator parseGeneratorDataLine(final String line) {
-        return null;
+        KseGenerator kseGenerator = new KseGenerator();
+
+        final var generatorCompany = line.substring(0, 52).trim();
+        kseGenerator.withGeneratorCompany(generatorCompany);
+        final var powerPlantName = line.substring(52, 76).trim();
+        kseGenerator.withPowerPlantName(powerPlantName);
+        final var blockName = line.substring(76, 92).trim();
+        kseGenerator.withBlockName(blockName);
+        final var generationMin = line.substring(92, 104).trim();
+        kseGenerator.withGenerationMin(generationMin.contains("-") ? 0 : Integer.parseInt(generationMin));
+        final var generationMax = line.substring(104, 116).trim();
+        kseGenerator.withGenerationMax(generationMax.contains("-") ? 0 : Integer.parseInt(generationMax));
+        final var voltage = line.substring(116, 128).trim();
+        kseGenerator.withVoltage(voltage.contains("-") ? 0 : Integer.parseInt(voltage));
+        final var nodeName = line.substring(128, 136).trim();
+        kseGenerator.withNodeName(nodeName);
+        final var nodeNumber = line.substring(136, 139).trim();
+        kseGenerator.withNodeNumber(nodeNumber.contains("-") ? 0 : Integer.parseInt(nodeNumber));
+        return kseGenerator;
     }
 
     private List<String> readDataLinesFromFile(final String directory) {
@@ -168,4 +222,7 @@ public class KSEModelParser {
         return Double.parseDouble(value) / 100;
     }
 
+    public List<KseNode> getNodes() {
+        return nodes;
+    }
 }

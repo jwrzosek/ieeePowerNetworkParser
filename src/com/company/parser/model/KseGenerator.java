@@ -5,8 +5,8 @@ public class KseGenerator {
     private Integer nodeNumber;
     private String nodeName;
     private Integer voltage;
-    private Double generationMin;
-    private Double generationMax;
+    private Integer generationMin;
+    private Integer generationMax;
     private String blockName;
     private String powerPlantName;
     private String generatorCompany;
@@ -35,19 +35,19 @@ public class KseGenerator {
         this.voltage = voltage;
     }
 
-    public Double getGenerationMin() {
+    public Integer getGenerationMin() {
         return generationMin;
     }
 
-    public void setGenerationMin(final Double generationMin) {
+    public void setGenerationMin(final Integer generationMin) {
         this.generationMin = generationMin;
     }
 
-    public Double getGenerationMax() {
+    public Integer getGenerationMax() {
         return generationMax;
     }
 
-    public void setGenerationMax(final Double generationMax) {
+    public void setGenerationMax(final Integer generationMax) {
         this.generationMax = generationMax;
     }
 
@@ -91,12 +91,12 @@ public class KseGenerator {
         return this;
     }
 
-    public KseGenerator withGenerationMin(final Double generationMin) {
+    public KseGenerator withGenerationMin(final Integer generationMin) {
         this.generationMin = generationMin;
         return this;
     }
 
-    public KseGenerator withGenerationMax(final Double generationMax) {
+    public KseGenerator withGenerationMax(final Integer generationMax) {
         this.generationMax = generationMax;
         return this;
     }
