@@ -41,29 +41,29 @@ public class MultiStageKSEModelAmplWriter {
                                              int lmpNode, double peak) {
         StringBuilder sb = new StringBuilder();
         final var modelInfo = generateAmplModelInfo(nodes.size(), transmissionLines.size(), peak);
-        final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
-        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
-        final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
-        final var busParameters = generateBusParametersForMultiStageCase(nodes, generators);
+        //final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
+        //final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
+        //final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
+        //final var busParameters = generateBusParametersForMultiStageCase(nodes, generators);
         final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak);
         final var pgenParameter = generateGeneratorsPgenParameter(nodes, hourlyLoads, generators);
         final var qBusParameter = generateQBusParameter(nodes, transmissionLines);
-        final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
+        //final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
         return sb
                 .append(modelInfo)
-                .append(busInfo)
-                .append(generatorsInfo)
-                .append(hourlyLoadInfo)
-                .append(busParameters)
+                //.append(busInfo)
+                //.append(generatorsInfo)
+                //.append(hourlyLoadInfo)
+                //.append(busParameters)
                 .append(loadParameter)
                 .append(pgenParameter)
                 .append(qBusParameter)
-                .append(yabParameter)
+                //.append(yabParameter)
                 .toString();
     }
 
     private String generateBusParametersForMultiStageCase(final List<KseNode> nodes, final List<KseGenerator> generators) {
-        final var params = List.of("Ka_load", "Ka_gen");
+        final var params = List.of("Ka_load", "Ka_gen", "V");
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + ":"));
@@ -84,6 +84,7 @@ public class MultiStageKSEModelAmplWriter {
             sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i))
                     .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice))
                     .append(String.format(AmplUtils.PARAM_FORMAT,  generation > 0 ? offerPrice - 20 : 999999))
+                    .append(String.format(AmplUtils.PARAM_FORMAT,  220))
                     .append("\n");
         }
         sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
@@ -266,5 +267,89 @@ public class MultiStageKSEModelAmplWriter {
 
     private String get3DimHourStartLabel(int hourNumber) {
         return "[*,*,H" + hourNumber+ "]:";
+    }
+
+    public void writeRunScriptForBatchToFile(final String directoryName, final int size) {
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directoryName, "batch.run");
+        final var runScript = createRunScriptForBatch(size, directoryName);
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, runScript, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String createRunScriptForBatch(int size, final String directory) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("printf \"Results for KSE power network:\\n\" >> " + directory + "/results.out;\n\n");
+
+        sb.append("reset;\n")
+                .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                .append("data " + directory + "/common.dat\n")
+                .append("data " + directory + "/unconstrained").append(".dat\n")
+                .append("option solver cplex ;")
+                .append("solve;\n")
+                .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> " + directory + "/results.out;\n\n");
+        sb.append("reset;\n")
+                .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                .append("data " + directory + "/common.dat\n")
+                .append("data " + directory + "/balanced").append(".dat\n")
+                .append("option solver cplex ;")
+                .append("solve;\n")
+                .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> " + directory + "/results.out;\n\n");
+        for (int i = 0; i<size; i++) {
+            sb.append("reset;\n")
+                    .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                    .append("data " + directory + "/common.dat\n")
+                    .append("data " + directory + "/").append(i + 1).append(".dat\n")
+                    .append("option solver cplex ;")
+                    .append("solve;\n")
+                    .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> " + directory + "/results.out;\n\n");
+        }
+        sb.append("printf \"----> RESULT SET END FOR KSE POWER NETWORK\\n\\n\" >> " + directory + "/results.out;\n");
+        return sb.toString();
+    }
+
+    public void writeSingleRunScriptToFile(final String directoryName, final int size) {
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directoryName, "single.run");
+        final var runScript = createSingleRunScript(size, directoryName);
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, runScript, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String createSingleRunScript(int size, final String directory) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("printf \"Results for KSE power network:\\n\" >> results_single.out;\n\n");
+
+        sb.append("reset;\n")
+                .append("model model_min_balancing_cost.mod\n")
+                .append("data common.dat\n")
+                .append("data unconstrained").append(".dat\n")
+                .append("option solver cplex ;")
+                .append("solve;\n")
+                .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> results_single.out;\n\n");
+        sb.append("reset;\n")
+                .append("model model_min_balancing_cost.mod\n")
+                .append("data common.dat\n")
+                .append("data balanced").append(".dat\n")
+                .append("option solver cplex ;")
+                .append("solve;\n")
+                .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> results_single.out;\n\n");
+        for (int i = 0; i<size; i++) {
+            sb.append("reset;\n")
+                    .append("model model_min_balancing_cost.mod\n")
+                    .append("data common.dat\n")
+                    .append("data ").append(i + 1).append(".dat\n")
+                    .append("option solver cplex ;")
+                    .append("solve;\n")
+                    .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> results_single.out;\n\n");
+        }
+        sb.append("printf \"----> RESULT SET END FOR KSE POWER NETWORK\\n\\n\" >> results_single.out;\n");
+        return sb.toString();
     }
 }

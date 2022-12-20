@@ -36,7 +36,6 @@ public class KSEPowerNetworkParser {
         parseNodesDataLines();
         parseTransmissionLinesDataLines();
         parseGeneratorsDataLines();
-        System.out.println("a");
     }
 
     public void parseMultiStageKSECase(final String directoryName, final String filename, boolean unconstrained, int lmpNode, double peak) {
@@ -224,5 +223,11 @@ public class KSEPowerNetworkParser {
 
     public List<KseNode> getNodes() {
         return nodes;
+    }
+
+    public void writeRunScripts(final String directoryName, final int size) {
+        MultiStageKSEModelAmplWriter kseModelAmplWriter = new MultiStageKSEModelAmplWriter(true);
+        kseModelAmplWriter.writeRunScriptForBatchToFile(directoryName, size);
+        kseModelAmplWriter.writeSingleRunScriptToFile(directoryName, size);
     }
 }

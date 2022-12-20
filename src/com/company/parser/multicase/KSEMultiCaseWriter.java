@@ -19,35 +19,64 @@ public class KSEMultiCaseWriter {
     private List<String> hourlyLoadDataLines = new ArrayList<>();
     private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
+    public KSEMultiCaseWriter() {
+        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA_24_HOURS);
+        parseHourlyLoadDataLines();
+    }
+
     public void runWithHourlyLoads() {
         hourlyLoads.forEach(hourlyLoad -> {
             final var peakPerc = hourlyLoad.getSummerPeakLoadPercentageWkdy();
             final var directoryName = "kse_" + hourlyLoad.getPeriod();
             writeMultipleCasesLMP(directoryName, peakPerc);
         });
+        writeRunScriptForMultiCaseScenario();
     }
 
-    public void writeMultipleCasesLMP(final String directoryName, double peak) {
-        KSEPowerNetworkParser unconstrainedParser = new KSEPowerNetworkParser();
-        final var size = unconstrainedParser.getNodes().size();
+    private void writeMultipleCasesLMP(final String directoryName, double peak) {
+        // create directory for a lmp case
         createMultiCaseDirectory(directoryName);
+
         //write model to a directory
         writeModelFile(directoryName);
+
+        // write common data to one file
         writeCommonDataFile(directoryName);
-        //unconstrainedParser.writeCommonData(directoryName);
-        //unconstrainedParser.writeRunScript(directoryName, size);
+
+        KSEPowerNetworkParser unconstrainedParser = new KSEPowerNetworkParser();
+        final var size = unconstrainedParser.getNodes().size();
+        unconstrainedParser.writeRunScripts(directoryName, size);
         // wygeneruj plik z danymi niezależnymi od modelu
         // wygeneruj normalny model bez ograniczeń
-        unconstrainedParser.parseMultiStageKSECase(directoryName,"unconstrained.dat", true, 1000, peak);
+        unconstrainedParser.parseMultiStageKSECase(directoryName,"unconstrained.dat", true, -1, peak);
         // wygeneruj model z ograniczeniami
         KSEPowerNetworkParser balancedParser = new KSEPowerNetworkParser();
-        balancedParser.parseMultiStageKSECase(directoryName, "balanced.dat", false, 1000, peak);
+        balancedParser.parseMultiStageKSECase(directoryName, "balanced.dat", false, -1, peak);
         // wygeneruj 1..N modeli dla każdego węzła
 
         for (int i = 0; i<size; i++) {
             KSEPowerNetworkParser parser = new KSEPowerNetworkParser();
             parser.parseMultiStageKSECase(directoryName, (i+1 + ".dat"), false, i, peak);
         }
+    }
+
+    private void writeRunScriptForMultiCaseScenario() {
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE,  "all.run");
+        final var runScript = createRunAllScript();
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, runScript, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String createRunAllScript() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i<hourlyLoads.size(); i++) {
+            sb.append("include 'kse_" + i + "-" + (i+1) + "/batch.run'\n");
+        }
+        return sb.toString();
     }
 
     private void readHourlyLoadDataFile(final String directory) {
@@ -60,7 +89,7 @@ public class KSEMultiCaseWriter {
     }
 
     private void createMultiCaseDirectory(String dirName) {
-        File multiCaseDirectory = new File(AmplUtils.DIRECTORY_PATH + "\\" + dirName);
+        File multiCaseDirectory = new File(AmplUtils.DIRECTORY_PATH_KSE + "\\" + dirName);
         if (multiCaseDirectory.exists()) {
             System.out.println("Directory already exists");
             return;
@@ -71,8 +100,9 @@ public class KSEMultiCaseWriter {
     }
 
     private void writeModelFile(final String directory) {
+        // todo: maybe change the model source
         final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_MIN_BALANCING_COST_MODEL_DIR);
-        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH, directory, "model_min_balancing_cost.mod");
+        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directory, "model_min_balancing_cost.mod");
         try {
             final List<String> modelData = Files.readAllLines(origin);
             final var modelString = String.join("\n", modelData);
@@ -84,8 +114,8 @@ public class KSEMultiCaseWriter {
     }
 
     private void writeCommonDataFile(final String directory) {
-        final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_COMMON_DATA_DIR);
-        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH, directory, "common.dat");
+        final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_COMMON_KSE_EXTENDED_DATA_NO_LINE_LIMITS_DIR);
+        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directory, "common.dat");
         try {
             final List<String> modelData = Files.readAllLines(origin);
             final var modelString = String.join("\n", modelData);
