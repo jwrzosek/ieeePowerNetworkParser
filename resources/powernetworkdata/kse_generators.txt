@@ -1,111 +1,111 @@
 GenCo                                               Power plant             Block           Pmin        Pmax        Voltage     Node    NodeNumber
 GENERATORS DATA:
-ZE PAK S.A.                                         Adamow                  --------        ---         ---         ---         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-02        290         370         220         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-03        290         380         220         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-04        290         380         220         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-05        290         380         220         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-06        290         394         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-07        290         390         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-08        290         390         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-09        290         390         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-10        290         390         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-11        290         390         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-12        290         390         400         ROG      89
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-14        472         858         400         TRE     104
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 2-05        93          222         220         ---     ---
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD_2-06        93          222         220         KRA      46
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 4-07        135         224         400         KRA      46
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 4-08        135         232         400         KRA      46
-PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-01        0           30          110         LSN      53
-PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-02        0           30          110         LSN      53
-PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-03        0           30          110         LSN      53
-----------------------------------------------      Grudziąc                --------        ---         ---         ---         ---     ---
-Nowe Jaworzno Grupa TAURON Sp. z o.o.               Jaworzno II             JW2 4-07        500         910         400         BYC      11
-TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 1-03        160         225         110         BYC      11
-TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-01        160         225         220         BYC      11
-TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-02        160         225         220         BYC      11
-TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-04        160         225         220         BYC      11
-TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-05        140         220         220         BYC      11
-TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-06        160         225         220         BYC      11
-Veolia Energia Poznań S.A.                          Karolin2                KAR 1-02        55          100         110         PPD      83
-Veolia Energia Poznań S.A.                          Karolin2                KAR 1-03        62          112         110         PPD      83
-Veolia Energia Poznań S.A.                          Karolin2                KAR_1-04        ---         ---         ---         ---     ---
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ11-02        130         228         110         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ11-06        130         228         110         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-01        130         228         220         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-03        135         225         220         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-04        130         228         220         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-05        135         228         220         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-07        130         220         220         KOZ      44
-ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-08        130         228         220         KOZ      44
-ENEA Wytwarzanie Sp. z o.o.                         Kozienice 2             KOZ24-09        335         566         400         KOZ      44
-ENEA Wytwarzanie Sp. z o.o.                         Kozienice 2             KOZ24-10        350         566         400         KOZ      44
-ENEA Wytwarzanie Sp. z o.o.                         Kozienice 2             KOZ24-11        591         1075        400         KOZ      44
-TAURON Wytwarzanie S.A.                             Lagisza                 LGA 4-10        253         460         400         LAG      49
-TAURON Wytwarzanie S.A.                             Laziska3                LZA31-09        140         230         110         KOP      43
-TAURON Wytwarzanie S.A.                             Laziska3                LZA31-10        140         225         110         KOP      43
-TAURON Wytwarzanie S.A.                             Laziska3                LZA32-11        134         225         220         KOP      43
-TAURON Wytwarzanie S.A.                             Laziska3                LZA32-12        140         225         220         KOP      43
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 1-01        270         386         110         GRO      28
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 1-02        270         383         110         GRO      28
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-03        270         383         400         GRO      28
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-04        270         380         400         GRO      28
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-05        498         905         400         GRO      28
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-06        498         905         400         GRO      28
-ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 1-03        140         230         110         OST      69
-ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 2-01        140         230         220         OST      69
-ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 2-02        140         230         220         OST      69
-CCGT Ostrołęka Sp. z o.o.                           Ostroleka C             --------        ---         ---         ---         ---     ---
-Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT11-01        150         222         110         PAT      72
-Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT12-02        150         222         220         PAT      72
-Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT12-05        150         200         220         PAT      72
-Elektrownia Pątnów II Sp. z o.o.                    Patnow2                 PAT24-09        260         474         400         PAT      72
-Polski Koncern Naftowy ORLEN S.A.                   Płock                   PLO 4-01        347         630         400         PLO      80
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 1-01        124         225         110         PEL      74
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 2-02        129         242         220         PEL      74
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 2-03        129         242         220         PEL      74
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 2-04        129         242         220         PEL      74
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 4-05        129         242         400         PEL      74
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 4-06        129         242         400         PEL      74
-Enea Elektrownia Połaniec S.A.                      Polaniec                POL 4-07        129         239         400         PEL      74
-PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-01        76          138         220         BUJ      10
-PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-02        76          138         220         BUJ      10
-PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-03        76          138         220         BUJ      10
-PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-04        76          138         220         BUJ      10
-PGE Energia Ciepła S.A.                             Rybnik                  RYB 1-03        124         225         110         WIE     106
-PGE Energia Ciepła S.A.                             Rybnik                  RYB 2-04        140         225         220         WIE     106
-PGE Energia Ciepła S.A.                             Rybnik                  RYB 2-05        160         225         220         WIE     106
-PGE Energia Ciepła S.A.                             Rybnik                  RYB 2-06        160         225         220         WIE     106
-PGE Energia Ciepła S.A.                             Rybnik                  RYB 4-07        160         225         400         WIE     106
-PGE Energia Ciepła S.A.                             Rybnik                  RYB 4-08        160         225         400         WIE     106
-TAURON Wytwarzanie S.A.                             Siersza                 SIA 1-01        80          153         110         SIE      94
-TAURON Wytwarzanie S.A.                             Siersza                 SIA 1-02        80          153         110         SIE      94
-CEZ Skawina S.A.                                    Skawina2                TG-3            60          110         110         SKA      95   voltage - ?
-CEZ Skawina S.A.                                    Skawina2                TG-5            60          110         110         SKA      95   voltage - ?
-CEZ Skawina S.A.                                    Skawina2                TG-6            60          110         110         SKA      95   voltage - ?
-PGE Energia Odnawialna S.A.                         Solina                  SOL 1-01        37          68          110         KRI      47
-PGE Energia Odnawialna S.A.                         Solina                  SOL 1-02        37          68          110         KRI      47
-PGE Energia Odnawialna S.A.                         Solina                  SOL 1-03        37          31          110         KRI      47
-PGE Energia Odnawialna S.A.                         Solina                  SOL 1-04        37          31          110         KRI      47
-Elektrociepłownia Stalowa Wola S.A.                 Stalowa_Wola            STW42-12        248         450         220         STW      99
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 1-01        138         250         110         MIK      56
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-02        138         250         220         MIK      56
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-03        138         250         220         MIK      56
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-04        130         261         220         MIK      56
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-05        130         261         220         MIK      56
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-06        130         261         220         MIK      56
-PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 4-11        270         496         400         MIK      56
-Polski Koncern Naftowy ORLEN S.A.                   Włocławek               WLC 2-01        256         465         220         WLA     107
-PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-01        107         195         400         ZRC     115
-PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-02        107         195         400         ZRC     115
-PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-03        107         195         400         ZRC     115
-PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-04        107         195         400         ZRC     115
-ENERGA Wytwarzanie S.A.                             Zydowo                  ZYD 1-01        30          55          110         ZYD     117
-ENERGA Wytwarzanie S.A.                             Zydowo                  ZYD 1-02        30          55          110         ZYD     117
-ENERGA Wytwarzanie S.A.                             Zydowo                  ZYD 1-03        30          55          110         ZYD     117
-PGNiG Termika S.A. EC Żerań 2                       Żerań                   WZE22-20        273         497         220         PRG      85
+ZE PAK S.A.                                         Adamow                  --------        ---         ---         ---         ROG      89          ---
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-02        290         370         220         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-03        290         380         220         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-04        290         380         220         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-05        290         380         220         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-06        290         394         400         ROG      89          218.8854283
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-07        290         390         400         ROG      89          376.8154209
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-08        290         390         400         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-09        290         390         400         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-10        290         390         400         ROG      89          218.8854283
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-11        290         390         400         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-12        290         390         400         ROG      89          368.5033161
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 4-14        472         858         400         TRE     104          370.8571429
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 2-05        93          222         220         ---     ---          ---
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD_2-06        93          222         220         KRA      46          609.5543574
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 4-07        135         224         400         KRA      46          554.1403249
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      DolnaOdra               DOD 4-08        135         232         400         KRA      46          554.1403249
+PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-01        0           30          110         LSN      53          590        
+PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-02        0           30          110         LSN      53          590        
+PGE Energia Odnawialna S.A.                         Dychow                  DCHA1-03        0           30          110         LSN      53          590        
+----------------------------------------------      Grudziąc                --------        ---         ---         ---         ---     ---          ---
+Nowe Jaworzno Grupa TAURON Sp. z o.o.               Jaworzno II             JW2 4-07        500         910         400         BYC      11          339.3464052
+TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 1-03        160         225         110         BYC      11          458.1176471
+TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-01        160         225         220         BYC      11          543.0575184
+TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-02        160         225         220         BYC      11          534.7454135
+TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-04        160         225         220         BYC      11          515.3505022
+TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-05        140         220         220         BYC      11          526.4333087
+TAURON Wytwarzanie S.A.                             Jaworzno3               JW3 2-06        160         225         220         BYC      11          537.5161152
+Veolia Energia Poznań S.A.                          Karolin2                KAR 1-02        55          100         110         PPD      83          432.6666667
+Veolia Energia Poznań S.A.                          Karolin2                KAR 1-03        62          112         110         PPD      83          432.6666667
+Veolia Energia Poznań S.A.                          Karolin2                KAR_1-04        ---         ---         ---         ---     ---          ---
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ11-02        130         228         110         KOZ      44          432.6666667
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ11-06        130         228         110         KOZ      44          432.6666667
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-01        130         228         220         KOZ      44          432.6666667
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-03        135         225         220         KOZ      44          378.2007718
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-04        130         228         220         KOZ      44          383.6313469
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-05        135         228         220         KOZ      44          385.1275258
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-07        130         220         220         KOZ      44          376.2612806
+ENEA  Wytwarzanie Spółka z o.o.                     Kozienice               KOZ12-08        130         228         220         KOZ      44          379.5861226
+ENEA Wytwarzanie Sp. z o.o.                         Kozienice 2             KOZ24-09        335         566         400         KOZ      44          379.0319822
+ENEA Wytwarzanie Sp. z o.o.                         Kozienice 2             KOZ24-10        350         566         400         KOZ      44          385.1275258
+ENEA Wytwarzanie Sp. z o.o.                         Kozienice 2             KOZ24-11        591         1075        400         KOZ      44          341.5789474
+TAURON Wytwarzanie S.A.                             Lagisza                 LGA 4-10        253         460         400         LAG      49          581.8473412
+TAURON Wytwarzanie S.A.                             Laziska3                LZA31-09        140         230         110         KOP      43          472        
+TAURON Wytwarzanie S.A.                             Laziska3                LZA31-10        140         225         110         KOP      43          472        
+TAURON Wytwarzanie S.A.                             Laziska3                LZA32-11        134         225         220         KOP      43          609.5543574
+TAURON Wytwarzanie S.A.                             Laziska3                LZA32-12        140         225         220         KOP      43          581.8473412
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 1-01        270         386         110         GRO      28          387.8982274
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 1-02        270         383         110         GRO      28          820.9034773
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-03        270         383         400         GRO      28          820.9034773
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-04        270         380         400         GRO      28          420.972973 
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-05        498         905         400         GRO      28          338.6086957
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Opole                   OPL 4-06        498         905         400         GRO      28          338.6086957
+ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 1-03        140         230         110         OST      69          432.6666667
+ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 2-01        140         230         220         OST      69          404.5224372
+ENERGA Elektrownie Ostrołęka S.A.                   Ostroleka B             OSB 2-02        140         230         220         OST      69          426.6880502
+CCGT Ostrołęka Sp. z o.o.                           Ostroleka C             --------        ---         ---         ---         ---     ---          ---
+Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT11-01        150         222         110         PAT      72          458.1176471
+Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT12-02        150         222         220         PAT      72          466.1428413
+Zespół Elektrowni Pątnów-Adamów-Konin S.A.          Patnow1                 PAT12-05        150         200         220         PAT      72          466.1428413
+Elektrownia Pątnów II Sp. z o.o.                    Patnow2                 PAT24-09        260         474         400         PAT      72          379.902439 
+Polski Koncern Naftowy ORLEN S.A.                   Płock                   PLO 4-01        347         630         400         PLO      80          251.2258065
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 1-01        124         225         110         PEL      74          458.1176471
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 2-02        129         242         220         PEL      74          389.9485466
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 2-03        129         242         220         PEL      74          389.7268905
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 2-04        129         242         220         PEL      74          390.3918589
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 4-05        129         242         400         PEL      74          389.8931326
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 4-06        129         242         400         PEL      74          390.4472729
+Enea Elektrownia Połaniec S.A.                      Polaniec                POL 4-07        129         239         400         PEL      74          389.8377186
+PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-01        76          138         220         BUJ      10          590        
+PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-02        76          138         220         BUJ      10          590        
+PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-03        76          138         220         BUJ      10          590        
+PGE Energia Odnawialna S.A.                         PorabkaZar              PZR 2-04        76          138         220         BUJ      10          590        
+PGE Energia Ciepła S.A.                             Rybnik                  RYB 1-03        124         225         110         WIE     106          458.1176471
+PGE Energia Ciepła S.A.                             Rybnik                  RYB 2-04        140         225         220         WIE     106          477.0594057
+PGE Energia Ciepła S.A.                             Rybnik                  RYB 2-05        160         225         220         WIE     106          570.9861908
+PGE Energia Ciepła S.A.                             Rybnik                  RYB 2-06        160         225         220         WIE     106          1211.295336
+PGE Energia Ciepła S.A.                             Rybnik                  RYB 4-07        160         225         400         WIE     106          469.2460271
+PGE Energia Ciepła S.A.                             Rybnik                  RYB 4-08        160         225         400         WIE     106          489.6383911
+TAURON Wytwarzanie S.A.                             Siersza                 SIA 1-01        80          153         110         SIE      94          376.8154209
+TAURON Wytwarzanie S.A.                             Siersza                 SIA 1-02        80          153         110         SIE      94          382.3568242
+CEZ Skawina S.A.                                    Skawina2                TG-3            60          110         110         SKA      95          472        
+CEZ Skawina S.A.                                    Skawina2                TG-5            60          110         110         SKA      95          472        
+CEZ Skawina S.A.                                    Skawina2                TG-6            60          110         110         SKA      95          472        
+PGE Energia Odnawialna S.A.                         Solina                  SOL 1-01        37          68          110         KRI      47          590        
+PGE Energia Odnawialna S.A.                         Solina                  SOL 1-02        37          68          110         KRI      47          590        
+PGE Energia Odnawialna S.A.                         Solina                  SOL 1-03        37          31          110         KRI      47          590        
+PGE Energia Odnawialna S.A.                         Solina                  SOL 1-04        37          31          110         KRI      47          590        
+Elektrociepłownia Stalowa Wola S.A.                 Stalowa_Wola            STW42-12        248         450         220         STW      99          259.6      
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 1-01        138         250         110         MIK      56          458.1176471
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-02        138         250         220         MIK      56          458.1176471
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-03        138         250         220         MIK      56          458.1176471
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-04        130         261         220         MIK      56          554.1403249
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-05        130         261         220         MIK      56          554.1403249
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 2-06        130         261         220         MIK      56          554.1403249
+PGE Górnictwo i Energetyka Konwencjonalna S.A.      Turow                   TUR 4-11        270         496         400         MIK      56          664.9683899
+Polski Koncern Naftowy ORLEN S.A.                   Włocławek               WLC 2-01        256         465         220         WLA     107          251.2258065
+PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-01        107         195         400         ZRC     115          590        
+PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-02        107         195         400         ZRC     115          590        
+PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-03        107         195         400         ZRC     115          590        
+PGE Energia Odnawialna SA                           Zarnowiec               ZRN 4-04        107         195         400         ZRC     115          590        
+ENERGA Wytwarzanie S.A.                             Zydowo                  ZYD 1-01        30          55          110         ZYD     117          590        
+ENERGA Wytwarzanie S.A.                             Zydowo                  ZYD 1-02        30          55          110         ZYD     117          590        
+ENERGA Wytwarzanie S.A.                             Zydowo                  ZYD 1-03        30          55          110         ZYD     117          590        
+PGNiG Termika S.A. EC Żerań 2                       Żerań                   WZE22-20        273         497         220         PRG      85          259.6      
 -999
 
 Pmin z ROKCO
-Pmin policzony jak ułamek Pmax, wg [3] średnio 55% Pmax
+Pmin policzony jak ułamek Pmax. wg [3] średnio 55% Pmax

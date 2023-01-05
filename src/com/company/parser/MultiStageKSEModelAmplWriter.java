@@ -26,7 +26,7 @@ public class MultiStageKSEModelAmplWriter {
     public void writeAmplFullMultiStageModel(final String directoryName, final String fileName, final List<KseNode> buses,
                                              final List<KseLine> branches, final List<HourlyLoad> hourlyLoads,
                                              final List<KseGenerator> generators, int lmpNode, double peak) {
-        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directoryName, fileName);
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_TEMP, directoryName, fileName);
         final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, generators, lmpNode, peak);
         try {
             Files.deleteIfExists(path);
@@ -48,6 +48,7 @@ public class MultiStageKSEModelAmplWriter {
         final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak);
         final var pgenParameter = generateGeneratorsPgenParameter(nodes, hourlyLoads, generators);
         final var qBusParameter = generateQBusParameter(nodes, transmissionLines);
+        final var voltageParameter = generateVParameter(nodes, transmissionLines);
         //final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
         return sb
                 .append(modelInfo)
@@ -58,6 +59,7 @@ public class MultiStageKSEModelAmplWriter {
                 .append(loadParameter)
                 .append(pgenParameter)
                 .append(qBusParameter)
+                .append(voltageParameter)
                 //.append(yabParameter)
                 .toString();
     }
@@ -139,6 +141,31 @@ public class MultiStageKSEModelAmplWriter {
         return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
     }
 
+    private String generateVParameter(final List<KseNode> nodes, final List<KseLine> transmissionLines) {
+        StringBuilder sb = new StringBuilder(
+                AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_VOLTAGE_SYMBOL + ":\n");
+        sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, " "));
+        for (int i = 1; i < nodes.size() + 1; i++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        final var voltageArray = getVoltageArray(nodes, transmissionLines);
+
+        for (int i = 0; i < nodes.size(); i++) {
+            final var tapBusNumber = i + 1;
+            sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + tapBusNumber));
+            for (int j = 0; j < nodes.size(); j++) {
+                sb.append(String.format(
+                        AmplUtils.PARAM_FORMAT, voltageArray[i][j] != null ?
+                                voltageArray[i][j] : 0));
+                                //getVoltage(transmissionLines, i+1, j+1) : 0));
+            }
+            sb.append("\n");
+        }
+
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
     private Double[][] getAdmittanceArray(List<KseNode> buses, List<KseLine> branches) {
         final var numberOfBuses = buses.size();
         Double[][] admittanceArray = initializeAdmittanceArray(numberOfBuses);
@@ -158,6 +185,24 @@ public class MultiStageKSEModelAmplWriter {
         return admittanceArray;
     }
 
+    private Integer[][] getVoltageArray(List<KseNode> buses, List<KseLine> lines) {
+        final var numberOfBuses = buses.size();
+        Integer[][] voltageArray = initializeVoltageArray(numberOfBuses);
+        for (int i = 0; i < buses.size(); i++) {
+            final var toNodeNumber = i + 1;
+            final var links = lines.stream().filter(branch -> branch.getFromNodeNumber() == toNodeNumber).collect(Collectors.toList());
+            for (int j = 0; j < buses.size(); j++) {
+                final var fromNodeNumber = j + 1;
+                final var first = links.stream().filter(branch -> branch.getToNodeNumber() == fromNodeNumber).findFirst();
+                if (first.isPresent()) {
+                    voltageArray[i][j] = first.get().getVoltageSource();
+                    voltageArray[j][i] = first.get().getVoltageDestination();
+                }
+            }
+        }
+        return voltageArray;
+    }
+
     private Double[][] initializeAdmittanceArray(int numberOfBuses) {
         Double[][] admittanceArray = new Double[numberOfBuses][numberOfBuses];
         for (int i = 0; i<numberOfBuses; i++) {
@@ -166,6 +211,16 @@ public class MultiStageKSEModelAmplWriter {
             }
         }
         return admittanceArray;
+    }
+
+    private Integer[][] initializeVoltageArray(int numberOfBuses) {
+        Integer[][] voltageArray = new Integer[numberOfBuses][numberOfBuses];
+        for (int i = 0; i<numberOfBuses; i++) {
+            for (int j = 0; j<numberOfBuses; j++) {
+                voltageArray[i][j] = null;
+            }
+        }
+        return voltageArray;
     }
 
     private String generateGeneratorsPgenParameter(final List<KseNode> nodes, final List<HourlyLoad> hourlyLoads,

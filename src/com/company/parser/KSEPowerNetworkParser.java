@@ -116,7 +116,7 @@ public class KSEPowerNetworkParser {
 
         final var voltageSource = line.substring(60, 64).trim();
         kseLine.withVoltageSource(Integer.parseInt(voltageSource));
-        final var voltageDestination = line.substring(76, 78).trim();
+        final var voltageDestination = line.substring(76, 79).trim();
         kseLine.withVoltageDestination(Integer.parseInt(voltageDestination));
 
         return kseLine;

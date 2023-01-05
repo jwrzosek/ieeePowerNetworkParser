@@ -5,6 +5,7 @@ public class AmplUtils {
     //public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\intellij";
     public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\30nodes";
     public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse";
+    public static final String DIRECTORY_PATH_TEMP = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\temp";
 
     public static final boolean DC_MODEL_ON = false;
 
@@ -19,7 +20,8 @@ public class AmplUtils {
 
     public static final String DEFAULT_SET_SEPARATOR = " ";
     public static final String DEFAULT_PARAM_SEPARATOR = "\t";
-    public static final String DEFAULT_PARAM_END_SEPARATOR = "\t;\n\n";
+    //public static final String DEFAULT_PARAM_END_SEPARATOR = "\t;\n\n";
+    public static final String DEFAULT_PARAM_END_SEPARATOR = String.format("%-4s", " ") + ";\n\n";
     public static final String DEFAULT_PARAM_EQUALS_SIGN = " :=\n";
     public static final String PARAM_FORMAT = "%-12s";
     public static final String PARAM_BEGIN = String.format("%-4s", " ");
@@ -31,6 +33,7 @@ public class AmplUtils {
     public static final String PARAM_LINE_CAPACITY_SYMBOL = "Q_ab";
     public static final String PARAM_PGEN_MAX_SYMBOL = "p_jhMax";
     public static final String PARAM_PLOAD_SYMBOL = "Pa_load";
+    public static final String PARAM_VOLTAGE_SYMBOL = "V";
     public static final boolean UNCONSTRAINED = false;
 
     private AmplUtils() {
