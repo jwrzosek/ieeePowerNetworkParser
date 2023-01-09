@@ -6,7 +6,7 @@ public class KSEParser {
 
         // one case
         KSEPowerNetworkParser parser = new KSEPowerNetworkParser();
-        parser.parseMultiStageKSECase("1", "1.dat", false, 1000, 0.50);
+        parser.parseMultiStageKSECase("1", "1.dat", false, 1000, 0.5);
 
         // multiple case scenario
 

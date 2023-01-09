@@ -10,6 +10,7 @@ public class KseGenerator {
     private String blockName;
     private String powerPlantName;
     private String generatorCompany;
+    private Integer variableCost;
 
     public Integer getNodeNumber() {
         return nodeNumber;
@@ -75,6 +76,14 @@ public class KseGenerator {
         this.generatorCompany = generatorCompany;
     }
 
+    public Integer getVariableCost() {
+        return variableCost;
+    }
+
+    public void setVariableCost(final Integer variableCost) {
+        this.variableCost = variableCost;
+    }
+
     // ----
     public KseGenerator withNodeNumber(final Integer nodeNumber) {
         this.nodeNumber = nodeNumber;
@@ -113,6 +122,11 @@ public class KseGenerator {
 
     public KseGenerator withGeneratorCompany(final String generatorCompany) {
         this.generatorCompany = generatorCompany;
+        return this;
+    }
+
+    public KseGenerator withVariableCost(final Integer variableCost) {
+        this.variableCost = variableCost;
         return this;
     }
 }

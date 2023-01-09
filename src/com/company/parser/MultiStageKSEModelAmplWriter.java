@@ -41,26 +41,30 @@ public class MultiStageKSEModelAmplWriter {
                                              int lmpNode, double peak) {
         StringBuilder sb = new StringBuilder();
         final var modelInfo = generateAmplModelInfo(nodes.size(), transmissionLines.size(), peak);
-        //final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
-        //final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
-        //final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
+        final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
+        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
+        final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
         //final var busParameters = generateBusParametersForMultiStageCase(nodes, generators);
         final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak);
-        final var pgenParameter = generateGeneratorsPgenParameter(nodes, hourlyLoads, generators);
+        final var pgenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads, generators);
+        final var pgenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads, generators);
         final var qBusParameter = generateQBusParameter(nodes, transmissionLines);
         final var voltageParameter = generateVParameter(nodes, transmissionLines);
-        //final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
+        final var generatorVariableCost = generateVariableCost(generators);
+        final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
         return sb
                 .append(modelInfo)
-                //.append(busInfo)
-                //.append(generatorsInfo)
-                //.append(hourlyLoadInfo)
+                .append(busInfo)
+                .append(generatorsInfo)
+                .append(hourlyLoadInfo)
+                .append(generatorVariableCost)
                 //.append(busParameters)
                 .append(loadParameter)
-                .append(pgenParameter)
+                .append(pgenMaxParameter)
+                .append(pgenMinParameter)
                 .append(qBusParameter)
                 .append(voltageParameter)
-                //.append(yabParameter)
+                .append(yabParameter)
                 .toString();
     }
 
@@ -87,6 +91,28 @@ public class MultiStageKSEModelAmplWriter {
                     .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice))
                     .append(String.format(AmplUtils.PARAM_FORMAT,  generation > 0 ? offerPrice - 20 : 999999))
                     .append(String.format(AmplUtils.PARAM_FORMAT,  220))
+                    .append("\n");
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
+        return sb.toString();
+    }
+
+    private String generateVariableCost(final List<KseGenerator> generators) {
+        final var params = List.of(AmplUtils.PARAM_VARIABLE_COST_SYMBOL);
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + ":"));
+        sb.append(AmplUtils.PARAM_BEGIN);
+        for (String param : params) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        int i = 0;
+        for (var generator : generators) {
+            i++;
+            final var variableCost = generator.getVariableCost();
+            sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, variableCost))
                     .append("\n");
         }
         sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
@@ -158,7 +184,6 @@ public class MultiStageKSEModelAmplWriter {
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT, voltageArray[i][j] != null ?
                                 voltageArray[i][j] : 0));
-                                //getVoltage(transmissionLines, i+1, j+1) : 0));
             }
             sb.append("\n");
         }
@@ -223,8 +248,8 @@ public class MultiStageKSEModelAmplWriter {
         return voltageArray;
     }
 
-    private String generateGeneratorsPgenParameter(final List<KseNode> nodes, final List<HourlyLoad> hourlyLoads,
-                                                   final List<KseGenerator> generators) {
+    private String generateGeneratorsPgenMaxParameter(final List<KseNode> nodes, final List<HourlyLoad> hourlyLoads,
+                                                      final List<KseGenerator> generators) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MAX_SYMBOL + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN));
@@ -240,11 +265,40 @@ public class MultiStageKSEModelAmplWriter {
             for (int i = 0; i < nodes.size(); i++) {
                 final var tapBusNumber = i + 1;
                 sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + tapBusNumber));
-                for (int j = 0; j < generators.size(); j++) {
-                    final var generator = generators.get(j);
+                for (final KseGenerator generator : generators) {
                     sb.append(String.format(
                             AmplUtils.PARAM_FORMAT,
                             generator.getNodeNumber() - 1 == i ? generator.getGenerationMax() : 0)
+                    );
+                }
+                sb.append("\n");
+            }
+            sb.append("\n");
+        }
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
+    private String generateGeneratorsPgenMinParameter(final List<KseNode> nodes, final List<HourlyLoad> hourlyLoads,
+                                                      final List<KseGenerator> generators) {
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MIN_SYMBOL + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN));
+
+        for (int h = 0; h<hourlyLoads.size(); h++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h+1))).append(AmplUtils.PARAM_BEGIN);
+
+            for (int i = 1; i < generators.size() + 1; i++) {
+                sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i));
+            }
+            sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+
+            for (int i = 0; i < nodes.size(); i++) {
+                final var tapBusNumber = i + 1;
+                sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + tapBusNumber));
+                for (final KseGenerator generator : generators) {
+                    sb.append(String.format(
+                            AmplUtils.PARAM_FORMAT,
+                            generator.getNodeNumber() - 1 == i ? generator.getGenerationMin() : 0)
                     );
                 }
                 sb.append("\n");
@@ -271,7 +325,12 @@ public class MultiStageKSEModelAmplWriter {
             final var node = nodes.get(i);
             sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL+tapBusNumber));
             for (int j = 0; j < hourlyLoads.size(); j++) {
-                final var load = node.getLoadSr() * peak;
+                //final var load = node.getLoadSr() * peak;
+                final var demandSummerDown = 9981.1;
+                final var demandSummerPeak = 13802.588;
+                final var demandWinterDown = 14164.8;
+                final var demandWinterPeak = 20189.963;
+                final var load = node.getDemandShare() * demandSummerDown;
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,
                         formatFPVariables(i == lmpNode ? load + 1.0 : load))

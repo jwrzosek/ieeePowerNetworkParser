@@ -12,6 +12,7 @@ public class KseNode {
     private Double loadMin;
     private Double loadSr;
     private Double loadMax;
+    private Double demandShare;
     private List<KseGenerator> generators = new ArrayList<>();
 
     public Integer getNumber() {
@@ -78,6 +79,14 @@ public class KseNode {
         this.loadMax = loadMax;
     }
 
+    public Double getDemandShare() {
+        return demandShare;
+    }
+
+    public void setDemandShare(final Double demandShare) {
+        this.demandShare = demandShare;
+    }
+
     // ---
     public KseNode withNumber(final Integer number) {
         this.number = number;
@@ -120,6 +129,11 @@ public class KseNode {
 
     public KseNode withGenerator(final KseGenerator generator) {
         this.generators.add(generator);
+        return this;
+    }
+
+    public KseNode withDemandShare(final Double demandShare) {
+        this.demandShare = demandShare;
         return this;
     }
 }

@@ -1,4 +1,4 @@
-GenCo                                               Power plant             Block           Pmin        Pmax        Voltage     Node    NodeNumber
+GenCo                                               Power plant             Block           Pmin        Pmax        Voltage     Node    NodeNumber   VariableCost
 GENERATORS DATA:
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-02        290         370         220         ROG      89
 PGE Górnictwo i Energetyka Konwencjonalna S.A.      Belchatow               BEL 2-03        290         380         220         ROG      89
@@ -76,9 +76,9 @@ PGE Energia Ciepła S.A.                             Rybnik                  RYB
 PGE Energia Ciepła S.A.                             Rybnik                  RYB 4-08        160         225         400         WIE     106
 TAURON Wytwarzanie S.A.                             Siersza                 SIA 1-01        80          153         110         SIE      94
 TAURON Wytwarzanie S.A.                             Siersza                 SIA 1-02        80          153         110         SIE      94
-CEZ Skawina S.A.                                    Skawina2                TG-3            60          110         110         SKA      95   voltage - ?
-CEZ Skawina S.A.                                    Skawina2                TG-5            60          110         110         SKA      95   voltage - ?
-CEZ Skawina S.A.                                    Skawina2                TG-6            60          110         110         SKA      95   voltage - ?
+CEZ Skawina S.A.                                    Skawina2                TG-3            60          110         110         SKA      95
+CEZ Skawina S.A.                                    Skawina2                TG-5            60          110         110         SKA      95
+CEZ Skawina S.A.                                    Skawina2                TG-6            60          110         110         SKA      95
 PGE Energia Odnawialna S.A.                         Solina                  SOL 1-01        37          68          110         KRI      47
 PGE Energia Odnawialna S.A.                         Solina                  SOL 1-02        37          68          110         KRI      47
 PGE Energia Odnawialna S.A.                         Solina                  SOL 1-03        37          31          110         KRI      47

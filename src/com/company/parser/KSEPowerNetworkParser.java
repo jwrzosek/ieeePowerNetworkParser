@@ -28,7 +28,7 @@ public class KSEPowerNetworkParser {
         // read all necessary data from files
         powerNetworkNodesDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_NODES_DATA);
         powerNetworkLinesDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_LINES_DATA);
-        powerNetworkGeneratorsDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_GENERATORS_DATA);
+        powerNetworkGeneratorsDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_GENERATORS_WORKING_WITH_COST_DATA);
         powerNetworkHourlyLoadDataLines = readDataLinesFromFile(PowerNetworkUtils.HOURLY_LOAD_DATA_10HOURS);
 
         // parse data loaded from files
@@ -76,6 +76,10 @@ public class KSEPowerNetworkParser {
 
         final var loadMax = line.substring(52, 62).trim();
         kseNode.withLoadMax(Double.parseDouble(loadMax));
+
+        final var demandShare = line.substring(66, 77).trim();
+        kseNode.withDemandShare(Double.parseDouble(demandShare));
+
         return kseNode;
     }
 
@@ -158,6 +162,9 @@ public class KSEPowerNetworkParser {
         kseGenerator.withNodeName(nodeName);
         final var nodeNumber = line.substring(136, 139).trim();
         kseGenerator.withNodeNumber(nodeNumber.contains("-") ? 0 : Integer.parseInt(nodeNumber));
+
+        final var variableCost = line.substring(149, 160).trim();
+        kseGenerator.withVariableCost(variableCost.contains("-") ? 99999 : (int) Math.round(Double.parseDouble(variableCost)));
         return kseGenerator;
     }
 
