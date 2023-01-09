@@ -24,16 +24,33 @@ public class KSEMultiCaseWriter {
         parseHourlyLoadDataLines();
     }
 
-    public void runWithHourlyLoads() {
+    public void runWithKSEDemandPeaks() {
+        PowerNetworkUtils.kseDemandPeaks.keySet()
+                .forEach(key -> {
+                    final var peakDemand = PowerNetworkUtils.kseDemandPeaks.get(key);
+                    final var directoryName = "kse_" + key;
+                    writeMultipleCasesLMPWithHourlyLoadPeak(directoryName, peakDemand);
+                }
+        );
         hourlyLoads.forEach(hourlyLoad -> {
             final var peakPerc = hourlyLoad.getSummerPeakLoadPercentageWkdy();
             final var directoryName = "kse_" + hourlyLoad.getPeriod();
-            writeMultipleCasesLMP(directoryName, peakPerc);
+            writeMultipleCasesLMPWithHourlyLoadPeak(directoryName, peakPerc);
         });
         writeRunScriptForMultiCaseScenario();
     }
 
-    private void writeMultipleCasesLMP(final String directoryName, double peak) {
+    @Deprecated
+    public void runWithHourlyLoads() {
+        hourlyLoads.forEach(hourlyLoad -> {
+            final var peakPerc = hourlyLoad.getSummerPeakLoadPercentageWkdy();
+            final var directoryName = "kse_" + hourlyLoad.getPeriod();
+            writeMultipleCasesLMPWithHourlyLoadPeak(directoryName, peakPerc);
+        });
+        writeRunScriptForMultiCaseScenario();
+    }
+
+    private void writeMultipleCasesLMPWithHourlyLoadPeak(final String directoryName, double demandPeak) {
         // create directory for a lmp case
         createMultiCaseDirectory(directoryName);
 
@@ -48,15 +65,15 @@ public class KSEMultiCaseWriter {
         unconstrainedParser.writeRunScripts(directoryName, size);
         // wygeneruj plik z danymi niezależnymi od modelu
         // wygeneruj normalny model bez ograniczeń
-        unconstrainedParser.parseMultiStageKSECase(directoryName,"unconstrained.dat", true, -1, peak);
+        unconstrainedParser.parseMultiStageKSECase(directoryName,"unconstrained.dat", true, -1, demandPeak);
         // wygeneruj model z ograniczeniami
         KSEPowerNetworkParser balancedParser = new KSEPowerNetworkParser();
-        balancedParser.parseMultiStageKSECase(directoryName, "balanced.dat", false, -1, peak);
+        balancedParser.parseMultiStageKSECase(directoryName, "balanced.dat", false, -1, demandPeak);
         // wygeneruj 1..N modeli dla każdego węzła
 
         for (int i = 0; i<size; i++) {
             KSEPowerNetworkParser parser = new KSEPowerNetworkParser();
-            parser.parseMultiStageKSECase(directoryName, (i+1 + ".dat"), false, i, peak);
+            parser.parseMultiStageKSECase(directoryName, (i+1 + ".dat"), false, i, demandPeak);
         }
     }
 

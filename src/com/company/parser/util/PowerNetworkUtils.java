@@ -1,5 +1,7 @@
 package com.company.parser.util;
 
+import java.util.Map;
+
 public class PowerNetworkUtils {
 
     public static final String MODEL_OUT_DIR = "resources/models/";
@@ -47,6 +49,21 @@ public class PowerNetworkUtils {
     public static final String KSE_LINES_SECTION_START_INDICATOR = "LINES DATA";
     public static final String KSE_GENERATORS_SECTION_START_INDICATOR = "GENERATORS DATA";
     public static final String KSE_SECTION_END_INDICATOR = "-999";
+
+
+    /**
+     * Demand Peaks for KSE power network for 12-07-2022 and 06-12-2022
+     */
+    private static final Double KSE_DEMAND_SUMMER_DOWN = 9981.1;
+    private static final Double KSE_DEMAND_SUMMER_PEAK = 13802.588;
+    private static final Double KSE_DEMAND_WINTER_DOWN = 14164.8;
+    private static final Double KSE_DEMAND_WINTER_PEAK = 20189.963;
+    public static final Map<String, Double> kseDemandPeaks = Map.of(
+            "summerDown", KSE_DEMAND_SUMMER_DOWN,
+            "summerPeak", KSE_DEMAND_SUMMER_PEAK,
+            "winterDown", KSE_DEMAND_WINTER_DOWN,
+            "winterPeak", KSE_DEMAND_WINTER_PEAK
+    );
 
     private PowerNetworkUtils() {
         // private constructor for Util class

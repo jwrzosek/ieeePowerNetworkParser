@@ -38,9 +38,9 @@ public class KSEPowerNetworkParser {
         parseGeneratorsDataLines();
     }
 
-    public void parseMultiStageKSECase(final String directoryName, final String filename, boolean unconstrained, int lmpNode, double peak) {
+    public void parseMultiStageKSECase(final String directoryName, final String filename, boolean unconstrained, int lmpNode, double demandPeak) {
         MultiStageKSEModelAmplWriter modelAmplWriter = new MultiStageKSEModelAmplWriter(unconstrained);
-        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, nodes, transmissionLines, hourlyLoads, generators, lmpNode, peak);
+        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, nodes, transmissionLines, hourlyLoads, generators, lmpNode, demandPeak);
     }
 
     private void parseNodesDataLines() {

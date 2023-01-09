@@ -25,9 +25,9 @@ public class MultiStageKSEModelAmplWriter {
 
     public void writeAmplFullMultiStageModel(final String directoryName, final String fileName, final List<KseNode> buses,
                                              final List<KseLine> branches, final List<HourlyLoad> hourlyLoads,
-                                             final List<KseGenerator> generators, int lmpNode, double peak) {
+                                             final List<KseGenerator> generators, int lmpNode, double demandPeak) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH_TEMP, directoryName, fileName);
-        final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, generators, lmpNode, peak);
+        final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, generators, lmpNode, demandPeak);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
@@ -38,14 +38,14 @@ public class MultiStageKSEModelAmplWriter {
 
     private String createFullMultiStageModel(final List<KseNode> nodes, final List<KseLine> transmissionLines,
                                              final List<HourlyLoad> hourlyLoads, final List<KseGenerator> generators,
-                                             int lmpNode, double peak) {
+                                             int lmpNode, double demandPeak) {
         StringBuilder sb = new StringBuilder();
-        final var modelInfo = generateAmplModelInfo(nodes.size(), transmissionLines.size(), peak);
+        final var modelInfo = generateAmplModelInfo(nodes.size(), transmissionLines.size(), demandPeak);
         final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
         final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
         final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
         //final var busParameters = generateBusParametersForMultiStageCase(nodes, generators);
-        final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak);
+        final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, demandPeak);
         final var pgenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads, generators);
         final var pgenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads, generators);
         final var qBusParameter = generateQBusParameter(nodes, transmissionLines);
@@ -309,7 +309,7 @@ public class MultiStageKSEModelAmplWriter {
     }
 
     private String generateMultiStageLoadMWData(final List<KseNode> nodes, final List<HourlyLoad> hourlyLoads,
-                                              final int lmpNode, final double peak) {
+                                              final int lmpNode, final double demandPeak) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PLOAD_SYMBOL + ":\n"));
@@ -325,12 +325,11 @@ public class MultiStageKSEModelAmplWriter {
             final var node = nodes.get(i);
             sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL+tapBusNumber));
             for (int j = 0; j < hourlyLoads.size(); j++) {
-                //final var load = node.getLoadSr() * peak;
-                final var demandSummerDown = 9981.1;
-                final var demandSummerPeak = 13802.588;
-                final var demandWinterDown = 14164.8;
-                final var demandWinterPeak = 20189.963;
-                final var load = node.getDemandShare() * demandSummerDown;
+                //final var demandSummerDown = 9981.1;
+                //final var demandSummerPeak = 13802.588;
+                //final var demandWinterDown = 14164.8;
+                //final var demandWinterPeak = 20189.963;
+                final var load = node.getDemandShare() * demandPeak;
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,
                         formatFPVariables(i == lmpNode ? load + 1.0 : load))
