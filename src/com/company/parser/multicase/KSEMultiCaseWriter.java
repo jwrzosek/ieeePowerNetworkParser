@@ -58,7 +58,7 @@ public class KSEMultiCaseWriter {
         writeModelFile(directoryName);
 
         // write common data to one file
-        writeCommonDataFile(directoryName);
+        //writeCommonDataFile(directoryName);
 
         KSEPowerNetworkParser unconstrainedParser = new KSEPowerNetworkParser();
         final var size = unconstrainedParser.getNodes().size();
@@ -119,7 +119,7 @@ public class KSEMultiCaseWriter {
     private void writeModelFile(final String directory) {
         // todo: maybe change the model source
         final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_MIN_BALANCING_COST_MODEL_DIR);
-        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directory, "model_min_balancing_cost.mod");
+        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directory, "model_min_balancing_cost_v2.mod");
         try {
             final List<String> modelData = Files.readAllLines(origin);
             final var modelString = String.join("\n", modelData);

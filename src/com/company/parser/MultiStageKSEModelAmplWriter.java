@@ -401,14 +401,14 @@ public class MultiStageKSEModelAmplWriter {
                 .append("model " + directory + "/model_min_balancing_cost.mod\n")
                 .append("data " + directory + "/common.dat\n")
                 .append("data " + directory + "/unconstrained").append(".dat\n")
-                .append("option solver cplex ;")
+                .append("option solver cplex ;\n")
                 .append("solve;\n")
                 .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> " + directory + "/results.out;\n\n");
         sb.append("reset;\n")
                 .append("model " + directory + "/model_min_balancing_cost.mod\n")
                 .append("data " + directory + "/common.dat\n")
                 .append("data " + directory + "/balanced").append(".dat\n")
-                .append("option solver cplex ;")
+                .append("option solver cplex ;\n")
                 .append("solve;\n")
                 .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> " + directory + "/results.out;\n\n");
         for (int i = 0; i<size; i++) {
@@ -416,7 +416,7 @@ public class MultiStageKSEModelAmplWriter {
                     .append("model " + directory + "/model_min_balancing_cost.mod\n")
                     .append("data " + directory + "/common.dat\n")
                     .append("data " + directory + "/").append(i + 1).append(".dat\n")
-                    .append("option solver cplex ;")
+                    .append("option solver cplex ;\n")
                     .append("solve;\n")
                     .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> " + directory + "/results.out;\n\n");
         }
