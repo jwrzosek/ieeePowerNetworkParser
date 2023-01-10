@@ -1,10 +1,33 @@
 package com.company.results;
 
 public class Result {
+    private Integer nodeNumber;
     private String resultName;
     private Double objective;
     private Integer uniformPrice;
+    private Double lmpPrice;
     private Double totalBalancingCost;
+    private Double load;
+
+    public Integer getNodeNumber() {
+        return nodeNumber;
+    }
+
+    public void setNodeNumber(final Integer nodeNumber) {
+        this.nodeNumber = nodeNumber;
+    }
+
+
+    public Double getLoad() {
+        return load;
+    }
+
+    public void setLoad(final Double load) {
+        this.load = load;
+    }
+    public void withLoad(final Double load) {
+        this.load = load;
+    }
 
     public String getResultName() {
         return resultName;
@@ -30,6 +53,14 @@ public class Result {
         this.uniformPrice = uniformPrice;
     }
 
+    public Double getLmpPrice() {
+        return lmpPrice;
+    }
+
+    public void setLmpPrice(final Double lmpPrice) {
+        this.lmpPrice = lmpPrice;
+    }
+
     public Double getTotalBalancingCost() {
         return totalBalancingCost;
     }
@@ -38,6 +69,10 @@ public class Result {
         this.totalBalancingCost = totalBalancingCost;
     }
 
+    public Result withNodeNumber(final Integer nodeNumber) {
+        this.nodeNumber = nodeNumber;
+        return this;
+    }
     public Result withResultName(final String resultName) {
         this.resultName = resultName;
         return this;
@@ -50,6 +85,12 @@ public class Result {
         this.uniformPrice = uniformPrice;
         return this;
     }
+
+    public Result withLmpPrice(final Double lmpPrice) {
+        this.lmpPrice = lmpPrice;
+        return this;
+    }
+
     public Result withTotalBalancingCost(final Double totalBalancingCost) {
         this.totalBalancingCost = totalBalancingCost;
         return this;

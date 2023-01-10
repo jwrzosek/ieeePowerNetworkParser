@@ -3,6 +3,7 @@ package com.company;
 import com.ampl.AMPL;
 import com.ampl.DataFrame;
 import com.ampl.Environment;
+import com.ampl.Parameter;
 import com.ampl.Variable;
 import com.company.parser.util.AmplUtils;
 import com.company.parser.util.PowerNetworkUtils;
@@ -18,6 +19,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +28,17 @@ import java.util.stream.Collectors;
 
 public class Ampl {
 
-    private static List<Result> resultList = new ArrayList<>();
+    private static Map<String, Map<String, Double>> loads = new HashMap<>();
+    static {
+        PowerNetworkUtils.kseDemandPeaks.keySet()
+                .forEach(key -> loads.put(key, new HashMap<>())
+                );
+    }
     private static Map<String, List<Result>> results = new HashMap<>();
     static {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(key -> results.put(key, new ArrayList<>())
         );
-
     }
 
     public static void main(String[] args) {
@@ -44,7 +50,50 @@ public class Ampl {
             calculateAll("C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp\\", ampl);
         }
 
+        calculateLmpPrices();
+        addLoads();
         saveResults();
+    }
+
+    private static void addLoads() {
+        loads.keySet()
+                .forEach(Ampl::addLoad);
+    }
+
+    private static void addLoad(final String key) {
+        final var dataSetLoad = loads.get(key);
+        dataSetLoad.keySet().forEach(k -> {
+            final var nodeNumber = Integer.parseInt(k);
+            final var load = dataSetLoad.get(k);
+            final var result = results.get(key).stream()
+                    .filter(r -> r.getNodeNumber() == nodeNumber)
+                    .findAny()
+                    .orElseThrow(NoSuchElementException::new);
+            result.setLoad(load);
+        });
+    }
+
+
+    private static void calculateLmpPrices() {
+        results.keySet()
+                .forEach(Ampl::calculateLmpPrice);
+    }
+
+    private static void calculateLmpPrice(final String key) {
+        final var balancedResult = results.get(key).stream()
+                .filter(result -> result.getResultName().contains("balanced"))
+                .findAny()
+                .orElseThrow(NoSuchElementException::new);
+        final var balancedTotalBalancingCost = balancedResult.getTotalBalancingCost();
+
+        results.get(key)
+                .forEach(result -> {
+                    final var resultName = result.getResultName();
+                    if (!resultName.equals("balanced.dat") && !resultName.equals("unconstrained.dat")) {
+                        var lmpPrice = result.getTotalBalancingCost() - balancedTotalBalancingCost;
+                        result.withLmpPrice(lmpPrice);
+                    }
+                });
     }
 
     private static void saveResults() {
@@ -56,13 +105,20 @@ public class Ampl {
         StringBuilder sb = new StringBuilder();
         sb.append("# Result file for ").append(dataSetName).append(":\n")
                 .append("# Time: ").append(LocalDateTime.now().toString()).append("\n\n");
-        results.get(dataSetName).forEach(result -> {
-            sb.append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, result.getResultName()))
-                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getObjective())))
-                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, result.getUniformPrice()))
-                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getTotalBalancingCost())))
-                    .append("\n\n");
-        });
+
+        final var sortedResults = results.get(dataSetName)
+                .stream()
+                .sorted(Comparator.comparing(Result::getNodeNumber))
+                .collect(Collectors.toList());
+        sortedResults.forEach(result -> sb
+                .append(String.format(ResultUtil.RESULT_NUMBER_FORMAT, result.getNodeNumber()))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, result.getResultName()))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getObjective())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, result.getUniformPrice()))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getLmpPrice())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getTotalBalancingCost())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.6f", result.getLoad())))
+                .append("\n"));
         final var stringFormatResultsData = sb.append("# Result file end ---").toString();
         saveResultsToFile(stringFormatResultsData, dataSetName);
     }
@@ -130,22 +186,36 @@ public class Ampl {
         ampl.solve();
 
         // add result object to result list
-        final var result = performDataCalculations(ampl, dataFileDir);
+        final var result = performDataCalculations(ampl, dataFileDir, dataSetName);
         results.get(dataSetName).add(result);
 
         // reset ampl
         ampl.reset();
     }
 
-    private static Result performDataCalculations(final AMPL ampl, final String dataFileDir) {
+    private static Result performDataCalculations(final AMPL ampl, final String dataFileDir, final String dataSetName) {
         Result result = new Result();
 
         final var objective = getObjective(ampl);
         final var uniformPrice = findUniformPrice(ampl, dataFileDir);
         final var totalBalancingCost = findTotalCost(ampl, dataFileDir);
 
+        final var fileName = Path.of(dataFileDir).getFileName().toString();
+
+        if (fileName.equals("balanced.dat") && loads.get(dataSetName).keySet().isEmpty()) {
+            findLoad(ampl, dataSetName);
+        }
+
+
+        if (fileName.equals("balanced.dat") || fileName.equals("unconstrained.dat")) {
+            result.withNodeNumber(0);
+        } else {
+            final var nodeNumberLMP = fileName.split("\\.")[0];
+            result.withNodeNumber(Integer.parseInt(nodeNumberLMP));
+        }
+
         return result
-                .withResultName(dataFileDir)
+                .withResultName(fileName)
                 .withObjective(objective)
                 .withUniformPrice(uniformPrice)
                 .withTotalBalancingCost(totalBalancingCost);
@@ -180,6 +250,17 @@ public class Ampl {
                 .orElseThrow(NoSuchElementException::new);
         System.out.println("\nUniform price for " + Path.of(dataFileDir).getFileName() + ": " + value);
         return value;
+    }
+
+    private static void findLoad(final AMPL ampl, final String dataSetName) {
+        Parameter load = ampl.getParameter("Pa_load");
+        DataFrame df = load.getValues();
+        for (int i = 0; i < df.getNumRows(); i++) {
+            final var rowByIndex = df.getRowByIndex(i);
+            final var node = (String) rowByIndex[0];
+            final var loadValue = (Double) rowByIndex[2];
+            loads.get(dataSetName).put(node.substring(1), loadValue);
+        }
     }
 
 
