@@ -26,7 +26,7 @@ public class MultiStageKSEModelAmplWriter {
     public void writeAmplFullMultiStageModel(final String directoryName, final String fileName, final List<KseNode> buses,
                                              final List<KseLine> branches, final List<HourlyLoad> hourlyLoads,
                                              final List<KseGenerator> generators, int lmpNode, double demandPeak) {
-        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_TEMP, directoryName, fileName);
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directoryName, fileName);
         final var fullModel = createFullMultiStageModel(buses, branches, hourlyLoads, generators, lmpNode, demandPeak);
         try {
             Files.deleteIfExists(path);
@@ -41,30 +41,32 @@ public class MultiStageKSEModelAmplWriter {
                                              int lmpNode, double demandPeak) {
         StringBuilder sb = new StringBuilder();
         final var modelInfo = generateAmplModelInfo(nodes.size(), transmissionLines.size(), demandPeak);
-        final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
-        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
-        final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
-        //final var busParameters = generateBusParametersForMultiStageCase(nodes, generators);
+        sb.append(modelInfo);
+        //final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
+        //final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, generators.size(), AmplUtils.GENERATOR_SYMBOL);
+        //final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
+        //todo: to delete? final var busParameters = generateBusParametersForMultiStageCase(nodes, generators);
+        if (unconstrained) {
+            sb.append(generateQBusParameter(nodes, transmissionLines));
+        }
         final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, demandPeak);
-        final var pgenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads, generators);
-        final var pgenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads, generators);
-        final var qBusParameter = generateQBusParameter(nodes, transmissionLines);
-        final var voltageParameter = generateVParameter(nodes, transmissionLines);
-        final var generatorVariableCost = generateVariableCost(generators);
-        final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
+        //final var pgenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads, generators);
+        //final var pgenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads, generators);
+        //final var voltageParameter = generateVParameter(nodes, transmissionLines);
+        //final var generatorVariableCost = generateVariableCost(generators);
+        //final var yabParameter = generateAdmittanceParameter(nodes, transmissionLines);
         return sb
-                .append(modelInfo)
-                .append(busInfo)
-                .append(generatorsInfo)
-                .append(hourlyLoadInfo)
-                .append(generatorVariableCost)
-                //.append(busParameters)
+                //.append(busInfo)
+                //.append(generatorsInfo)
+                //.append(hourlyLoadInfo)
+                //.append(generatorVariableCost)
+                //todo: to delete? .append(busParameters)
                 .append(loadParameter)
-                .append(pgenMaxParameter)
-                .append(pgenMinParameter)
-                .append(qBusParameter)
-                .append(voltageParameter)
-                .append(yabParameter)
+                //.append(pgenMaxParameter)
+                //.append(pgenMinParameter)
+                //.append(qBusParameter)
+                //.append(voltageParameter)
+                //.append(yabParameter)
                 .toString();
     }
 
@@ -343,13 +345,13 @@ public class MultiStageKSEModelAmplWriter {
 
     private Integer getLineLimit(List<KseLine> lines, int node1, int node2) {
         if (unconstrained) {
-            return 9999;
+            return 99999;
         }
         return  lines.stream()
                 .filter(branch -> (branch.getFromNodeNumber() == node1 && branch.getToNodeNumber() == node2) || (branch.getFromNodeNumber() == node2 && branch.getToNodeNumber() == node1))
                 .map(KseLine::getLineCapacity)
                 .findAny()
-                .orElse(99999);
+                .orElse(99990);
     }
 
     private String generateSet(final String name, final int quantity, final String symbol) {
@@ -398,14 +400,14 @@ public class MultiStageKSEModelAmplWriter {
         sb.append("printf \"Results for KSE power network:\\n\" >> " + directory + "/results.out;\n\n");
 
         sb.append("reset;\n")
-                .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                .append("model " + directory + "/model_min_balancing_cost_for_kse.mod\n")
                 .append("data " + directory + "/common.dat\n")
                 .append("data " + directory + "/unconstrained").append(".dat\n")
                 .append("option solver cplex ;\n")
                 .append("solve;\n")
                 .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> " + directory + "/results.out;\n\n");
         sb.append("reset;\n")
-                .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                .append("model " + directory + "/model_min_balancing_cost_for_kse.mod\n")
                 .append("data " + directory + "/common.dat\n")
                 .append("data " + directory + "/balanced").append(".dat\n")
                 .append("option solver cplex ;\n")
@@ -413,7 +415,7 @@ public class MultiStageKSEModelAmplWriter {
                 .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> " + directory + "/results.out;\n\n");
         for (int i = 0; i<size; i++) {
             sb.append("reset;\n")
-                    .append("model " + directory + "/model_min_balancing_cost.mod\n")
+                    .append("model " + directory + "/model_min_balancing_cost_for_kse.mod\n")
                     .append("data " + directory + "/common.dat\n")
                     .append("data " + directory + "/").append(i + 1).append(".dat\n")
                     .append("option solver cplex ;\n")
@@ -440,14 +442,14 @@ public class MultiStageKSEModelAmplWriter {
         sb.append("printf \"Results for KSE power network:\\n\" >> results_single.out;\n\n");
 
         sb.append("reset;\n")
-                .append("model model_min_balancing_cost.mod\n")
+                .append("model model_min_balancing_cost_for_kse.mod\n")
                 .append("data common.dat\n")
                 .append("data unconstrained").append(".dat\n")
                 .append("option solver cplex ;")
                 .append("solve;\n")
                 .append("printf \"%-12s %.2f\\n\", \"balanced_U:\", Q >> results_single.out;\n\n");
         sb.append("reset;\n")
-                .append("model model_min_balancing_cost.mod\n")
+                .append("model model_min_balancing_cost_for_kse.mod\n")
                 .append("data common.dat\n")
                 .append("data balanced").append(".dat\n")
                 .append("option solver cplex ;")
@@ -455,7 +457,7 @@ public class MultiStageKSEModelAmplWriter {
                 .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> results_single.out;\n\n");
         for (int i = 0; i<size; i++) {
             sb.append("reset;\n")
-                    .append("model model_min_balancing_cost.mod\n")
+                    .append("model model_min_balancing_cost_for_kse.mod\n")
                     .append("data common.dat\n")
                     .append("data ").append(i + 1).append(".dat\n")
                     .append("option solver cplex ;")
