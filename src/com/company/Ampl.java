@@ -4,20 +4,38 @@ import com.ampl.AMPL;
 import com.ampl.DataFrame;
 import com.ampl.Environment;
 import com.ampl.Variable;
+import com.company.parser.util.AmplUtils;
 import com.company.parser.util.PowerNetworkUtils;
+import com.company.results.Result;
+import com.company.results.ResultUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class Ampl {
 
+    private static List<Result> resultList = new ArrayList<>();
+    private static Map<String, List<Result>> results = new HashMap<>();
+    static {
+        PowerNetworkUtils.kseDemandPeaks.keySet()
+                .forEach(key -> results.put(key, new ArrayList<>())
+        );
 
-    public static void main(String[] args) throws IOException {
+    }
+
+    public static void main(String[] args) {
         Environment env = new Environment("C:\\AMPLCOMMUNITY\\ampl.mswin64");
         try (AMPL ampl = new AMPL(env);) {
             ampl.setOption("solver", "cplex");
@@ -25,19 +43,52 @@ public class Ampl {
 
             calculateAll("C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp\\", ampl);
         }
+
+        saveResults();
+    }
+
+    private static void saveResults() {
+        results.keySet()
+                .forEach(Ampl::saveResultsForSingleDataSet);
+    }
+
+    private static void saveResultsForSingleDataSet(String dataSetName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("# Result file for ").append(dataSetName).append(":\n")
+                .append("# Time: ").append(LocalDateTime.now().toString()).append("\n\n");
+        results.get(dataSetName).forEach(result -> {
+            sb.append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, result.getResultName()))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getObjective())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, result.getUniformPrice()))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getTotalBalancingCost())))
+                    .append("\n\n");
+        });
+        final var stringFormatResultsData = sb.append("# Result file end ---").toString();
+        saveResultsToFile(stringFormatResultsData, dataSetName);
+    }
+
+    private static void saveResultsToFile(final String stringFormatData, final String fileName) {
+        final var fileNameWithExtension = fileName + ".txt";
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE_TEMP, fileNameWithExtension);
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, stringFormatData, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void calculateAll(final String baseDirectory, AMPL ampl) {
         PowerNetworkUtils.kseDemandPeaks.keySet()
-                .forEach(key -> {
-                            final var folder = "kse_" + key;
+                .forEach(dataSetName -> {
+                            final var folder = "kse_" + dataSetName;
                             final var directory = baseDirectory + folder;
                             File file = new File(directory);
                             final var files = file.listFiles();
                             final var dataFiles = getDataFilesNames(files);
                             dataFiles.forEach(fileName -> {
                                 try {
-                                    calculateSingeScenario(directory, fileName, ampl);
+                                    calculateSingeScenario(directory, fileName, dataSetName, ampl);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -56,26 +107,52 @@ public class Ampl {
                 .collect(Collectors.toList());
     }
 
-    private static void calculateSingeScenario(final String directory, final String fileName, AMPL ampl) throws IOException {
+    private static void calculateSingeScenario(final String directory,
+                                               final String fileName,
+                                               final String dataSetName,
+                                               AMPL ampl) throws IOException {
         final var modelFileDir = directory + "\\" + "model_min_balancing_cost_for_kse.mod";
         final var dataFileDir = directory + "\\" + fileName;
         final var commonDataFileDir = directory + "\\" + "common.dat";
+        final var commonUnconstrainedDataFileDir = directory + "\\" + "commonUnconstrained.dat";
 
+        // read model file
         ampl.read(modelFileDir);
-        if (fileName.contains("unconstrained")) {
+        // read data files *for unconstrained read different common file
+        if (fileName.equals("unconstrained.dat")) {
             ampl.readData(dataFileDir);
+            ampl.readData(commonUnconstrainedDataFileDir);
         } else {
             ampl.readData(commonDataFileDir);
             ampl.readData(dataFileDir);
         }
+        // solve problem
         ampl.solve();
-        performDataCalculations(ampl, dataFileDir);
+
+        // add result object to result list
+        final var result = performDataCalculations(ampl, dataFileDir);
+        results.get(dataSetName).add(result);
+
+        // reset ampl
         ampl.reset();
     }
 
-    private static void performDataCalculations(final AMPL ampl, final String dataFileDir) {
+    private static Result performDataCalculations(final AMPL ampl, final String dataFileDir) {
+        Result result = new Result();
+
+        final var objective = getObjective(ampl);
         final var uniformPrice = findUniformPrice(ampl, dataFileDir);
-        final var totalCost = findTotalCost(ampl, dataFileDir);
+        final var totalBalancingCost = findTotalCost(ampl, dataFileDir);
+
+        return result
+                .withResultName(dataFileDir)
+                .withObjective(objective)
+                .withUniformPrice(uniformPrice)
+                .withTotalBalancingCost(totalBalancingCost);
+    }
+
+    private static Double getObjective(final AMPL ampl) {
+        return ampl.getObjective("Q").value();
     }
 
     private static Double findTotalCost(final AMPL ampl, final String dataFileDir) {

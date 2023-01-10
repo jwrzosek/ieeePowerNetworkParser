@@ -5,6 +5,8 @@ public class AmplUtils {
     public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\30nodes";
     //public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse";
     public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_v2";
+    //todo:delete after testing
+    public static final String DIRECTORY_PATH_KSE_TEMP = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp";
     public static final String DIRECTORY_PATH_TEMP = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\temp";
 
     public static final boolean DC_MODEL_ON = false;

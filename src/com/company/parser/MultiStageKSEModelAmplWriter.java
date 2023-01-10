@@ -401,7 +401,7 @@ public class MultiStageKSEModelAmplWriter {
 
         sb.append("reset;\n")
                 .append("model " + directory + "/model_min_balancing_cost_for_kse.mod\n")
-                .append("data " + directory + "/common.dat\n")
+                .append("data " + directory + "/commonUnconstrained.dat\n")
                 .append("data " + directory + "/unconstrained").append(".dat\n")
                 .append("option solver cplex ;\n")
                 .append("solve;\n")
@@ -443,7 +443,7 @@ public class MultiStageKSEModelAmplWriter {
 
         sb.append("reset;\n")
                 .append("model model_min_balancing_cost_for_kse.mod\n")
-                .append("data common.dat\n")
+                .append("data commonUnconstrained.dat\n")
                 .append("data unconstrained").append(".dat\n")
                 .append("option solver cplex ;")
                 .append("solve;\n")

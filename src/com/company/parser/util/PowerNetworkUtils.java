@@ -31,6 +31,7 @@ public class PowerNetworkUtils {
     public static final String MULTI_STAGE_COMMON_KSE_EXTENDED_DATA_DIR = "resources/datamodels/common_kse_extended.dat";
     public static final String MULTI_STAGE_COMMON_KSE_EXTENDED_DATA_NO_LINE_LIMITS_DIR = "resources/datamodels/common_kse_no_line_limits.dat";
     public static final String MULTI_STAGE_COMMON_KSE_V2_DIR = "resources/datamodels/common_kse_v2.dat";
+    public static final String MULTI_STAGE_COMMON_KSE_V2_UNCONSTRAINED_DIR = "resources/datamodels/common_kse_v2_unconstrained.dat";
 
     /**
      * End of data section indicator in IEEE Power Network Common Data Format

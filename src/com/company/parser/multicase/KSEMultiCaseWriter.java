@@ -42,8 +42,9 @@ public class KSEMultiCaseWriter {
         //write model to a directory
         writeModelFile(directoryName);
 
-        // write common data to one file
+        // write common data files
         writeCommonDataFile(directoryName);
+        writeCommonDataFileUnconstrained(directoryName);
 
         KSEPowerNetworkParser unconstrainedParser = new KSEPowerNetworkParser();
         final var size = unconstrainedParser.getNodes().size();
@@ -150,6 +151,19 @@ public class KSEMultiCaseWriter {
     private void writeCommonDataFile(final String directory) {
         final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_COMMON_KSE_V2_DIR);
         final var destination = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directory, "common.dat");
+        try {
+            final List<String> modelData = Files.readAllLines(origin);
+            final var modelString = String.join("\n", modelData);
+            Files.deleteIfExists(destination);
+            Files.writeString(destination, modelString, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeCommonDataFileUnconstrained(final String directory) {
+        final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_COMMON_KSE_V2_UNCONSTRAINED_DIR);
+        final var destination = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, directory, "commonUnconstrained.dat");
         try {
             final List<String> modelData = Files.readAllLines(origin);
             final var modelString = String.join("\n", modelData);
