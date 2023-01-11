@@ -43,24 +43,35 @@ public class Ampl {
 
     public static void main(String[] args) {
         Environment env = new Environment("C:\\AMPLCOMMUNITY\\ampl.mswin64");
-        try (AMPL ampl = new AMPL(env);) {
+
+        long startTime = System.nanoTime();
+
+        try (AMPL ampl = new AMPL(env)) {
             ampl.setOption("solver", "cplex");
             ampl.setOption("cplex_options", "mipgap 0");
 
             calculateAll("C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp\\", ampl);
+
         }
 
         calculateLmpPrices();
         addLoads();
         saveResults();
+
+        long elapsedTime = System.nanoTime() - startTime;
+        System.out.println(LocalDateTime.now() +" --- Total execution time in sec: "
+                + elapsedTime/1000000000);
     }
 
     private static void addLoads() {
         loads.keySet()
-                .forEach(Ampl::addLoad);
+                .forEach(key -> {
+                    final var totalLoad = calculateTotalLoad(key);
+                    addLoad(key, totalLoad);
+                });
     }
 
-    private static void addLoad(final String key) {
+    private static void addLoad(final String key, final Double totalLoad) {
         final var dataSetLoad = loads.get(key);
         dataSetLoad.keySet().forEach(k -> {
             final var nodeNumber = Integer.parseInt(k);
@@ -70,7 +81,14 @@ public class Ampl {
                     .findAny()
                     .orElseThrow(NoSuchElementException::new);
             result.setLoad(load);
+            result.setTotalLoad(totalLoad);
         });
+    }
+
+    private static Double calculateTotalLoad(final String key) {
+        return loads.get(key).values().stream()
+                .mapToDouble(v -> v)
+                .sum();
     }
 
 
@@ -117,7 +135,8 @@ public class Ampl {
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, result.getUniformPrice()))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getLmpPrice())))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getTotalBalancingCost())))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.6f", result.getLoad())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.5f", result.getLoad())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.5f", result.getTotalLoad())))
                 .append("\n"));
         final var stringFormatResultsData = sb.append("# Result file end ---").toString();
         saveResultsToFile(stringFormatResultsData, dataSetName);
@@ -134,7 +153,7 @@ public class Ampl {
         }
     }
 
-    public static void calculateAll(final String baseDirectory, AMPL ampl) {
+    private static void calculateAll(final String baseDirectory, AMPL ampl) {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(dataSetName -> {
                             final var folder = "kse_" + dataSetName;
@@ -182,6 +201,9 @@ public class Ampl {
             ampl.readData(commonDataFileDir);
             ampl.readData(dataFileDir);
         }
+
+
+
         // solve problem
         ampl.solve();
 
@@ -197,8 +219,8 @@ public class Ampl {
         Result result = new Result();
 
         final var objective = getObjective(ampl);
-        final var uniformPrice = findUniformPrice(ampl, dataFileDir);
-        final var totalBalancingCost = findTotalCost(ampl, dataFileDir);
+        final var uniformPrice = findUniformPrice(ampl);
+        final var totalBalancingCost = findTotalCost(ampl);
 
         final var fileName = Path.of(dataFileDir).getFileName().toString();
 
@@ -225,31 +247,27 @@ public class Ampl {
         return ampl.getObjective("Q").value();
     }
 
-    private static Double findTotalCost(final AMPL ampl, final String dataFileDir) {
+    private static Double findTotalCost(final AMPL ampl) {
         Variable totalCost = ampl.getVariable("total_cost");
         DataFrame df = totalCost.getValues();
         final var totalCostColumn = df.getColumn("total_cost.val");
-        final var value = Arrays.stream(totalCostColumn)
+        return Arrays.stream(totalCostColumn)
                 .map(Object::toString)
                 .mapToDouble(Double::parseDouble)
                 .findAny()
                 .orElseThrow(NoSuchElementException::new);
-        System.out.println("\nTotalCost for " + Path.of(dataFileDir).getFileName() + ": " + value);
-        return value;
     }
 
-    private static Integer findUniformPrice(final AMPL ampl, final String dataFileDir) {
+    private static Integer findUniformPrice(final AMPL ampl) {
         Variable prices = ampl.getVariable("prices");
         DataFrame df = prices.getValues();
         final var pricesColumn = df.getColumn("prices.val");
-        final var value = Arrays.stream(pricesColumn)
+        return Arrays.stream(pricesColumn)
                 .map(Object::toString)
                 .mapToDouble(Double::parseDouble)
                 .mapToInt(d -> (int) Math.round(d))
                 .max()
                 .orElseThrow(NoSuchElementException::new);
-        System.out.println("\nUniform price for " + Path.of(dataFileDir).getFileName() + ": " + value);
-        return value;
     }
 
     private static void findLoad(final AMPL ampl, final String dataSetName) {

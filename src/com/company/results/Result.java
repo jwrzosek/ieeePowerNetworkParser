@@ -8,6 +8,34 @@ public class Result {
     private Double lmpPrice;
     private Double totalBalancingCost;
     private Double load;
+    private Double totalLoad;
+    private Double totalUniformPriceProfit;
+
+    public Double getTotalLoad() {
+        return totalLoad;
+    }
+
+    public void setTotalLoad(final Double totalLoad) {
+        this.totalLoad = totalLoad;
+    }
+
+    public Result withTotalLoad(final Double totalLoad) {
+        this.totalLoad = totalLoad;
+        return this;
+    }
+
+    public Double getTotalUniformPriceProfit() {
+        return totalUniformPriceProfit;
+    }
+
+    public void setTotalUniformPriceProfit(final Double totalUniformPriceProfit) {
+        this.totalUniformPriceProfit = totalUniformPriceProfit;
+    }
+
+    public Result withTotalUniformPriceProfit(final Double totalUniformPriceProfit) {
+        this.totalUniformPriceProfit = totalUniformPriceProfit;
+        return this;
+    }
 
     public Integer getNodeNumber() {
         return nodeNumber;
