@@ -478,17 +478,13 @@ public class Ampl {
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LMP"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LP+"))
 
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sys_profit_UP"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sys_profit_LMP"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sys_profit_LP+"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sys_profit_UP"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sys_profit_LMP"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sys_profit_LP+"))
 
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sup_profit_UP"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sup_profit_LMP"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sup_profit_LP+"))
-
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_UP"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LMP"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LP+"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sup_profit_UP"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sup_profit_LMP"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sup_profit_LP+"))
 
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lmp_prof_over_up"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lp+_prof_over_up"))
@@ -522,13 +518,13 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLMP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLpPlus())))
 
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitUP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLMP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLpPlus())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSystemProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLpPlus())))
 
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitUP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
 
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
@@ -563,13 +559,13 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLMP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLpPlus())))
 
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitUP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLMP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLpPlus())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSystemProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLpPlus())))
 
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitUP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
 
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
