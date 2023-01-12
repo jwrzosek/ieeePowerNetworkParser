@@ -9,6 +9,7 @@ import com.company.parser.util.AmplUtils;
 import com.company.parser.util.PowerNetworkUtils;
 import com.company.results.Result;
 import com.company.results.ResultUtil;
+import com.company.results.SummaryResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 public class Ampl {
 
+    private static Map<String, SummaryResult> summaryResults = new HashMap<>();
     private static Map<String, Map<String, Double>> loads = new HashMap<>();
     static {
         PowerNetworkUtils.kseDemandPeaks.keySet()
@@ -57,10 +59,76 @@ public class Ampl {
         calculateLmpPrices();
         addLoads();
         saveResults();
+        calculateSummaryResults();
+        saveSummaryResults();
 
         long elapsedTime = System.nanoTime() - startTime;
         System.out.println(LocalDateTime.now() +" --- Total execution time in sec: "
                 + elapsedTime/1000000000);
+    }
+
+    private static void calculateSummaryResults() {
+        PowerNetworkUtils.kseDemandPeaks.keySet()
+                .forEach(key -> {
+                    SummaryResult summary = new SummaryResult();
+                    final var results = Ampl.results.get(key);
+                    final var unconstrainedResult = results.stream()
+                            .filter(r -> r.getResultName().equals("unconstrained.dat"))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    summary.withTotalBalancingCostUnconstrained(unconstrainedResult.getTotalBalancingCost());
+                    summary.withUniformPriceUnconstrained(unconstrainedResult.getUniformPrice());
+
+                    final var balancedResult = results.stream()
+                            .filter(r -> r.getResultName().equals("balanced.dat"))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    summary.withTotalBalancingCostConstrained(balancedResult.getTotalBalancingCost());
+                    summary.withUniformPriceConstrained(balancedResult.getUniformPrice());
+
+                    final var totalSystemIncomeLMP = results.stream()
+                            .filter(Ampl::isNodeResult)
+                            .mapToDouble(Ampl::calculatePartialSystemIncomeLMP)
+                            .sum();
+                    summary.withTotalSystemIncomeLMP(totalSystemIncomeLMP);
+
+                    final var totalSystemIncomeUP = results.stream()
+                            .filter(Ampl::isNodeResult)
+                            .mapToDouble(r -> calculatePartialSystemIncomeUP(r, summary))
+                            .sum();
+                    summary.withTotalSystemIncomeUP(totalSystemIncomeUP);
+
+                    final var totalLMPProfitOverUP = results.stream()
+                            .filter(Ampl::isNodeResult)
+                            .mapToDouble(Ampl::calculatePartialLMPProfitOverUP)
+                            .sum();
+                    summary.withTotalLMPProfitOverUP(totalLMPProfitOverUP);
+
+                    summaryResults.put(key, summary);
+                });
+    }
+
+    private static boolean isNodeResult(Result result) {
+        return !result.getResultName().equals("unconstrained.dat")
+                && !result.getResultName().equals("balanced.dat");
+    }
+
+    /**
+     * Calculates nodal system income based on uniform price from unconstrained system.
+     */
+    private static Double calculatePartialSystemIncomeUP(Result result, SummaryResult summaryResult) {
+        return summaryResult.getUniformPriceUnconstrained() * result.getLoad();
+    }
+
+    /**
+     * Calculates nodal system income based on lmp price.
+     */
+    private static Double calculatePartialSystemIncomeLMP(Result result) {
+        return result.getLmpPrice() * result.getLoad();
+    }
+
+    private static Double calculatePartialLMPProfitOverUP(Result result) {
+        return (result.getUniformPrice() - result.getLmpPrice()) * result.getLoad();
     }
 
     private static void addLoads() {
@@ -112,6 +180,36 @@ public class Ampl {
                         result.withLmpPrice(lmpPrice);
                     }
                 });
+    }
+    private static void saveSummaryResults() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Summary Result file:")
+                .append("# Time: ").append(LocalDateTime.now().toString()).append("\n\n");
+
+        sb.append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "dataSet"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP_u"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP_c"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_u"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_c"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_UP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_LMP"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lmp_prof_over_up"))
+                .append("\n");
+
+        summaryResults.keySet().forEach(key -> {
+            final var summaryResult = summaryResults.get(key);
+            sb.append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, key))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceUnconstrained()))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceConstrained()))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostConstrained())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
+                    .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
+                    .append("\n");
+        });
+        final var stringFormatResultsData = sb.append("# End of summary results file ---").toString();
+        saveResultsToFile(stringFormatResultsData, "summaryResults");
     }
 
     private static void saveResults() {
