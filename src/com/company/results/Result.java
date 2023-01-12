@@ -11,7 +11,15 @@ public class Result {
     private Double load;
     private Double totalLoad;
     private Double totalUniformPriceProfit;
+    private boolean competitive;
 
+    public boolean isCompetitive() {
+        return competitive;
+    }
+
+    public void setCompetitive(final boolean competitive) {
+        this.competitive = competitive;
+    }
 
     public Double getLpPlusPrice() {
         return lpPlusPrice;

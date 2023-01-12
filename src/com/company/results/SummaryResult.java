@@ -48,8 +48,24 @@ public class SummaryResult {
     private Double totalSystemIncomeUP;
     private Double totalSystemIncomeLpPlus;
 
+    // nadwyżki w sysemie
+    private Double systemSurplusUP;
+    private Double systemSurplusLMP;
+    private Double systemSurplusLpPlus;
+
+    // zysk dla systemu
+    private Double systemProfitUP;
+    private Double systemProfitLMP;
+    private Double systemProfitLpPlus;
+
+    // zysk dla wytwórców
+    private Double suppliersProfitUP;
+    private Double suppliersProfitLMP;
+    private Double suppliersProfitLpPlus;
+
+
     /**
-     * Total money difference between uniform prices and lmp 
+     * Total money difference between uniform prices and lmp
      */
     private Double totalLMPProfitOverUP;
     /**
@@ -57,6 +73,77 @@ public class SummaryResult {
      */
     private Double totalLpPlusProfitOverUP;
 
+    public Double getSystemProfitUP() {
+        return systemProfitUP;
+    }
+
+    public void setSystemProfitUP(final Double systemProfitUP) {
+        this.systemProfitUP = systemProfitUP;
+    }
+
+    public Double getSystemProfitLMP() {
+        return systemProfitLMP;
+    }
+
+    public void setSystemProfitLMP(final Double systemProfitLMP) {
+        this.systemProfitLMP = systemProfitLMP;
+    }
+
+    public Double getSystemProfitLpPlus() {
+        return systemProfitLpPlus;
+    }
+
+    public void setSystemProfitLpPlus(final Double systemProfitLpPlus) {
+        this.systemProfitLpPlus = systemProfitLpPlus;
+    }
+
+    public Double getSuppliersProfitUP() {
+        return suppliersProfitUP;
+    }
+
+    public void setSuppliersProfitUP(final Double suppliersProfitUP) {
+        this.suppliersProfitUP = suppliersProfitUP;
+    }
+
+    public Double getSuppliersProfitLMP() {
+        return suppliersProfitLMP;
+    }
+
+    public void setSuppliersProfitLMP(final Double suppliersProfitLMP) {
+        this.suppliersProfitLMP = suppliersProfitLMP;
+    }
+
+    public Double getSuppliersProfitLpPlus() {
+        return suppliersProfitLpPlus;
+    }
+
+    public void setSuppliersProfitLpPlus(final Double suppliersProfitLpPlus) {
+        this.suppliersProfitLpPlus = suppliersProfitLpPlus;
+    }
+
+    public Double getSystemSurplusUP() {
+        return systemSurplusUP;
+    }
+
+    public void setSystemSurplusUP(final Double systemSurplusUP) {
+        this.systemSurplusUP = systemSurplusUP;
+    }
+
+    public Double getSystemSurplusLMP() {
+        return systemSurplusLMP;
+    }
+
+    public void setSystemSurplusLMP(final Double systemSurplusLMP) {
+        this.systemSurplusLMP = systemSurplusLMP;
+    }
+
+    public Double getSystemSurplusLpPlus() {
+        return systemSurplusLpPlus;
+    }
+
+    public void setSystemSurplusLpPlus(final Double systemSurplusLpPlus) {
+        this.systemSurplusLpPlus = systemSurplusLpPlus;
+    }
 
     public Double getMinLpPlusPrice() {
         return minLpPlusPrice;
@@ -340,6 +427,49 @@ public class SummaryResult {
 
     public SummaryResult withTotalLpPlusProfitOverUP(final Double totalLpPlusProfitOverUP) {
         this.totalLpPlusProfitOverUP = totalLpPlusProfitOverUP;
+        return this;
+    }
+
+    public SummaryResult withSystemSurplusUP(final Double systemSurplusUP) {
+        this.systemSurplusUP = systemSurplusUP;
+        return this;
+    }
+    public SummaryResult withSystemSurplusLMP(final Double systemSurplusLMP) {
+        this.systemSurplusLMP = systemSurplusLMP;
+        return this;
+    }
+    public SummaryResult withSystemSurplusLpPlus(final Double systemSurplusLpPlus) {
+        this.systemSurplusLpPlus = systemSurplusLpPlus;
+        return this;
+    }
+
+    public SummaryResult withSystemProfitUP(final Double systemProfitUP) {
+        this.systemProfitUP = systemProfitUP;
+        return this;
+    }
+
+    public SummaryResult withSystemProfitLMP(final Double systemProfitLMP) {
+        this.systemProfitLMP = systemProfitLMP;
+        return this;
+    }
+
+    public SummaryResult withSystemProfitLpPlus(final Double systemProfitLpPlus) {
+        this.systemProfitLpPlus = systemProfitLpPlus;
+        return this;
+    }
+
+    public SummaryResult withSuppliersProfitUP(final Double suppliersProfitUP) {
+        this.suppliersProfitUP = suppliersProfitUP;
+        return this;
+    }
+
+    public SummaryResult withSuppliersProfitLMP(final Double suppliersProfitLMP) {
+        this.suppliersProfitLMP = suppliersProfitLMP;
+        return this;
+    }
+
+    public SummaryResult withSuppliersProfitLpPlus(final Double suppliersProfitLpPlus) {
+        this.suppliersProfitLpPlus = suppliersProfitLpPlus;
         return this;
     }
 }

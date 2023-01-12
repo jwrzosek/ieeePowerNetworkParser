@@ -163,8 +163,52 @@ public class Ampl {
 
                     summary.withConstraintsCost(findCostOfConstraints(summary));
 
+                    summary.withSystemSurplusUP(calculateSystemSurplusUP(summary));
+                    summary.withSystemSurplusLMP(calculateSystemSurplusLMP(summary));
+                    summary.withSystemSurplusLpPlus(calculateSystemSurplusLpPlus(summary));
+
+
+                    summary.withSuppliersProfitUP(summary.getTotalSystemIncomeUP() - summary.getTotalBalancingCostUnconstrained());
+                    summary.withSuppliersProfitLMP(0.0);
+                    summary.withSuppliersProfitLpPlus(calculateSuppliersProfitLpPlus(results));
+
+                    summary.withSystemProfitUP(0.0);
+                    summary.withSystemProfitLMP(summary.getTotalSystemIncomeLMP() - summary.getTotalBalancingCostConstrained());
+                    summary.withSystemProfitLpPlus(calculateSystemProfitLpPlus(summary));
+
+
                     summaryResults.put(key, summary);
                 });
+    }
+
+    private static Double calculateSystemProfitLpPlus(final SummaryResult summary) {
+        return summary.getTotalSystemIncomeLpPlus() - summary.getTotalBalancingCostConstrained() - summary.getSuppliersProfitLpPlus();
+    }
+
+    private static Double calculateSuppliersProfitLpPlus(final List<Result> results) {
+        return results.stream()
+                .filter(Result::isCompetitive)
+                .mapToDouble(r -> r.getUniformPrice() * r.getLoad())
+                .sum();
+    }
+
+    private static Double calculateSystemSurplusUP(final SummaryResult summary) {
+        //todo: balancing cost unconstrained or constrained
+        final var totalIncome = summary.getTotalSystemIncomeUP();
+        final var balancingCost = summary.getTotalBalancingCostUnconstrained();
+        return totalIncome - balancingCost;
+    }
+
+    private static Double calculateSystemSurplusLMP(final SummaryResult summary) {
+        final var totalIncome = summary.getTotalSystemIncomeLMP();
+        final var balancingCost = summary.getTotalBalancingCostConstrained();
+        return totalIncome - balancingCost;
+    }
+
+    private static Double calculateSystemSurplusLpPlus(final SummaryResult summary) {
+        final var totalIncome = summary.getTotalSystemIncomeLpPlus();
+        final var balancingCost = summary.getTotalBalancingCostConstrained();
+        return totalIncome - balancingCost;
     }
 
     private static boolean isNodeResult(final Result result) {
@@ -358,18 +402,26 @@ public class Ampl {
     private static void calculateLpPlusPrice(final String key) {
         results.get(key).forEach(result -> {
                     final var nodeNumber = result.getNodeNumber();
-                    final var balanced = generations.get("balanced.dat")
-                            .stream()
-                            .filter(g -> g.getNodeName().equals(nodeNumber))
-                            .findAny()
-                            .orElseThrow(NoSuchElementException::new);
-                    final var unconstrained = generations.get("unconstrained.dat")
-                            .stream()
-                            .filter(g -> g.getNodeName().equals(nodeNumber))
-                            .findAny()
-                            .orElseThrow(NoSuchElementException::new);
-                    final var diff = balanced.getGenerationValue() - unconstrained.getGenerationValue();
-                    result.withLpPlusPrice(diff > 0 ? result.getUniformPrice() : result.getLmpPrice());
+                    if (!nodeNumber.equals(0)) {
+                        final var balanced = generations.get("balanced.dat")
+                                .stream()
+                                .filter(g -> g.getNodeNumber().equals(nodeNumber))
+                                .findAny()
+                                .orElseThrow(NoSuchElementException::new);
+                        final var unconstrained = generations.get("unconstrained.dat")
+                                .stream()
+                                .filter(g -> g.getNodeNumber().equals(nodeNumber))
+                                .findAny()
+                                .orElseThrow(NoSuchElementException::new);
+                        final var diff = balanced.getGenerationValue() - unconstrained.getGenerationValue();
+                        if (diff > 0.0000001) {
+                            result.withLpPlusPrice((double) result.getUniformPrice());
+                            result.setCompetitive(true);
+                        } else {
+                            result.withLpPlusPrice(result.getLmpPrice());
+                            result.setCompetitive(false);
+                        }
+                    }
                 }
         );
     }
@@ -422,6 +474,22 @@ public class Ampl {
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_UP"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_LMP"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_LP+"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_UP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LMP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LP+"))
+
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sys_profit_UP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sys_profit_LMP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sys_profit_LP+"))
+
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sup_profit_UP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sup_profit_LMP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "sup_profit_LP+"))
+
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_UP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LMP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "surplus_LP+"))
+
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lmp_prof_over_up"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lp+_prof_over_up"))
                 .append("\n");
@@ -450,10 +518,22 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLpPlus())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusUP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLpPlus())))
+
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLpPlus())))
+
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
+
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
                         .append("\n"));
-        sb.append("End of summary sorted by total load").append("\n\n");
+        sb.append("End of summary sorted by total load").append("\n\n\n");
 
         sb.append("Sorted by total load:").append("\n");
         summaryResults.values().stream()
@@ -479,6 +559,18 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLpPlus())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusUP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemSurplusLpPlus())))
+
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSystemProfitLpPlus())))
+
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitUP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
+
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
                         .append("\n"));
@@ -666,7 +758,7 @@ public class Ampl {
             final var value = (Double) rowByIndex[2];
             powerGenerations.add(new PowerGeneration()
                     .withNodeName(nodeName)
-                    .withNodeNumber(nodeName.substring(1))
+                    .withNodeNumber(Integer.parseInt(nodeName.substring(1)))
                     .withPeriodName(periodName)
                     .withGenerationValue(value)
             );

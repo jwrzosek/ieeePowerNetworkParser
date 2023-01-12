@@ -3,15 +3,15 @@ package com.company.results;
 public class PowerGeneration {
 
     private String nodeName;
-    private String nodeNumber;
+    private Integer nodeNumber;
     private String periodName;
     private Double generationValue;
 
-    public String getNodeNumber() {
+    public Integer getNodeNumber() {
         return nodeNumber;
     }
 
-    public void setNodeNumber(final String nodeNumber) {
+    public void setNodeNumber(final Integer nodeNumber) {
         this.nodeNumber = nodeNumber;
     }
 
@@ -53,7 +53,7 @@ public class PowerGeneration {
         this.generationValue = generationValue;
         return this;
     }
-    public PowerGeneration withNodeNumber(final String nodeNumber) {
+    public PowerGeneration withNodeNumber(final Integer nodeNumber) {
         this.nodeNumber = nodeNumber;
         return this;
     }
