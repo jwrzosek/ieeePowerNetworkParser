@@ -27,6 +27,15 @@ public class SummaryResult {
      */
     private Double totalLMPProfitOverUP;
 
+
+    public String getDataSetName() {
+        return dataSetName;
+    }
+
+    public void setDataSetName(final String dataSetName) {
+        this.dataSetName = dataSetName;
+    }
+
     public Double getAverageLmpPrice() {
         return averageLmpPrice;
     }
@@ -179,6 +188,11 @@ public class SummaryResult {
 
     public SummaryResult withAverageLmpPrice(final Double averageLmpPrice) {
         this.averageLmpPrice = averageLmpPrice;
+        return this;
+    }
+
+    public SummaryResult withDataSetName(final String dataSetName) {
+        this.dataSetName = dataSetName;
         return this;
     }
 }
