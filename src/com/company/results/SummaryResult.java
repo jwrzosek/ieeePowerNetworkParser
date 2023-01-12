@@ -1,8 +1,20 @@
 package com.company.results;
 
 public class SummaryResult {
+    private String dataSetName;
+
     private Integer uniformPriceUnconstrained;
     private Integer uniformPriceConstrained;
+
+    private Double minLmpPrice;
+    /**
+     * Arithmetic average lmp price
+     */
+    private Double averageLmpPrice;
+    private Double medianLmpPrice;
+    private Double maxLmpPrice;
+
+    private Double totalLoad;
 
     private Double totalBalancingCostUnconstrained;
     private Double totalBalancingCostConstrained;
@@ -15,6 +27,45 @@ public class SummaryResult {
      */
     private Double totalLMPProfitOverUP;
 
+    public Double getAverageLmpPrice() {
+        return averageLmpPrice;
+    }
+
+    public void setAverageLmpPrice(final Double averageLmpPrice) {
+        this.averageLmpPrice = averageLmpPrice;
+    }
+
+    public Double getMinLmpPrice() {
+        return minLmpPrice;
+    }
+
+    public void setMinLmpPrice(final Double minLmpPrice) {
+        this.minLmpPrice = minLmpPrice;
+    }
+
+    public Double getMedianLmpPrice() {
+        return medianLmpPrice;
+    }
+
+    public void setMedianLmpPrice(final Double medianLmpPrice) {
+        this.medianLmpPrice = medianLmpPrice;
+    }
+
+    public Double getMaxLmpPrice() {
+        return maxLmpPrice;
+    }
+
+    public void setMaxLmpPrice(final Double maxLmpPrice) {
+        this.maxLmpPrice = maxLmpPrice;
+    }
+
+    public Double getTotalLoad() {
+        return totalLoad;
+    }
+
+    public void setTotalLoad(final Double totalLoad) {
+        this.totalLoad = totalLoad;
+    }
 
     public Integer getUniformPriceUnconstrained() {
         return uniformPriceUnconstrained;
@@ -105,6 +156,29 @@ public class SummaryResult {
 
     public SummaryResult withTotalLMPProfitOverUP(final Double totalLMPProfitOverUP) {
         this.totalLMPProfitOverUP = totalLMPProfitOverUP;
+        return this;
+    }
+
+    public SummaryResult withTotalLoad(final Double totalLoad) {
+        this.totalLoad = totalLoad;
+        return this;
+    }
+
+    public SummaryResult withMinLmpPrice(final Double minLmpPrice) {
+        this.minLmpPrice = minLmpPrice;
+        return this;
+    }
+    public SummaryResult withMedianLmpPrice(final Double medianLmpPrice) {
+        this.medianLmpPrice = medianLmpPrice;
+        return this;
+    }
+    public SummaryResult withMaxLmpPrice(final Double maxLmpPrice) {
+        this.maxLmpPrice = maxLmpPrice;
+        return this;
+    }
+
+    public SummaryResult withAverageLmpPrice(final Double averageLmpPrice) {
+        this.averageLmpPrice = averageLmpPrice;
         return this;
     }
 }

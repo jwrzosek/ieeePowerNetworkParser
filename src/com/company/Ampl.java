@@ -26,21 +26,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public class Ampl {
 
     private static Map<String, SummaryResult> summaryResults = new HashMap<>();
     private static Map<String, Map<String, Double>> loads = new HashMap<>();
+
     static {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(key -> loads.put(key, new HashMap<>())
                 );
     }
+
     private static Map<String, List<Result>> results = new HashMap<>();
+
     static {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(key -> results.put(key, new ArrayList<>())
-        );
+                );
     }
 
     public static void main(String[] args) {
@@ -63,8 +67,10 @@ public class Ampl {
         saveSummaryResults();
 
         long elapsedTime = System.nanoTime() - startTime;
-        System.out.println(LocalDateTime.now() +" --- Total execution time in sec: "
-                + elapsedTime/1000000000);
+        final var timeInSeconds = elapsedTime / 1000000000;
+        final var timeInMinutes = timeInSeconds / 60;
+        System.out.println(LocalDateTime.now() + " --- Total execution time in sec: "
+                + timeInSeconds + " (in minutes: " + timeInMinutes + ")");
     }
 
     private static void calculateSummaryResults() {
@@ -78,6 +84,18 @@ public class Ampl {
                             .orElseThrow(NoSuchElementException::new);
                     summary.withTotalBalancingCostUnconstrained(unconstrainedResult.getTotalBalancingCost());
                     summary.withUniformPriceUnconstrained(unconstrainedResult.getUniformPrice());
+
+                    summary.withMinLmpPrice(findMinLmpPrice(results));
+                    summary.withAverageLmpPrice(findArithmeticAverageLmpPrice(results));
+                    summary.withMedianLmpPrice(findLMPMedianPrice(results));
+                    summary.withMaxLmpPrice(findMaxLmpPrice(results));
+
+                    final var totalLoad = results.stream()
+                            .filter(Ampl::isNodeResult)
+                            .mapToDouble(Result::getLoad)
+                            .sum();
+                    summary.withTotalLoad(totalLoad);
+
 
                     final var balancedResult = results.stream()
                             .filter(r -> r.getResultName().equals("balanced.dat"))
@@ -108,9 +126,50 @@ public class Ampl {
                 });
     }
 
-    private static boolean isNodeResult(Result result) {
+    private static boolean isNodeResult(final Result result) {
         return !result.getResultName().equals("unconstrained.dat")
                 && !result.getResultName().equals("balanced.dat");
+    }
+
+
+    private static Double findMinLmpPrice(final List<Result> results) {
+        return results.stream()
+                .filter(Ampl::isNodeResult)
+                .mapToDouble(Result::getLmpPrice)
+                .min()
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    private static Double findArithmeticAverageLmpPrice(final List<Result> results) {
+        final var lmpNodesQuantity = results.stream()
+                .filter(Ampl::isNodeResult)
+                .count();
+        final var lmpSum = results.stream()
+                .filter(Ampl::isNodeResult)
+                .mapToDouble(Result::getLmpPrice)
+                .sum();
+        return lmpSum / lmpNodesQuantity;
+    }
+
+
+    private static Double findMaxLmpPrice(final List<Result> results) {
+        return results.stream()
+                .filter(Ampl::isNodeResult)
+                .mapToDouble(Result::getLmpPrice)
+                .max()
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    private static Double findLMPMedianPrice(final List<Result> results) {
+        DoubleStream sortedAges = results.stream()
+                .filter(Ampl::isNodeResult)
+                .mapToDouble(Result::getLmpPrice)
+                .sorted();
+        int nodesQuantity = (int) results.stream().filter(Ampl::isNodeResult).count();
+        double median = nodesQuantity % 2 == 0 ?
+                sortedAges.skip((nodesQuantity / 2) - 1).limit(2).average().getAsDouble() :
+                sortedAges.skip(nodesQuantity / 2).findFirst().getAsDouble();
+        return median;
     }
 
     /**
@@ -181,6 +240,7 @@ public class Ampl {
                     }
                 });
     }
+
     private static void saveSummaryResults() {
         StringBuilder sb = new StringBuilder();
         sb.append("Summary Result file:")
@@ -189,6 +249,11 @@ public class Ampl {
         sb.append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "dataSet"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP_u"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP_c"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LMP_min"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LMP_arith_avg"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LMP_median"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LMP_max"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "total_load"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_u"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_c"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_UP"))
@@ -201,6 +266,11 @@ public class Ampl {
             sb.append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, key))
                     .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceUnconstrained()))
                     .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceConstrained()))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMinLmpPrice())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getAverageLmpPrice())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMedianLmpPrice())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMaxLmpPrice())))
+                    .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalLoad())))
                     .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
                     .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostConstrained())))
                     .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
@@ -299,7 +369,6 @@ public class Ampl {
             ampl.readData(commonDataFileDir);
             ampl.readData(dataFileDir);
         }
-
 
 
         // solve problem
