@@ -14,6 +14,11 @@ public class SummaryResult {
     private Double medianLmpPrice;
     private Double maxLmpPrice;
 
+    /**
+     * Average price that is payed by buyer in lmp prices system (totalSystemIncomeLMP / totalLoad)
+     */
+    private Double averageBuyerLmpPrice;
+
     private Double totalLoad;
 
     private Double totalBalancingCostUnconstrained;
@@ -27,6 +32,14 @@ public class SummaryResult {
      */
     private Double totalLMPProfitOverUP;
 
+
+    public Double getAverageBuyerLmpPrice() {
+        return averageBuyerLmpPrice;
+    }
+
+    public void setAverageBuyerLmpPrice(final Double averageBuyerLmpPrice) {
+        this.averageBuyerLmpPrice = averageBuyerLmpPrice;
+    }
 
     public String getDataSetName() {
         return dataSetName;
@@ -193,6 +206,11 @@ public class SummaryResult {
 
     public SummaryResult withDataSetName(final String dataSetName) {
         this.dataSetName = dataSetName;
+        return this;
+    }
+
+    public SummaryResult withAverageBuyerLmpPrice(final Double averageBuyerLmpPrice) {
+        this.averageBuyerLmpPrice = averageBuyerLmpPrice;
         return this;
     }
 }
