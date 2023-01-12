@@ -62,10 +62,10 @@ public class PowerNetworkUtils {
     private static final Double KSE_DEMAND_WINTER_DOWN = 14164.8;
     private static final Double KSE_DEMAND_WINTER_PEAK = 20189.963;
     public static final Map<String, Double> kseDemandPeaks = Map.of(
-            "summerDown", KSE_DEMAND_SUMMER_DOWN,
-            "summerPeak", KSE_DEMAND_SUMMER_PEAK,
-            "winterDown", KSE_DEMAND_WINTER_DOWN,
-            "winterPeak", KSE_DEMAND_WINTER_PEAK
+            "summerDown", KSE_DEMAND_SUMMER_DOWN
+            //"summerPeak", KSE_DEMAND_SUMMER_PEAK,
+            //"winterDown", KSE_DEMAND_WINTER_DOWN,
+            //"winterPeak", KSE_DEMAND_WINTER_PEAK
     );
 
 //    public static Map<String, Double> kseDemandPeaks = new HashMap<>();

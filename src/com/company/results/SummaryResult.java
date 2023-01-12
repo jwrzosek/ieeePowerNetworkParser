@@ -3,9 +3,12 @@ package com.company.results;
 public class SummaryResult {
     private String dataSetName;
 
+    //---------- Uniform Price Stuff
     private Integer uniformPriceUnconstrained;
     private Integer uniformPriceConstrained;
 
+
+    //---------- LMP Stuff
     private Double minLmpPrice;
     /**
      * Arithmetic average lmp price
@@ -13,11 +16,24 @@ public class SummaryResult {
     private Double averageLmpPrice;
     private Double medianLmpPrice;
     private Double maxLmpPrice;
-
     /**
      * Average price that is payed by buyer in lmp prices system (totalSystemIncomeLMP / totalLoad)
      */
     private Double averageBuyerLmpPrice;
+
+
+    //---------- LP+ Stuff
+    private Double minLpPlusPrice;
+    /**
+     * Arithmetic average lmp price
+     */
+    private Double averageLpPlusPrice;
+    private Double medianLpPlusPrice;
+    private Double maxLpPlusPrice;
+    /**
+     * Average price that is payed by buyer in lmp prices system (totalSystemIncomeLMP / totalLoad)
+     */
+    private Double averageBuyerLpPlusPrice;
 
     private Double totalLoad;
 
@@ -30,12 +46,73 @@ public class SummaryResult {
 
     private Double totalSystemIncomeLMP;
     private Double totalSystemIncomeUP;
+    private Double totalSystemIncomeLpPlus;
 
     /**
      * Total money difference between uniform prices and lmp 
      */
     private Double totalLMPProfitOverUP;
+    /**
+     * Total money difference between uniform prices and lp+
+     */
+    private Double totalLpPlusProfitOverUP;
 
+
+    public Double getMinLpPlusPrice() {
+        return minLpPlusPrice;
+    }
+
+    public void setMinLpPlusPrice(final Double minLpPlusPrice) {
+        this.minLpPlusPrice = minLpPlusPrice;
+    }
+
+    public Double getAverageLpPlusPrice() {
+        return averageLpPlusPrice;
+    }
+
+    public void setAverageLpPlusPrice(final Double averageLpPlusPrice) {
+        this.averageLpPlusPrice = averageLpPlusPrice;
+    }
+
+    public Double getMedianLpPlusPrice() {
+        return medianLpPlusPrice;
+    }
+
+    public void setMedianLpPlusPrice(final Double medianLpPlusPrice) {
+        this.medianLpPlusPrice = medianLpPlusPrice;
+    }
+
+    public Double getMaxLpPlusPrice() {
+        return maxLpPlusPrice;
+    }
+
+    public void setMaxLpPlusPrice(final Double maxLpPlusPrice) {
+        this.maxLpPlusPrice = maxLpPlusPrice;
+    }
+
+    public Double getAverageBuyerLpPlusPrice() {
+        return averageBuyerLpPlusPrice;
+    }
+
+    public void setAverageBuyerLpPlusPrice(final Double averageBuyerLpPlusPrice) {
+        this.averageBuyerLpPlusPrice = averageBuyerLpPlusPrice;
+    }
+
+    public Double getTotalSystemIncomeLpPlus() {
+        return totalSystemIncomeLpPlus;
+    }
+
+    public void setTotalSystemIncomeLpPlus(final Double totalSystemIncomeLpPlus) {
+        this.totalSystemIncomeLpPlus = totalSystemIncomeLpPlus;
+    }
+
+    public Double getTotalLpPlusProfitOverUP() {
+        return totalLpPlusProfitOverUP;
+    }
+
+    public void setTotalLpPlusProfitOverUP(final Double totalLpPlusProfitOverUP) {
+        this.totalLpPlusProfitOverUP = totalLpPlusProfitOverUP;
+    }
 
     public Double getConstraintsCost() {
         return constraintsCost;
@@ -228,6 +305,41 @@ public class SummaryResult {
 
     public SummaryResult withConstraintsCost(final Double constraintsCost) {
         this.constraintsCost = constraintsCost;
+        return this;
+    }
+
+    public SummaryResult withMinLpPlusPrice(final Double minLpPlusPrice) {
+        this.minLpPlusPrice = minLpPlusPrice;
+        return this;
+    }
+
+    public SummaryResult withAverageLpPlusPrice(final Double averageLpPlusPrice) {
+        this.averageLpPlusPrice = averageLpPlusPrice;
+        return this;
+    }
+
+    public SummaryResult withMedianLpPlusPrice(final Double medianLpPlusPrice) {
+        this.medianLpPlusPrice = medianLpPlusPrice;
+        return this;
+    }
+
+    public SummaryResult withMaxLpPlusPrice(final Double maxLpPlusPrice) {
+        this.maxLpPlusPrice = maxLpPlusPrice;
+        return this;
+    }
+
+    public SummaryResult withAverageBuyerLpPlusPrice(final Double averageBuyerLpPlusPrice) {
+        this.averageBuyerLpPlusPrice = averageBuyerLpPlusPrice;
+        return this;
+    }
+
+    public SummaryResult withTotalSystemIncomeLpPlus(final Double totalSystemIncomeLpPlus) {
+        this.totalSystemIncomeLpPlus = totalSystemIncomeLpPlus;
+        return this;
+    }
+
+    public SummaryResult withTotalLpPlusProfitOverUP(final Double totalLpPlusProfitOverUP) {
+        this.totalLpPlusProfitOverUP = totalLpPlusProfitOverUP;
         return this;
     }
 }

@@ -6,10 +6,20 @@ public class Result {
     private Double objective;
     private Integer uniformPrice;
     private Double lmpPrice;
+    private Double lpPlusPrice;
     private Double totalBalancingCost;
     private Double load;
     private Double totalLoad;
     private Double totalUniformPriceProfit;
+
+
+    public Double getLpPlusPrice() {
+        return lpPlusPrice;
+    }
+
+    public void setLpPlusPrice(final Double lpPlusPrice) {
+        this.lpPlusPrice = lpPlusPrice;
+    }
 
     public Double getTotalLoad() {
         return totalLoad;
@@ -121,6 +131,10 @@ public class Result {
 
     public Result withTotalBalancingCost(final Double totalBalancingCost) {
         this.totalBalancingCost = totalBalancingCost;
+        return this;
+    }
+    public Result withLpPlusPrice(final Double lpPlusPrice) {
+        this.lpPlusPrice = lpPlusPrice;
         return this;
     }
 }

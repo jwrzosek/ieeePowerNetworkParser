@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class KSEPowerNetworkParser {
 
@@ -230,6 +231,10 @@ public class KSEPowerNetworkParser {
 
     public List<KseNode> getNodes() {
         return nodes;
+    }
+
+    public List<Integer> getNodesWithGenerators() {
+        return generators.stream().map(KseGenerator::getNodeNumber).distinct().collect(Collectors.toList());
     }
 
     public void writeRunScripts(final String directoryName, final int size) {
