@@ -23,6 +23,10 @@ public class SummaryResult {
 
     private Double totalBalancingCostUnconstrained;
     private Double totalBalancingCostConstrained;
+    /**
+     * Cost of getting constraints into account while balancing the system
+     */
+    private Double constraintsCost;
 
     private Double totalSystemIncomeLMP;
     private Double totalSystemIncomeUP;
@@ -32,6 +36,14 @@ public class SummaryResult {
      */
     private Double totalLMPProfitOverUP;
 
+
+    public Double getConstraintsCost() {
+        return constraintsCost;
+    }
+
+    public void setConstraintsCost(final Double constraintsCost) {
+        this.constraintsCost = constraintsCost;
+    }
 
     public Double getAverageBuyerLmpPrice() {
         return averageBuyerLmpPrice;
@@ -211,6 +223,11 @@ public class SummaryResult {
 
     public SummaryResult withAverageBuyerLmpPrice(final Double averageBuyerLmpPrice) {
         this.averageBuyerLmpPrice = averageBuyerLmpPrice;
+        return this;
+    }
+
+    public SummaryResult withConstraintsCost(final Double constraintsCost) {
+        this.constraintsCost = constraintsCost;
         return this;
     }
 }

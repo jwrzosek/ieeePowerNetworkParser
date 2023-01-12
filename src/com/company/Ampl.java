@@ -139,6 +139,7 @@ public class Ampl {
                     summary.withTotalLMPProfitOverUP(totalLMPProfitOverUP);
 
                     summary.withAverageBuyerLmpPrice(findAverageBuyerLmpPrice((summary)));
+                    summary.withConstraintsCost(findCostOfConstraints(summary));
 
                     summaryResults.put(key, summary);
                 });
@@ -157,6 +158,15 @@ public class Ampl {
             throw new DataNotFoundException("total load or total system income lmp values of summary result missing");
         }
         return totalSystemIncomeLMP / totalLoad;
+    }
+
+    private static Double findCostOfConstraints(final SummaryResult summary) {
+        final var balancingCostConstrained = summary.getTotalBalancingCostConstrained();
+        final var balancingCostUnconstrained = summary.getTotalBalancingCostUnconstrained();
+        if (balancingCostConstrained == null || balancingCostUnconstrained == null) {
+            throw new DataNotFoundException("balancing costs result missing");
+        }
+        return balancingCostConstrained - balancingCostUnconstrained;
     }
 
     private static Double findMinLmpPrice(final List<Result> results) {
@@ -284,13 +294,15 @@ public class Ampl {
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LMP_max"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_u"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_c"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "constraints_cost"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_UP"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_LMP"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lmp_prof_over_up"))
                 .append("\n");
 
         sb.append("Sorted by default (by data set name):").append("\n");
-        summaryResults.values()
+        summaryResults.values().stream()
+                .sorted(Comparator.comparing(SummaryResult::getDataSetName))
                 .forEach(summaryResult -> sb
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getDataSetName()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalLoad())))
@@ -301,8 +313,9 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getAverageBuyerLmpPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMedianLmpPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMaxLmpPrice())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostConstrained())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getConstraintsCost())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
@@ -319,10 +332,12 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceConstrained()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMinLmpPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getAverageLmpPrice())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getAverageBuyerLmpPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMedianLmpPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMaxLmpPrice())))
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostConstrained())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getConstraintsCost())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
