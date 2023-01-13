@@ -1,6 +1,6 @@
 package com.company.parser.model;
 
-public class Branch {
+public class Node {
     /**
      * For transformers or phase shifters, the side of the model the non-unity tap is on
      */
@@ -222,112 +222,112 @@ public class Branch {
         this.admittance = admittance;
     }
 
-    public Branch withTapBusNumber(final Integer tapBusNumber) {
+    public Node withTapBusNumber(final Integer tapBusNumber) {
         this.tapBusNumber = tapBusNumber;
         return this;
     }
 
-    public Branch withzBusNumber(final Integer zBusNumber) {
+    public Node withzBusNumber(final Integer zBusNumber) {
         this.zBusNumber = zBusNumber;
         return this;
     }
 
-    public Branch withLoadFlowArea(final Integer loadFlowArea) {
+    public Node withLoadFlowArea(final Integer loadFlowArea) {
         this.loadFlowArea = loadFlowArea;
         return this;
     }
 
-    public Branch withLossZone(final Integer lossZone) {
+    public Node withLossZone(final Integer lossZone) {
         this.lossZone = lossZone;
         return this;
     }
 
-    public Branch withCircuit(final Integer circuit) {
+    public Node withCircuit(final Integer circuit) {
         this.circuit = circuit;
         return this;
     }
 
-    public Branch withType(final Integer type) {
+    public Node withType(final Integer type) {
         this.type = type;
         return this;
     }
 
-    public Branch withBranchResistanceR(final Double branchResistanceR) {
+    public Node withBranchResistanceR(final Double branchResistanceR) {
         this.branchResistanceR = branchResistanceR;
         return this;
     }
 
-    public Branch withBranchReactanceX(final Double branchReactanceX) {
+    public Node withBranchReactanceX(final Double branchReactanceX) {
         this.branchReactanceX = branchReactanceX;
         return this;
     }
 
-    public Branch withLineChargingB(final Double lineChargingB) {
+    public Node withLineChargingB(final Double lineChargingB) {
         this.lineChargingB = lineChargingB;
         return this;
     }
 
-    public Branch withLineMVARatingNo1(final Integer lineMVARatingNo1) {
+    public Node withLineMVARatingNo1(final Integer lineMVARatingNo1) {
         this.lineMVARatingNo1 = lineMVARatingNo1;
         return this;
     }
 
-    public Branch withLineMVARatingNo2(final Integer lineMVARatingNo2) {
+    public Node withLineMVARatingNo2(final Integer lineMVARatingNo2) {
         this.lineMVARatingNo2 = lineMVARatingNo2;
         return this;
     }
 
-    public Branch withLineMVARatingNo3(final Integer lineMVARatingNo3) {
+    public Node withLineMVARatingNo3(final Integer lineMVARatingNo3) {
         this.lineMVARatingNo3 = lineMVARatingNo3;
         return this;
     }
 
-    public Branch withControlBusNubmer(final Integer controlBusNubmer) {
+    public Node withControlBusNubmer(final Integer controlBusNubmer) {
         this.controlBusNubmer = controlBusNubmer;
         return this;
     }
 
-    public Branch withSide(final Integer side) {
+    public Node withSide(final Integer side) {
         this.side = side;
         return this;
     }
 
-    public Branch withTransformerFinalTurnsRatio(final Double transformerFinalTurnsRatio) {
+    public Node withTransformerFinalTurnsRatio(final Double transformerFinalTurnsRatio) {
         this.transformerFinalTurnsRatio = transformerFinalTurnsRatio;
         return this;
     }
 
-    public Branch withTransformerPhaseShifterFinalAngle(final Double transformerPhaseShifterFinalAngle) {
+    public Node withTransformerPhaseShifterFinalAngle(final Double transformerPhaseShifterFinalAngle) {
         this.transformerPhaseShifterFinalAngle = transformerPhaseShifterFinalAngle;
         return this;
     }
 
-    public Branch withMinimumTapOrPhaseShift(final Double minimumTapOrPhaseShift) {
+    public Node withMinimumTapOrPhaseShift(final Double minimumTapOrPhaseShift) {
         this.minimumTapOrPhaseShift = minimumTapOrPhaseShift;
         return this;
     }
 
-    public Branch withMaximumTapOrPhaseShift(final Double maximumTapOrPhaseShift) {
+    public Node withMaximumTapOrPhaseShift(final Double maximumTapOrPhaseShift) {
         this.maximumTapOrPhaseShift = maximumTapOrPhaseShift;
         return this;
     }
 
-    public Branch withStepSize(final Double stepSize) {
+    public Node withStepSize(final Double stepSize) {
         this.stepSize = stepSize;
         return this;
     }
 
-    public Branch withMinimumVoltageMVARorMWLimit(final Double minimumVoltageMVARorMWLimit) {
+    public Node withMinimumVoltageMVARorMWLimit(final Double minimumVoltageMVARorMWLimit) {
         this.minimumVoltageMVARorMWLimit = minimumVoltageMVARorMWLimit;
         return this;
     }
 
-    public Branch withMaximumVoltageMVARorMWLimit(final Double maximumVoltageMVARorMWLimit) {
+    public Node withMaximumVoltageMVARorMWLimit(final Double maximumVoltageMVARorMWLimit) {
         this.maximumVoltageMVARorMWLimit = maximumVoltageMVARorMWLimit;
         return this;
     }
 
-    public Branch withAdmittance(final Double admittance) {
+    public Node withAdmittance(final Double admittance) {
         this.admittance = admittance;
         return this;
     }

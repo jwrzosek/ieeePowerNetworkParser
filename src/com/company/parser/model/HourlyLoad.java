@@ -2,6 +2,7 @@ package com.company.parser.model;
 
 public class HourlyLoad {
     private String period;
+    private Integer hour;
     private Double summerPeakLoadPercentageWkdy;
     private Double summerPeakLoadPercentageWknd;
     private Double winterPeakLoadPercentageWkdy;
@@ -11,6 +12,14 @@ public class HourlyLoad {
 
     public String getPeriod() {
         return period;
+    }
+
+    public Integer getHour() {
+        return hour;
+    }
+
+    public void setHour(final Integer hour) {
+        this.hour = hour;
     }
 
     public void setPeriod(final String period) {
@@ -98,6 +107,11 @@ public class HourlyLoad {
 
     public HourlyLoad withSpringFallPeakLoadPercentageWknd(final Double springFallPeakLoadPercentageWknd) {
         this.springFallPeakLoadPercentageWknd = springFallPeakLoadPercentageWknd;
+        return this;
+    }
+
+    public HourlyLoad withHour(final Integer hour) {
+        this.hour = hour;
         return this;
     }
 }

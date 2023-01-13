@@ -3,7 +3,7 @@ package com.company.parser.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bus {
+public class Line {
     private Integer busNumber;
     private String busName;
     private Integer loadFlowAreaNumber;
@@ -172,92 +172,92 @@ public class Bus {
         return remoteControlledBusNumber;
     }
 
-    public Bus withBusNumber(final Integer busNumber) {
+    public Line withBusNumber(final Integer busNumber) {
         this.busNumber = busNumber;
         return this;
     }
 
-    public Bus withBusName(final String busName) {
+    public Line withBusName(final String busName) {
         this.busName = busName;
         return this;
     }
 
-    public Bus withLoadFlowAreaNumber(final Integer loadFlowAreaNumber) {
+    public Line withLoadFlowAreaNumber(final Integer loadFlowAreaNumber) {
         this.loadFlowAreaNumber = loadFlowAreaNumber;
         return this;
     }
 
-    public Bus withLossZoneNumber(final Integer lossZoneNumber) {
+    public Line withLossZoneNumber(final Integer lossZoneNumber) {
         this.lossZoneNumber = lossZoneNumber;
         return this;
     }
 
-    public Bus withType(final Integer type) {
+    public Line withType(final Integer type) {
         this.type = type;
         return this;
     }
 
-    public Bus withFinalVoltage(final Double finalVoltage) {
+    public Line withFinalVoltage(final Double finalVoltage) {
         this.finalVoltage = finalVoltage;
         return this;
     }
 
-    public Bus withFinalAngle(final Double finalAngle) {
+    public Line withFinalAngle(final Double finalAngle) {
         this.finalAngle = finalAngle;
         return this;
     }
 
-    public Bus withLoadMW(final Double loadMW) {
+    public Line withLoadMW(final Double loadMW) {
         this.loadMW = loadMW;
         return this;
     }
 
-    public Bus withLoadMVAR(final Double loadMVAR) {
+    public Line withLoadMVAR(final Double loadMVAR) {
         this.loadMVAR = loadMVAR;
         return this;
     }
 
-    public Bus withGenerator(final Generator generator) {
+    public Line withGenerator(final Generator generator) {
         this.generators.add(generator);
         return this;
     }
 
-    public Bus withGenerationMVAR(final Double generationMVAR) {
+    public Line withGenerationMVAR(final Double generationMVAR) {
         this.generationMVAR = generationMVAR;
         return this;
     }
 
-    public Bus withBaseKV(final Double baseKV) {
+    public Line withBaseKV(final Double baseKV) {
         this.baseKV = baseKV;
         return this;
     }
 
-    public Bus withDesiredVolts(final Double desiredVolts) {
+    public Line withDesiredVolts(final Double desiredVolts) {
         this.desiredVolts = desiredVolts;
         return this;
     }
 
-    public Bus withMaximumMVARorVoltageLimit(final Double maximumMVARorVoltageLimit) {
+    public Line withMaximumMVARorVoltageLimit(final Double maximumMVARorVoltageLimit) {
         this.maximumMVARorVoltageLimit = maximumMVARorVoltageLimit;
         return this;
     }
 
-    public Bus withMinimumMVARorVoltageLimit(final Double minimumMVARorVoltageLimit) {
+    public Line withMinimumMVARorVoltageLimit(final Double minimumMVARorVoltageLimit) {
         this.minimumMVARorVoltageLimit = minimumMVARorVoltageLimit;
         return this;
     }
 
-    public Bus withShuntConductanceG(final Double shuntConductanceG) {
+    public Line withShuntConductanceG(final Double shuntConductanceG) {
         this.shuntConductanceG = shuntConductanceG;
         return this;
     }
 
-    public Bus withShuntSusceptanceB(final Double shuntSusceptanceB) {
+    public Line withShuntSusceptanceB(final Double shuntSusceptanceB) {
         this.shuntSusceptanceB = shuntSusceptanceB;
         return this;
     }
 
-    public Bus withRemoteControlledBusNumber(final Integer remoteControlledBusNumber) {
+    public Line withRemoteControlledBusNumber(final Integer remoteControlledBusNumber) {
         this.remoteControlledBusNumber = remoteControlledBusNumber;
         return this;
     }

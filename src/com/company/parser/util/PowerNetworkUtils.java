@@ -22,12 +22,15 @@ public class PowerNetworkUtils {
     public static final String DIR_KSE_POWER_NETWORK_GENERATORS_WORKING_WITH_COST_DATA = "resources/powernetworkdata/kse_generators_working_with_cost.txt";
 
     public static final String HOURLY_LOAD_DATA_24_HOURS = "resources/timeperioddata/hourlyLoad.txt";
-    public static final String HOURLY_LOAD_DATA_10HOURS = "resources/timeperioddata/hourlyLoadTmp.txt";
+    public static final String HOURLY_LOAD_DATA_TEMP = "resources/timeperioddata/hourlyLoadTmp.txt";
+    // todo: theoretically same as DATA_TEMP
+    public static final String HOURLY_LOAD_DATA_10HOURS = "resources/timeperioddata/hourlyLoad10.txt";
 
     public static final String MULTI_STAGE_MODEL_DIR = "resources/models/model.mod";
     public static final String MULTI_STAGE_MIN_BALANCING_COST_MODEL_DIR = "resources/models/model_min_balancing_cost.mod";
     public static final String MULTI_STAGE_MIN_BALANCING_COST_MODEL_FOR_KSE_DIR = "resources/models/model_min_balancing_cost_for_kse.mod";
     public static final String MULTI_STAGE_COMMON_DATA_DIR = "resources/datamodels/common.dat";
+    public static final String MULTI_STAGE_COMMON_DATA_UNCONSTRAINED_DIR = "resources/datamodels/common_unconstrained.dat";
     public static final String MULTI_STAGE_COMMON_KSE_DATA_DIR = "resources/datamodels/common_kse.dat";
     public static final String MULTI_STAGE_COMMON_KSE_EXTENDED_DATA_DIR = "resources/datamodels/common_kse_extended.dat";
     public static final String MULTI_STAGE_COMMON_KSE_EXTENDED_DATA_NO_LINE_LIMITS_DIR = "resources/datamodels/common_kse_no_line_limits.dat";
