@@ -364,9 +364,9 @@ public class MultiStageKSEModelAmplWriter {
     }
 
 
-    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfBranches, final double peak) {
+    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfLines, final double peak) {
         DateTimeFormatter dataPattern = DateTimeFormatter.ofPattern(AmplUtils.INFO_SECTION_DATA_PATTERN);
-        return "# " + numberOfBuses + "-nodes power network with " + numberOfBranches + " branches\n" +
+        return "# " + numberOfBuses + "-nodes power network with " + numberOfLines + " lines\n" +
                 "# Author: Jakub Wrzosek\n" +
                 "# Created: " + LocalDateTime.now().format(dataPattern) + "\n" +
                 "# with peak: " + peak + "\n\n";

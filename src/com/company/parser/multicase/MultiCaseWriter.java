@@ -31,11 +31,12 @@ public class MultiCaseWriter {
             final var directoryName =  hourlyLoad.getHour() + "_30nodes";
             writeMultipleCasesLMP(directoryName, peakPerc);
         });
+        writeRunScriptForMultiCaseScenario();
     }
 
     public void writeMultipleCasesLMP2(final String directoryName, double peak) {
         IEEEPowerNetworkParser unconstrainedParser = new IEEEPowerNetworkParser();
-        final var size = unconstrainedParser.getTransmissionLines().size();
+        final var size = unconstrainedParser.getTransmissionNodes().size();
         createMultiCaseDirectory(directoryName);
         //write model to a directory
         writeModelFile(directoryName);
@@ -68,7 +69,7 @@ public class MultiCaseWriter {
         writeCommonDataFileUnconstrained(directoryName);
 
         IEEEPowerNetworkParser unconstrainedParser = new IEEEPowerNetworkParser();
-        final var size = unconstrainedParser.getTransmissionLines().size();
+        final var size = unconstrainedParser.getTransmissionNodes().size();
         unconstrainedParser.writeRunScripts(directoryName, size);
 
         // wygeneruj plik z danymi niezależnymi od modelu
@@ -144,6 +145,26 @@ public class MultiCaseWriter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void writeRunScriptForMultiCaseScenario() {
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH,  "all.run");
+        final var runScript = createRunScriptForMultiCaseScenario();
+        try {
+            Files.deleteIfExists(path);
+            Files.writeString(path, runScript, StandardOpenOption.CREATE_NEW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String createRunScriptForMultiCaseScenario() {
+        StringBuilder sb = new StringBuilder();
+        hourlyLoads.forEach(hourlyLoad -> {
+            final var directoryName =  hourlyLoad.getHour() + "_30nodes";
+            sb.append("include '").append(directoryName).append("/batch.run'\n");
+        });
+        return sb.toString();
     }
 
     private void parseHourlyLoadDataLines() {

@@ -26,6 +26,8 @@ public class PowerNetworkUtils {
     // todo: theoretically same as DATA_TEMP
     public static final String HOURLY_LOAD_DATA_10HOURS = "resources/timeperioddata/hourlyLoad10.txt";
 
+    public static final Double P_MIN_PERCENTAGE = 0.55;
+
     public static final String MULTI_STAGE_MODEL_DIR = "resources/models/model.mod";
     public static final String MULTI_STAGE_MIN_BALANCING_COST_MODEL_DIR = "resources/models/model_min_balancing_cost.mod";
     public static final String MULTI_STAGE_MIN_BALANCING_COST_MODEL_FOR_KSE_DIR = "resources/models/model_min_balancing_cost_for_kse.mod";

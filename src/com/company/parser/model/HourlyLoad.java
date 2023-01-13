@@ -10,16 +10,16 @@ public class HourlyLoad {
     private Double springFallPeakLoadPercentageWkdy;
     private Double springFallPeakLoadPercentageWknd;
 
-    public String getPeriod() {
-        return period;
-    }
-
     public Integer getHour() {
         return hour;
     }
 
     public void setHour(final Integer hour) {
         this.hour = hour;
+    }
+
+    public String getPeriod() {
+        return period;
     }
 
     public void setPeriod(final String period) {

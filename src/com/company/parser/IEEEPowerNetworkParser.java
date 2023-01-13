@@ -19,8 +19,8 @@ public class IEEEPowerNetworkParser {
     private List<String> powerNetworkDataLines = new ArrayList<>();
     private List<String> hourlyLoadDataLines = new ArrayList<>();
 
-    private List<Line> transmissionLines = new ArrayList<>();
-    private List<Node> nodes = new ArrayList<>();
+    private List<Node> transmissionNodes = new ArrayList<>();
+    private List<Line> nodeLines = new ArrayList<>();
     private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
     public IEEEPowerNetworkParser() {
@@ -37,7 +37,7 @@ public class IEEEPowerNetworkParser {
 
     public void parseMultiStageCase(final String directoryName, final String filename, boolean unconstrained, int lmpNode, double peak) {
         MultiStageModelAmplWriter modelAmplWriter = new MultiStageModelAmplWriter(unconstrained);
-        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, transmissionLines, nodes, hourlyLoads, getNumberOfGenerators(), lmpNode, peak);
+        modelAmplWriter.writeAmplFullMultiStageModel(directoryName, filename, transmissionNodes, nodeLines, hourlyLoads, getNumberOfGenerators(), lmpNode, peak);
     }
 
     public void writeRunScripts(final String directory, final int size) {
@@ -59,8 +59,8 @@ public class IEEEPowerNetworkParser {
 
 
     private long getNumberOfGenerators() {
-        return transmissionLines.stream()
-                .map(Line::getGenerators)
+        return transmissionNodes.stream()
+                .map(Node::getGenerators)
                 .flatMap(Collection::stream)
                 .map(Generator::getGenerationMW)
                 .filter(generation -> generation > 0.01)
@@ -78,74 +78,74 @@ public class IEEEPowerNetworkParser {
                 branchDataStarted = false;
             }
             if (branchDataStarted) {
-                final var branch = parseBranchDataLine(line);
-                nodes.add(branch);
+                final var branch = parseLineDataLine(line);
+                nodeLines.add(branch);
             }
         }
     }
 
-    private Node parseBranchDataLine(final String line) {
-        Node node = new Node();
+    private Line parseLineDataLine(final String line) {
+        Line nodeLine = new Line();
 
         final var tapBusNumber = line.substring(0, 4).trim();
-        node.withTapBusNumber(Integer.parseInt(tapBusNumber));
+        nodeLine.withTapBusNumber(Integer.parseInt(tapBusNumber));
         final var zBusNumber = line.substring(5, 9).trim();
-        node.withzBusNumber(Integer.parseInt(zBusNumber));
+        nodeLine.withzBusNumber(Integer.parseInt(zBusNumber));
         final var loadFlowArea = line.substring(10, 12).trim();
-        node.withLoadFlowArea(Integer.parseInt(loadFlowArea));
+        nodeLine.withLoadFlowArea(Integer.parseInt(loadFlowArea));
         final var lossZone = line.substring(13, 15).trim();
-        node.withLossZone(Integer.parseInt(lossZone));
+        nodeLine.withLossZone(Integer.parseInt(lossZone));
         final var circuit = line.substring(16, 17).trim();
-        node.withCircuit(Integer.parseInt(circuit));
+        nodeLine.withCircuit(Integer.parseInt(circuit));
         final var type = line.substring(18, 19).trim();
-        node.withType(Integer.parseInt(type));
+        nodeLine.withType(Integer.parseInt(type));
         final var branchResistanceR = line.substring(19, 28).trim();
-        node.withBranchResistanceR(Double.parseDouble(branchResistanceR));
+        nodeLine.withBranchResistanceR(Double.parseDouble(branchResistanceR));
         final var branchReactanceX = line.substring(28, 39).trim();
-        node.withBranchReactanceX(Double.parseDouble(branchReactanceX));
+        nodeLine.withBranchReactanceX(Double.parseDouble(branchReactanceX));
         final var lineChargingB = line.substring(39, 49).trim();
-        node.withLineChargingB(Double.parseDouble(lineChargingB));
+        nodeLine.withLineChargingB(Double.parseDouble(lineChargingB));
         final var lineMVARatingNo1 = line.substring(50, 55).trim();
-        node.withLineMVARatingNo1(Integer.parseInt(lineMVARatingNo1));
+        nodeLine.withLineMVARatingNo1(Integer.parseInt(lineMVARatingNo1));
         final var lineMVARatingNo2 = line.substring(56, 61).trim();
-        node.withLineMVARatingNo2(Integer.parseInt(lineMVARatingNo2));
+        nodeLine.withLineMVARatingNo2(Integer.parseInt(lineMVARatingNo2));
         final var lineMVARatingNo3 = line.substring(62, 67).trim();
-        node.withLineMVARatingNo3(Integer.parseInt(lineMVARatingNo3));
+        nodeLine.withLineMVARatingNo3(Integer.parseInt(lineMVARatingNo3));
         final var controlBusNumber = line.substring(69, 72).trim();
-        node.withControlBusNubmer(Integer.parseInt(controlBusNumber));
+        nodeLine.withControlBusNubmer(Integer.parseInt(controlBusNumber));
         final var side = line.substring(73, 74).trim();
-        node.withSide(Integer.parseInt(side));
+        nodeLine.withSide(Integer.parseInt(side));
         final var transformerFinalTurnsRatio = line.substring(76, 81).trim();
-        node.withTransformerFinalTurnsRatio(Double.parseDouble(transformerFinalTurnsRatio));
+        nodeLine.withTransformerFinalTurnsRatio(Double.parseDouble(transformerFinalTurnsRatio));
         final var transformerPhaseShifterFinalAngle = line.substring(83, 89).trim();
-        node.withTransformerPhaseShifterFinalAngle(Double.parseDouble(transformerPhaseShifterFinalAngle));
+        nodeLine.withTransformerPhaseShifterFinalAngle(Double.parseDouble(transformerPhaseShifterFinalAngle));
         final var minimumTapOrPhaseShift = line.substring(89, 96).trim();
-        node.withMinimumTapOrPhaseShift(Double.parseDouble(minimumTapOrPhaseShift));
+        nodeLine.withMinimumTapOrPhaseShift(Double.parseDouble(minimumTapOrPhaseShift));
         final var maximumTapOrPhaseShift = line.substring(96, 103);
-        node.withMaximumTapOrPhaseShift(Double.parseDouble(maximumTapOrPhaseShift));
+        nodeLine.withMaximumTapOrPhaseShift(Double.parseDouble(maximumTapOrPhaseShift));
         final var stepSize = line.substring(104, 110).trim();
-        node.withStepSize(Double.parseDouble(stepSize));
+        nodeLine.withStepSize(Double.parseDouble(stepSize));
         final var minimumVoltageMVARorMWLimit = line.substring(111, 118).trim();
-        node.withMinimumVoltageMVARorMWLimit(Double.parseDouble(minimumVoltageMVARorMWLimit));
+        nodeLine.withMinimumVoltageMVARorMWLimit(Double.parseDouble(minimumVoltageMVARorMWLimit));
         final var maximumVoltageMVARorMWLimit = line.substring(118, 121).trim();
-        node.withMaximumVoltageMVARorMWLimit(Double.parseDouble(maximumVoltageMVARorMWLimit));
-        final var admittance = getAdmittanceValue(node, false);
-        node.withAdmittance(admittance);
-        return node;
+        nodeLine.withMaximumVoltageMVARorMWLimit(Double.parseDouble(maximumVoltageMVARorMWLimit));
+        final var admittance = getAdmittanceValue(nodeLine, false);
+        nodeLine.withAdmittance(admittance);
+        return nodeLine;
     }
 
-    private Double getAdmittanceValue(Node node, boolean dc) {
-        return dc ? calculateAdmittanceDC(node) : calculateAdmittanceAC(node);
+    private Double getAdmittanceValue(Line nodeLine, boolean dc) {
+        return dc ? calculateAdmittanceDC(nodeLine) : calculateAdmittanceAC(nodeLine);
     }
 
-    private Double calculateAdmittanceDC(Node node) {
-        Double r = node.getBranchResistanceR();
+    private Double calculateAdmittanceDC(Line nodeLine) {
+        Double r = nodeLine.getBranchResistanceR();
         return 1/r;
     }
 
-    private Double calculateAdmittanceAC(Node node) {
-        Double r = node.getBranchResistanceR();
-        Double x = node.getBranchReactanceX();
+    private Double calculateAdmittanceAC(Line nodeLine) {
+        Double r = nodeLine.getBranchResistanceR();
+        Double x = nodeLine.getBranchReactanceX();
         Double conductanceG = r / ((r * r) + (x * x));
         Double susceptanceOm = x / ((r * r) + (x * x));
         return Math.sqrt((conductanceG * conductanceG) + (susceptanceOm * susceptanceOm));
@@ -163,54 +163,59 @@ public class IEEEPowerNetworkParser {
             }
             if (busDataStarted) {
                 final var bus = parseBusDataLine(line);
-                transmissionLines.add(bus);
+                transmissionNodes.add(bus);
             }
         }
     }
 
-    private Line parseBusDataLine(final String busDataLine) {
-        Line line = new Line();
+    private Node parseBusDataLine(final String busDataLine) {
+        Node node = new Node();
         final var busNumber = busDataLine.substring(0, 4).trim();
-        line.withBusNumber(Integer.parseInt(busNumber));
+        node.withBusNumber(Integer.parseInt(busNumber));
         final var busName = busDataLine.substring(5, 17).trim();
-        line.withBusName(busName);
+        node.withBusName(busName);
         final var loadFlowAreaNumber = busDataLine.substring(18, 20).trim();
-        line.withLoadFlowAreaNumber(Integer.parseInt(loadFlowAreaNumber));
+        node.withLoadFlowAreaNumber(Integer.parseInt(loadFlowAreaNumber));
         final var lossZoneNumber = busDataLine.substring(20, 23).trim();
-        line.withLossZoneNumber(Integer.parseInt(lossZoneNumber));
+        node.withLossZoneNumber(Integer.parseInt(lossZoneNumber));
         final var type = busDataLine.substring(24, 26).trim();
-        line.withType(Integer.parseInt(type));
+        node.withType(Integer.parseInt(type));
         final var finalVoltage = busDataLine.substring(27, 33).trim();
-        line.withFinalVoltage(Double.parseDouble(finalVoltage));
+        node.withFinalVoltage(Double.parseDouble(finalVoltage));
         final var finalAngle = busDataLine.substring(33, 40).trim();
-        line.withFinalAngle(Double.parseDouble(finalAngle));
+        node.withFinalAngle(Double.parseDouble(finalAngle));
         final var loadMW = busDataLine.substring(40, 49).trim();
-        line.withLoadMW(Double.parseDouble(loadMW));
+        node.withLoadMW(Double.parseDouble(loadMW));
         final var loadMVAR = busDataLine.substring(49, 59).trim();
-        line.withLoadMVAR(Double.parseDouble(loadMVAR));
+        node.withLoadMVAR(Double.parseDouble(loadMVAR));
         final var generationMW = busDataLine.substring(59, 67);
-        line.withGenerator(new Generator()
+        node.withGenerator(new Generator()
                 .withBusNumber(Integer.parseInt(busNumber))
                 .withGenerationMW(Double.parseDouble(generationMW))
+                .withVariableCost(getRandomInteger(300, 900))
         );
         final var generationMVAR = busDataLine.substring(67, 75).trim();
-        line.withGenerationMVAR(Double.parseDouble(generationMVAR));
+        node.withGenerationMVAR(Double.parseDouble(generationMVAR));
         final var baseKV = busDataLine.substring(76, 84).trim();
-        line.withBaseKV(Double.parseDouble(baseKV));
+        node.withBaseKV(Double.parseDouble(baseKV));
         final var desiredVolts = busDataLine.substring(84, 90).trim();
-        line.withDesiredVolts(Double.parseDouble(desiredVolts));
+        node.withDesiredVolts(Double.parseDouble(desiredVolts));
         final var maximumMVARorVoltageLimit = busDataLine.substring(90, 98).trim();
-        line.withMaximumMVARorVoltageLimit(Double.parseDouble(maximumMVARorVoltageLimit));
+        node.withMaximumMVARorVoltageLimit(Double.parseDouble(maximumMVARorVoltageLimit));
         final var minimumMVARorVoltageLimit = busDataLine.substring(98, 106).trim();
-        line.withMinimumMVARorVoltageLimit(Double.parseDouble(minimumMVARorVoltageLimit));
+        node.withMinimumMVARorVoltageLimit(Double.parseDouble(minimumMVARorVoltageLimit));
         final var shuntConductanceG = busDataLine.substring(106, 114).trim();
-        line.withShuntConductanceG(Double.parseDouble(shuntConductanceG));
+        node.withShuntConductanceG(Double.parseDouble(shuntConductanceG));
         final var shuntSusceptanceB = busDataLine.substring(114, 122).trim();
-        line.withShuntSusceptanceB(Double.parseDouble(shuntSusceptanceB));
+        node.withShuntSusceptanceB(Double.parseDouble(shuntSusceptanceB));
         final var remoteControlledBusNumber = busDataLine.substring(123, 127).trim();
-        line.withRemoteControlledBusNumber(Integer.parseInt(remoteControlledBusNumber));
+        node.withRemoteControlledBusNumber(Integer.parseInt(remoteControlledBusNumber));
 
-        return line;
+        return node;
+    }
+
+    private static int getRandomInteger(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
     }
 
     private void parseHourlyLoadDataLines() {
@@ -266,8 +271,8 @@ public class IEEEPowerNetworkParser {
         return Double.parseDouble(value) / 100;
     }
 
-    public List<Line> getTransmissionLines() {
-        return transmissionLines;
+    public List<Node> getTransmissionNodes() {
+        return transmissionNodes;
     }
 
     public List<HourlyLoad> getHourlyLoads() {

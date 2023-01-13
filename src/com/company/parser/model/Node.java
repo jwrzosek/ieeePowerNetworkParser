@@ -1,89 +1,67 @@
 package com.company.parser.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Node {
+    private Integer busNumber;
+    private String busName;
+    private Integer loadFlowAreaNumber;
+    private Integer lossZoneNumber;
     /**
-     * For transformers or phase shifters, the side of the model the non-unity tap is on
-     */
-    private Integer tapBusNumber;
-    /**
-     * For transformers and phase shifters, the side of the model the device impedance is on.
-     */
-    private Integer zBusNumber;
-    private Integer loadFlowArea;
-    private Integer lossZone;
-    /**
-     * Use 1 for single lines
-     */
-    private Integer circuit;
-    /**
-     * 0 - Transmission line
-     * 1 - Fixed tap
-     * 2 - Variable tap for voltage control (TCUL, LTC)
-     * 3 - Variable tap (turns ratio) for MVAR control
-     * 4 - Variable phase angle for MW control (phase shifter)
+     * 0 - Unregulated (load, PQ)
+     * 1 - Hold MVAR generation within voltage limits, (PQ)
+     * 2 - Hold voltage within VAR limits (gen, PV)
+     * 3 - Hold voltage and angle (swing, V-Theta) (must always have one)
      */
     private Integer type;
-    private Double branchResistanceR;
-    private Double branchReactanceX;
-    private Double lineChargingB;
-    private Integer lineMVARatingNo1;
-    private Integer lineMVARatingNo2;
-    private Integer lineMVARatingNo3;
-    private Integer controlBusNubmer;
+    private Double finalVoltage;
+    private Double finalAngle; //degrees
+    private Double loadMW;
+    private Double loadMVAR;
+    private List<Generator> generators = new ArrayList<>();
+    private Double generationMVAR;
+    private Double baseKV;
     /**
-     * 0 - Controlled bus is one of the terminals
-     * 1 - Controlled bus is near the tap side
-     * 2 - Controlled bus is near the impedance side (Z bus)
+     *  This is desired remote voltage if this bus is controlling another bus
      */
-    private Integer side;
-    private Double transformerFinalTurnsRatio;
-    private Double transformerPhaseShifterFinalAngle;
-    private Double minimumTapOrPhaseShift;
-    private Double maximumTapOrPhaseShift;
-    private Double stepSize;
-    private Double minimumVoltageMVARorMWLimit;
-    private Double maximumVoltageMVARorMWLimit;
+    private Double desiredVolts;
+    private Double maximumMVARorVoltageLimit;
+    private Double minimumMVARorVoltageLimit;
+    private Double shuntConductanceG;
+    private Double shuntSusceptanceB;
+    private Integer remoteControlledBusNumber;
 
-    private Double admittance;
-
-    public Integer getTapBusNumber() {
-        return tapBusNumber;
+    public Integer getBusNumber() {
+        return busNumber;
     }
 
-    public void setTapBusNumber(final Integer tapBusNumber) {
-        this.tapBusNumber = tapBusNumber;
+    public void setBusNumber(final Integer busNumber) {
+        this.busNumber = busNumber;
     }
 
-    public Integer getzBusNumber() {
-        return zBusNumber;
+    public String getBusName() {
+        return busName;
     }
 
-    public void setzBusNumber(final Integer zBusNumber) {
-        this.zBusNumber = zBusNumber;
+    public void setBusName(final String busName) {
+        this.busName = busName;
     }
 
-    public Integer getLoadFlowArea() {
-        return loadFlowArea;
+    public Integer getLoadFlowAreaNumber() {
+        return loadFlowAreaNumber;
     }
 
-    public void setLoadFlowArea(final Integer loadFlowArea) {
-        this.loadFlowArea = loadFlowArea;
+    public void setLoadFlowAreaNumber(final Integer loadFlowAreaNumber) {
+        this.loadFlowAreaNumber = loadFlowAreaNumber;
     }
 
-    public Integer getLossZone() {
-        return lossZone;
+    public Integer getLossZoneNumber() {
+        return lossZoneNumber;
     }
 
-    public void setLossZone(final Integer lossZone) {
-        this.lossZone = lossZone;
-    }
-
-    public Integer getCircuit() {
-        return circuit;
-    }
-
-    public void setCircuit(final Integer circuit) {
-        this.circuit = circuit;
+    public void setLossZoneNumber(final Integer lossZoneNumber) {
+        this.lossZoneNumber = lossZoneNumber;
     }
 
     public Integer getType() {
@@ -94,156 +72,123 @@ public class Node {
         this.type = type;
     }
 
-    public Double getBranchResistanceR() {
-        return branchResistanceR;
+    public Double getFinalVoltage() {
+        return finalVoltage;
     }
 
-    public void setBranchResistanceR(final Double branchResistanceR) {
-        this.branchResistanceR = branchResistanceR;
+    public void setFinalVoltage(final Double finalVoltage) {
+        this.finalVoltage = finalVoltage;
     }
 
-    public Double getBranchReactanceX() {
-        return branchReactanceX;
+    public Double getFinalAngle() {
+        return finalAngle;
     }
 
-    public void setBranchReactanceX(final Double branchReactanceX) {
-        this.branchReactanceX = branchReactanceX;
+    public void setFinalAngle(final Double finalAngle) {
+        this.finalAngle = finalAngle;
     }
 
-    public Double getLineChargingB() {
-        return lineChargingB;
+    public Double getLoadMW() {
+        return loadMW;
     }
 
-    public void setLineChargingB(final Double lineChargingB) {
-        this.lineChargingB = lineChargingB;
+    public void setLoadMW(final Double loadMW) {
+        this.loadMW = loadMW;
     }
 
-    public Integer getLineMVARatingNo1() {
-        return lineMVARatingNo1;
+    public Double getLoadMVAR() {
+        return loadMVAR;
     }
 
-    public void setLineMVARatingNo1(final Integer lineMVARatingNo1) {
-        this.lineMVARatingNo1 = lineMVARatingNo1;
+    public void setLoadMVAR(final Double loadMVAR) {
+        this.loadMVAR = loadMVAR;
     }
 
-    public Integer getLineMVARatingNo2() {
-        return lineMVARatingNo2;
+    public List<Generator> getGenerators() {
+        return generators;
     }
 
-    public void setLineMVARatingNo2(final Integer lineMVARatingNo2) {
-        this.lineMVARatingNo2 = lineMVARatingNo2;
+    public void setGenerationMW(final List<Generator> generators) {
+        this.generators = generators;
     }
 
-    public Integer getLineMVARatingNo3() {
-        return lineMVARatingNo3;
+    public Double getGenerationMVAR() {
+        return generationMVAR;
     }
 
-    public void setLineMVARatingNo3(final Integer lineMVARatingNo3) {
-        this.lineMVARatingNo3 = lineMVARatingNo3;
+    public void setGenerationMVAR(final Double generationMVAR) {
+        this.generationMVAR = generationMVAR;
     }
 
-    public Integer getControlBusNubmer() {
-        return controlBusNubmer;
+    public Double getBaseKV() {
+        return baseKV;
     }
 
-    public void setControlBusNubmer(final Integer controlBusNubmer) {
-        this.controlBusNubmer = controlBusNubmer;
+    public void setBaseKV(final Double baseKV) {
+        this.baseKV = baseKV;
     }
 
-    public Integer getSide() {
-        return side;
+    public Double getDesiredVolts() {
+        return desiredVolts;
     }
 
-    public void setSide(final Integer side) {
-        this.side = side;
+    public void setDesiredVolts(final Double desiredVolts) {
+        this.desiredVolts = desiredVolts;
     }
 
-    public Double getTransformerFinalTurnsRatio() {
-        return transformerFinalTurnsRatio;
+    public Double getMaximumMVARorVoltageLimit() {
+        return maximumMVARorVoltageLimit;
     }
 
-    public void setTransformerFinalTurnsRatio(final Double transformerFinalTurnsRatio) {
-        this.transformerFinalTurnsRatio = transformerFinalTurnsRatio;
+    public void setMaximumMVARorVoltageLimit(final Double maximumMVARorVoltageLimit) {
+        this.maximumMVARorVoltageLimit = maximumMVARorVoltageLimit;
     }
 
-    public Double getTransformerPhaseShifterFinalAngle() {
-        return transformerPhaseShifterFinalAngle;
+    public Double getMinimumMVARorVoltageLimit() {
+        return minimumMVARorVoltageLimit;
     }
 
-    public void setTransformerPhaseShifterFinalAngle(final Double transformerPhaseShifterFinalAngle) {
-        this.transformerPhaseShifterFinalAngle = transformerPhaseShifterFinalAngle;
+    public void setMinimumMVARorVoltageLimit(final Double minimumMVARorVoltageLimit) {
+        this.minimumMVARorVoltageLimit = minimumMVARorVoltageLimit;
     }
 
-    public Double getMinimumTapOrPhaseShift() {
-        return minimumTapOrPhaseShift;
+    public Double getShuntConductanceG() {
+        return shuntConductanceG;
     }
 
-    public void setMinimumTapOrPhaseShift(final Double minimumTapOrPhaseShift) {
-        this.minimumTapOrPhaseShift = minimumTapOrPhaseShift;
+    public void setShuntConductanceG(final Double shuntConductanceG) {
+        this.shuntConductanceG = shuntConductanceG;
     }
 
-    public Double getMaximumTapOrPhaseShift() {
-        return maximumTapOrPhaseShift;
+    public Double getShuntSusceptanceB() {
+        return shuntSusceptanceB;
     }
 
-    public void setMaximumTapOrPhaseShift(final Double maximumTapOrPhaseShift) {
-        this.maximumTapOrPhaseShift = maximumTapOrPhaseShift;
+    public void setShuntSusceptanceB(final Double shuntSusceptanceB) {
+        this.shuntSusceptanceB = shuntSusceptanceB;
     }
 
-    public Double getStepSize() {
-        return stepSize;
+    public Integer getRemoteControlledBusNumber() {
+        return remoteControlledBusNumber;
     }
 
-    public void setStepSize(final Double stepSize) {
-        this.stepSize = stepSize;
-    }
-
-    public Double getMinimumVoltageMVARorMWLimit() {
-        return minimumVoltageMVARorMWLimit;
-    }
-
-    public void setMinimumVoltageMVARorMWLimit(final Double minimumVoltageMVARorMWLimit) {
-        this.minimumVoltageMVARorMWLimit = minimumVoltageMVARorMWLimit;
-    }
-
-    public Double getMaximumVoltageMVARorMWLimit() {
-        return maximumVoltageMVARorMWLimit;
-    }
-
-    public void setMaximumVoltageMVARorMWLimit(final Double maximumVoltageMVARorMWLimit) {
-        this.maximumVoltageMVARorMWLimit = maximumVoltageMVARorMWLimit;
-    }
-
-    public Double getAdmittance() {
-        return admittance;
-    }
-
-    public void setAdmittance(final Double admittance) {
-        this.admittance = admittance;
-    }
-
-    public Node withTapBusNumber(final Integer tapBusNumber) {
-        this.tapBusNumber = tapBusNumber;
+    public Node withBusNumber(final Integer busNumber) {
+        this.busNumber = busNumber;
         return this;
     }
 
-    public Node withzBusNumber(final Integer zBusNumber) {
-        this.zBusNumber = zBusNumber;
+    public Node withBusName(final String busName) {
+        this.busName = busName;
         return this;
     }
 
-    public Node withLoadFlowArea(final Integer loadFlowArea) {
-        this.loadFlowArea = loadFlowArea;
+    public Node withLoadFlowAreaNumber(final Integer loadFlowAreaNumber) {
+        this.loadFlowAreaNumber = loadFlowAreaNumber;
         return this;
     }
 
-    public Node withLossZone(final Integer lossZone) {
-        this.lossZone = lossZone;
-        return this;
-    }
-
-    public Node withCircuit(final Integer circuit) {
-        this.circuit = circuit;
+    public Node withLossZoneNumber(final Integer lossZoneNumber) {
+        this.lossZoneNumber = lossZoneNumber;
         return this;
     }
 
@@ -252,110 +197,92 @@ public class Node {
         return this;
     }
 
-    public Node withBranchResistanceR(final Double branchResistanceR) {
-        this.branchResistanceR = branchResistanceR;
+    public Node withFinalVoltage(final Double finalVoltage) {
+        this.finalVoltage = finalVoltage;
         return this;
     }
 
-    public Node withBranchReactanceX(final Double branchReactanceX) {
-        this.branchReactanceX = branchReactanceX;
+    public Node withFinalAngle(final Double finalAngle) {
+        this.finalAngle = finalAngle;
         return this;
     }
 
-    public Node withLineChargingB(final Double lineChargingB) {
-        this.lineChargingB = lineChargingB;
+    public Node withLoadMW(final Double loadMW) {
+        this.loadMW = loadMW;
         return this;
     }
 
-    public Node withLineMVARatingNo1(final Integer lineMVARatingNo1) {
-        this.lineMVARatingNo1 = lineMVARatingNo1;
+    public Node withLoadMVAR(final Double loadMVAR) {
+        this.loadMVAR = loadMVAR;
         return this;
     }
 
-    public Node withLineMVARatingNo2(final Integer lineMVARatingNo2) {
-        this.lineMVARatingNo2 = lineMVARatingNo2;
+    public Node withGenerator(final Generator generator) {
+        this.generators.add(generator);
         return this;
     }
 
-    public Node withLineMVARatingNo3(final Integer lineMVARatingNo3) {
-        this.lineMVARatingNo3 = lineMVARatingNo3;
+    public Node withGenerationMVAR(final Double generationMVAR) {
+        this.generationMVAR = generationMVAR;
         return this;
     }
 
-    public Node withControlBusNubmer(final Integer controlBusNubmer) {
-        this.controlBusNubmer = controlBusNubmer;
+    public Node withBaseKV(final Double baseKV) {
+        this.baseKV = baseKV;
         return this;
     }
 
-    public Node withSide(final Integer side) {
-        this.side = side;
+    public Node withDesiredVolts(final Double desiredVolts) {
+        this.desiredVolts = desiredVolts;
         return this;
     }
 
-    public Node withTransformerFinalTurnsRatio(final Double transformerFinalTurnsRatio) {
-        this.transformerFinalTurnsRatio = transformerFinalTurnsRatio;
+    public Node withMaximumMVARorVoltageLimit(final Double maximumMVARorVoltageLimit) {
+        this.maximumMVARorVoltageLimit = maximumMVARorVoltageLimit;
         return this;
     }
 
-    public Node withTransformerPhaseShifterFinalAngle(final Double transformerPhaseShifterFinalAngle) {
-        this.transformerPhaseShifterFinalAngle = transformerPhaseShifterFinalAngle;
+    public Node withMinimumMVARorVoltageLimit(final Double minimumMVARorVoltageLimit) {
+        this.minimumMVARorVoltageLimit = minimumMVARorVoltageLimit;
         return this;
     }
 
-    public Node withMinimumTapOrPhaseShift(final Double minimumTapOrPhaseShift) {
-        this.minimumTapOrPhaseShift = minimumTapOrPhaseShift;
+    public Node withShuntConductanceG(final Double shuntConductanceG) {
+        this.shuntConductanceG = shuntConductanceG;
         return this;
     }
 
-    public Node withMaximumTapOrPhaseShift(final Double maximumTapOrPhaseShift) {
-        this.maximumTapOrPhaseShift = maximumTapOrPhaseShift;
+    public Node withShuntSusceptanceB(final Double shuntSusceptanceB) {
+        this.shuntSusceptanceB = shuntSusceptanceB;
         return this;
     }
 
-    public Node withStepSize(final Double stepSize) {
-        this.stepSize = stepSize;
-        return this;
-    }
-
-    public Node withMinimumVoltageMVARorMWLimit(final Double minimumVoltageMVARorMWLimit) {
-        this.minimumVoltageMVARorMWLimit = minimumVoltageMVARorMWLimit;
-        return this;
-    }
-
-    public Node withMaximumVoltageMVARorMWLimit(final Double maximumVoltageMVARorMWLimit) {
-        this.maximumVoltageMVARorMWLimit = maximumVoltageMVARorMWLimit;
-        return this;
-    }
-
-    public Node withAdmittance(final Double admittance) {
-        this.admittance = admittance;
+    public Node withRemoteControlledBusNumber(final Integer remoteControlledBusNumber) {
+        this.remoteControlledBusNumber = remoteControlledBusNumber;
         return this;
     }
 
     @Override
     public String toString() {
-        return "Branch{" +
-                "tapBusNumber=" + tapBusNumber +
-                ", zBusNumber=" + zBusNumber +
-                ", loadFlowArea=" + loadFlowArea +
-                ", lossZone=" + lossZone +
-                ", circuit=" + circuit +
+        return "Bus{" +
+                "busNumber=" + busNumber +
+                ", busName='" + busName + '\'' +
+                ", loadFlowAreaNumber=" + loadFlowAreaNumber +
+                ", lossZoneNumber=" + lossZoneNumber +
                 ", type=" + type +
-                ", branchResistanceR=" + branchResistanceR +
-                ", branchReactanceX=" + branchReactanceX +
-                ", lineChargingB=" + lineChargingB +
-                ", lineMVARatingNo1=" + lineMVARatingNo1 +
-                ", lineMVARatingNo2=" + lineMVARatingNo2 +
-                ", lineMVARatingNo3=" + lineMVARatingNo3 +
-                ", controlBusNubmer=" + controlBusNubmer +
-                ", side=" + side +
-                ", transformerFinalTurnsRatio=" + transformerFinalTurnsRatio +
-                ", transformerPhaseShifterFinalAngle=" + transformerPhaseShifterFinalAngle +
-                ", minimumTapOrPhaseShift=" + minimumTapOrPhaseShift +
-                ", maximumTapOrPhaseShift=" + maximumTapOrPhaseShift +
-                ", stepSize=" + stepSize +
-                ", minimumVoltageMVARorMWLimit=" + minimumVoltageMVARorMWLimit +
-                ", maximumVoltageMVARorMWLimit=" + maximumVoltageMVARorMWLimit +
+                ", finalVoltage=" + finalVoltage +
+                ", finalAngle=" + finalAngle +
+                ", loadMW=" + loadMW +
+                ", loadMVAR=" + loadMVAR +
+                ", generators=" + generators +
+                ", generationMVAR=" + generationMVAR +
+                ", baseKV=" + baseKV +
+                ", desiredVolts=" + desiredVolts +
+                ", maximumMVARorVoltageLimit=" + maximumMVARorVoltageLimit +
+                ", minimumMVARorVoltageLimit=" + minimumMVARorVoltageLimit +
+                ", shuntConductanceG=" + shuntConductanceG +
+                ", shuntSusceptanceB=" + shuntSusceptanceB +
+                ", remoteControlledBusNumber=" + remoteControlledBusNumber +
                 '}';
     }
 }

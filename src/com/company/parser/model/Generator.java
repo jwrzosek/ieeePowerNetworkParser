@@ -3,6 +3,15 @@ package com.company.parser.model;
 public class Generator {
     private Integer busNumber;
     private Double generationMW;
+    private Integer variableCost;
+
+    public Integer getVariableCost() {
+        return variableCost;
+    }
+
+    public void setVariableCost(final Integer variableCost) {
+        this.variableCost = variableCost;
+    }
 
     public Integer getBusNumber() {
         return busNumber;
@@ -27,6 +36,11 @@ public class Generator {
 
     public Generator withGenerationMW(final Double generationMW) {
         this.generationMW = generationMW;
+        return this;
+    }
+
+    public Generator withVariableCost(final Integer variableCost) {
+        this.variableCost = variableCost;
         return this;
     }
 }

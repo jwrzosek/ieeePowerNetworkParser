@@ -5,8 +5,11 @@ import com.company.parser.model.HourlyLoad;
 import com.company.parser.model.Line;
 import com.company.parser.model.Node;
 import com.company.parser.util.AmplUtils;
+import com.company.parser.util.PowerNetworkUtils;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -24,17 +27,53 @@ public class MultiStageModelAmplWriter {
         this.unconstrained = unconstrained;
     }
 
-    public void writeAmplFullMultiStageModel(final String directoryName, final String fileName, final List<Line> lines,
-                                             final List<Node> nodes, final List<HourlyLoad> hourlyLoads, long numberOfGenerators,
+    public void writeAmplFullMultiStageModel(final String directoryName, final String fileName, final List<Node> nodes,
+                                             final List<Line> nodeLines, final List<HourlyLoad> hourlyLoads, long numberOfGenerators,
                                              int lmpNode, double peak) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, directoryName, fileName);
-        final var fullModel = createFullMultiStageModel(lines, nodes, hourlyLoads, numberOfGenerators, lmpNode, peak);
+        final var fullModel = createFullMultiStageModel(nodes, nodeLines, hourlyLoads, numberOfGenerators, lmpNode, peak);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, fullModel, StandardOpenOption.CREATE_NEW);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String createFullMultiStageModel(final List<Node> nodes, final List<Line> nodeLines,
+                                             final List<HourlyLoad> hourlyLoads, long numberOfGenerators, int lmpNode, double peak) {
+        StringBuilder sb = new StringBuilder();
+
+        final var modelInfo = generateAmplModelInfo(nodes.size(), nodeLines.size(), peak);
+        sb.append(modelInfo);
+
+        final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
+        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
+        final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
+        if (unconstrained) {
+            final var qBusParameter = generateQBusParameter(nodes, nodeLines);
+            sb.append(qBusParameter);
+        }
+        final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak); //todo: ogarnąć czy okej
+        final var pGenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads);
+        final var pGenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads);
+        final var voltageParameter = generateVParameter(nodes);
+        final var generatorVariableCost = generateVariableCost(findGenerators(nodes));
+        final var yabParameter = generateAdmittanceParameter(nodes, nodeLines);
+
+        //final var busParameters = generateBusParametersForMultiStageCase(nodes); // todo: ????
+        return sb
+                .append(busInfo)
+                .append(generatorsInfo)
+                .append(hourlyLoadInfo)
+                .append(generatorVariableCost)
+                //.append(busParameters)
+                .append(loadParameter)
+                .append(pGenMaxParameter)
+                .append(pGenMinParameter)
+                .append(voltageParameter)
+                .append(yabParameter)
+                .toString();
     }
 
     public void writeRunScriptForBatchToFile(final String directory, final int size) {
@@ -118,52 +157,21 @@ public class MultiStageModelAmplWriter {
         return sb.toString();
     }
 
-    private String createCommonData(final List<Line> lines) {
-        StringBuilder sb = new StringBuilder();
-        final var busParameters = generateBusParametersForMultiStageCase(lines);
-        return sb.append(busParameters).toString();
-    }
-
-    private String createFullMultiStageModel(final List<Line> lines, final List<Node> nodes,
-                                             final List<HourlyLoad> hourlyLoads, long numberOfGenerators, int lmpNode, double peak) {
-        StringBuilder sb = new StringBuilder();
-        final var modelInfo = generateAmplModelInfo(lines.size(), nodes.size(), peak);
-        final var busInfo = generateSet(AmplUtils.BUS_NAME, lines.size(), AmplUtils.BUS_SYMBOL);
-        final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
-        final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
-        final var busParameters = generateBusParametersForMultiStageCase(lines);
-        final var loadParameter = generateMultiStageLoadMWData(lines, hourlyLoads, lmpNode, peak);
-        final var pgenParameter = generateGeneratorsPgenParameter(lines, hourlyLoads);
-        final var qBusParameter = generateQBusParameter(lines, nodes);
-        final var yabParameter = generateAdmittanceParameter(lines, nodes);
-        return sb
-                .append(modelInfo)
-                .append(busInfo)
-                .append(generatorsInfo)
-                .append(hourlyLoadInfo)
-                //.append(busParameters)
-                .append(loadParameter)
-                .append(pgenParameter)
-                .append(qBusParameter)
-                .append(yabParameter)
-                .toString();
-    }
-
-    private String generateAdmittanceParameter(List<Line> lines, List<Node> nodes) {
+    private String generateAdmittanceParameter(List<Node> nodes, List<Line> nodeLines) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_ADMITTANCE_SYMBOL + ":\n"));
         sb.append(String.format(AmplUtils.PARAM_FORMAT, " "));
-        for (int i = 1; i < lines.size() + 1; i++) {
+        for (int i = 1; i < nodes.size() + 1; i++) {
             sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i));
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
-        final var admittanceArray = getAdmittanceArray(lines, nodes);
+        final var admittanceArray = getAdmittanceArray(nodes, nodeLines);
 
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             final var tapBusNumber = i + 1;
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
-            for (int j = 0; j < lines.size(); j++) {
+            for (int j = 0; j < nodes.size(); j++) {
                 sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? formatFPVariables(admittanceArray[i][j]) : 0.0));
             }
             sb.append("\n");
@@ -172,15 +180,15 @@ public class MultiStageModelAmplWriter {
         return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
     }
 
-    private Double[][] getAdmittanceArray(List<Line> lines, List<Node> nodes) {
-        final var numberOfBuses = lines.size();
+    private Double[][] getAdmittanceArray(List<Node> nodes, List<Line> nodeLines) {
+        final var numberOfBuses = nodes.size();
         Double[][] admittanceArray = initializeAdmittanceArray(numberOfBuses);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             final var tapBusNumber = i + 1;
-            final var links = nodes.stream().filter(node -> node.getTapBusNumber() == tapBusNumber).collect(Collectors.toList());
-            for (int j = 0; j < lines.size(); j++) {
+            final var links = nodeLines.stream().filter(nodeLine -> nodeLine.getTapBusNumber() == tapBusNumber).collect(Collectors.toList());
+            for (int j = 0; j < nodes.size(); j++) {
                 final var zBusNumber = j + 1;
-                final var first = links.stream().filter(node -> node.getzBusNumber() == zBusNumber).findFirst();
+                final var first = links.stream().filter(nodeLine -> nodeLine.getzBusNumber() == zBusNumber).findFirst();
                 if (first.isPresent()) {
                     final var admittance = first.get().getAdmittance();
                     admittanceArray[i][j] = admittance;
@@ -201,23 +209,23 @@ public class MultiStageModelAmplWriter {
         return admittanceArray;
     }
 
-    private String generateQBusParameter(List<Line> lines, List<Node> nodes) {
+    private String generateQBusParameter(List<Node> nodes, List<Line> nodeLines) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_LINE_CAPACITY_SYMBOL + ":\n"));
         sb.append(String.format(AmplUtils.PARAM_FORMAT, " "));
-        for (int i = 1; i < lines.size() + 1; i++) {
+        for (int i = 1; i < nodes.size() + 1; i++) {
             sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i));
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
-        final var admittanceArray = getAdmittanceArray(lines, nodes);
+        final var admittanceArray = getAdmittanceArray(nodes, nodeLines);
 
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             final var tapBusNumber = i + 1;
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
-            for (int j = 0; j < lines.size(); j++) {
+            for (int j = 0; j < nodes.size(); j++) {
                 //sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? 77777 : 0));
-                sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? getLineLimit(nodes, i+1, j+1) : 0));
+                sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? getLineLimit(nodeLines, i+1, j+1) : 0));
             }
             sb.append("\n");
         }
@@ -225,7 +233,7 @@ public class MultiStageModelAmplWriter {
         return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
     }
 
-    private String generateBusParametersForMultiStageCase(List<Line> lines) {
+    private String generateBusParametersForMultiStageCase(List<Node> nodes) {
         final var params = List.of("Ka_load", "Ka_gen", "V");
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
@@ -235,7 +243,7 @@ public class MultiStageModelAmplWriter {
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
         int i = 0;
-        for (var bus : lines) {
+        for (var bus : nodes) {
             i++;
             final var offerPrice = getRandomInteger(50, 300);
             final var generation = bus.getGenerators().stream().map(Generator::getGenerationMW).filter(gen -> gen > 0.001).findFirst().orElse(0.0D);
@@ -249,7 +257,7 @@ public class MultiStageModelAmplWriter {
         return sb.toString();
     }
 
-    private String generateMultiStageLoadMWData(List<Line> lines, List<HourlyLoad> hourlyLoads, int lmpNode, double peak) {
+    private String generateMultiStageLoadMWData(List<Node> nodes, List<HourlyLoad> hourlyLoads, int lmpNode, double peak) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PLOAD_SYMBOL + ":\n"));
@@ -260,9 +268,9 @@ public class MultiStageModelAmplWriter {
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
 
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             final var tapBusNumber = i + 1;
-            final var bus = lines.get(i);
+            final var bus = nodes.get(i);
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < hourlyLoads.size(); j++) {
                 //final var hourlyLoadPercentage = hourlyLoads.get(j).getSummerPeakLoadPercentageWkdy();
@@ -279,12 +287,12 @@ public class MultiStageModelAmplWriter {
         return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
     }
 
-    private String generateGeneratorsPgenParameter(List<Line> lines, List<HourlyLoad> hourlyLoads) {
+    private String generateGeneratorsPgenMaxParameter(List<Node> nodes, List<HourlyLoad> hourlyLoads) {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MAX_SYMBOL + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN));
 
-        final var generators = findGenerators(lines);
+        final var generators = findGenerators(nodes);
         for (int h = 0; h<hourlyLoads.size(); h++) {
             sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h+1)));
 
@@ -293,7 +301,7 @@ public class MultiStageModelAmplWriter {
             }
             sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
 
-            for (int i = 0; i < lines.size(); i++) {
+            for (int i = 0; i < nodes.size(); i++) {
                 final var tapBusNumber = i + 1;
                 sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
                 for (int j = 0; j < generators.size(); j++) {
@@ -301,6 +309,40 @@ public class MultiStageModelAmplWriter {
                     sb.append(String.format(
                             AmplUtils.PARAM_FORMAT,
                             generator.getBusNumber() - 1 == i ? generator.getGenerationMW() : 0)
+                    );
+                }
+                sb.append("\n");
+            }
+            sb.append("\n");
+        }
+        return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
+    private String generateGeneratorsPgenMinParameter(List<Node> nodes, List<HourlyLoad> hourlyLoads) {
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MIN_SYMBOL + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN));
+
+        final var generators = findGenerators(nodes);
+        for (int h = 0; h<hourlyLoads.size(); h++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h+1)));
+
+            for (int i = 1; i < generators.size() + 1; i++) {
+                sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i));
+            }
+            sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+
+            for (int i = 0; i < nodes.size(); i++) {
+                final var tapBusNumber = i + 1;
+                sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
+                for (int j = 0; j < generators.size(); j++) {
+                    final var generator = generators.get(j);
+                    final var minGeneration = BigDecimal.valueOf(generator.getGenerationMW() * PowerNetworkUtils.P_MIN_PERCENTAGE)
+                            .setScale(2, RoundingMode.DOWN)
+                            .doubleValue();
+                    sb.append(String.format(
+                            AmplUtils.PARAM_FORMAT,
+                            generator.getBusNumber() - 1 == i ? minGeneration : 0)
                     );
                 }
                 sb.append("\n");
@@ -319,28 +361,73 @@ public class MultiStageModelAmplWriter {
         return sb.toString();
     }
 
-    private List<Generator> findGenerators(final List<Line> lines) {
-        return lines.stream()
-                .map(Line::getGenerators)
+
+    private String generateVariableCost(final List<Generator> generators) {
+        final var params = List.of(AmplUtils.PARAM_VARIABLE_COST_SYMBOL);
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + ":"));
+        sb.append(AmplUtils.PARAM_BEGIN);
+        for (String param : params) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        int i = 0;
+        for (var generator : generators) {
+            i++;
+            final var variableCost = generator.getVariableCost();
+            sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, variableCost))
+                    .append("\n");
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
+        return sb.toString();
+    }
+
+    private String generateVParameter(final List<Node> nodes) {
+        final var params = List.of(AmplUtils.PARAM_VOLTAGE_SYMBOL);
+        StringBuilder sb = new StringBuilder(String.format(
+                AmplUtils.PARAM_FORMAT,
+                AmplUtils.PARAM_SYMBOL + ":"));
+        sb.append(AmplUtils.PARAM_BEGIN);
+        for (String param : params) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
+        int i = 0;
+        for (var node : nodes) {
+            i++;
+            final var voltage = node.getFinalVoltage();
+            sb.append(AmplUtils.PARAM_BEGIN).append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.BUS_SYMBOL + i))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, voltage))
+                    .append("\n");
+        }
+        sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR);
+        return sb.toString();
+    }
+
+    private List<Generator> findGenerators(final List<Node> nodes) {
+        return nodes.stream()
+                .map(Node::getGenerators)
                 .flatMap(Collection::stream)
                 .filter(generator -> generator.getGenerationMW() > 0.01)
                 .collect(Collectors.toList());
     }
 
-    private Integer getLineLimit(List<Node> nodes, int node1, int node2) {
+    private Integer getLineLimit(List<Line> nodeLines, int node1, int node2) {
         if (unconstrained) {
             return 9999;
         }
-        return  nodes.stream()
-                .filter(node -> (node.getTapBusNumber() == node1 && node.getzBusNumber() == node2) || (node.getTapBusNumber() == node2 && node.getzBusNumber() == node1))
-                .map(Node::getLineMVARatingNo1)
+        return  nodeLines.stream()
+                .filter(nodeLine -> (nodeLine.getTapBusNumber() == node1 && nodeLine.getzBusNumber() == node2) || (nodeLine.getTapBusNumber() == node2 && nodeLine.getzBusNumber() == node1))
+                .map(Line::getLineMVARatingNo1)
                 .findAny()
                 .orElse(99999);
     }
 
-    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfBranches, final double peak) {
+    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfLines, final double peak) {
         DateTimeFormatter dataPattern = DateTimeFormatter.ofPattern(AmplUtils.INFO_SECTION_DATA_PATTERN);
-        return "# " + numberOfBuses + "-nodes power network with " + numberOfBranches + " branches\n" +
+        return "# " + numberOfBuses + "-nodes power network with " + numberOfLines + " lines\n" +
                 "# Author: Jakub Wrzosek\n" +
                 "# Created: " + LocalDateTime.now().format(dataPattern) + "\n" +
                 "# with peak: " + peak + "\n\n";
