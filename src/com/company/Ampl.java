@@ -92,8 +92,11 @@ public class Ampl {
         final var timeInSeconds = totalExecutionTime / 1000000000;
         final var minutes = timeInSeconds / 60;
         final var seconds = timeInSeconds - (minutes * 60);
+        final long miliseconds = totalExecutionTime / 1000000;
+        ;
+
         System.out.println(LocalDateTime.now() + " --- " + description + " in sec: "
-                + timeInSeconds + " (in minutes: " + minutes + "min " + seconds + "sec)");
+                + timeInSeconds + " (in minutes: " + minutes + "min " + seconds + "sec " + ((minutes == 0) ? " in milisec: " : ""));
         return nanoTime;
     }
 
@@ -176,9 +179,15 @@ public class Ampl {
                     summary.withSystemProfitLMP(summary.getTotalSystemIncomeLMP() - summary.getTotalBalancingCostConstrained());
                     summary.withSystemProfitLpPlus(calculateSystemProfitLpPlus(summary));
 
+                    summary.withNumberOfCompetitiveNodes(calculateNumberOfCompetitiveNodes(results));
+
 
                     summaryResults.put(key, summary);
                 });
+    }
+
+    private static Integer calculateNumberOfCompetitiveNodes(final List<Result> results) {
+        return (int) results.stream().filter(Result::isCompetitive).count();
     }
 
     private static Double calculateSystemProfitLpPlus(final SummaryResult summary) {
@@ -413,11 +422,13 @@ public class Ampl {
                                 .filter(g -> g.getNodeNumber().equals(nodeNumber))
                                 .findAny()
                                 .orElseThrow(NoSuchElementException::new);
-                        final var diff = balanced.getGenerationValue() - unconstrained.getGenerationValue();
-                        if (diff > 0.0000001) {
+                        //final var diff = balanced.getGenerationValue() - unconstrained.getGenerationValue();
+                        if (balanced.getGenerationValue() > unconstrained.getGenerationValue()) {
+                            //theoretically should be UP
                             result.withLpPlusPrice((double) result.getUniformPrice());
                             result.setCompetitive(true);
                         } else {
+                            //theoretically should be LP+
                             result.withLpPlusPrice(result.getLmpPrice());
                             result.setCompetitive(false);
                         }
@@ -468,8 +479,8 @@ public class Ampl {
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "LP+_avg_buyer_cost"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LP+_median"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LP+_max"))
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_u"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_c"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_u"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "constraints_cost"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_UP"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "income_LMP"))
@@ -488,11 +499,12 @@ public class Ampl {
 
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lmp_prof_over_up"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lp+_prof_over_up"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "num_of_comp_nodes"))
                 .append("\n");
 
         sb.append("Sorted by default (by data set name):").append("\n");
         summaryResults.values().stream()
-                .sorted(Comparator.comparing(SummaryResult::getDataSetName))
+                .sorted(Comparator.comparing(summaryResult -> Integer.parseInt(summaryResult.getDataSetName().split("_")[0])))
                 .forEach(summaryResult -> sb
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getDataSetName()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalLoad())))
@@ -528,6 +540,7 @@ public class Ampl {
 
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getNumberOfCompetitiveNodes()))
                         .append("\n"));
         sb.append("End of summary sorted by total load").append("\n\n\n");
 
@@ -569,6 +582,7 @@ public class Ampl {
 
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getNumberOfCompetitiveNodes()))
                         .append("\n"));
         sb.append("End of summary sorted by total load").append("\n\n");
 
@@ -590,12 +604,26 @@ public class Ampl {
                 .stream()
                 .sorted(Comparator.comparing(Result::getNodeNumber))
                 .collect(Collectors.toList());
+        sb
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "node_nr"))
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "result_name"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "objective"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LMP"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "LP+"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "is_competitive"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "total_bal_cost"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "node_load"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "total_load"))
+                .append("\n");
         sortedResults.forEach(result -> sb
-                .append(String.format(ResultUtil.RESULT_NUMBER_FORMAT, result.getNodeNumber()))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, result.getNodeNumber()))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, result.getResultName()))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getObjective())))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, result.getUniformPrice()))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getLmpPrice())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getLpPlusPrice())))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, (result.isCompetitive() ? 1 : 0)))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", result.getTotalBalancingCost())))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.5f", result.getLoad())))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.5f", result.getTotalLoad())))
@@ -630,10 +658,22 @@ public class Ampl {
                                     e.printStackTrace();
                                 }
                             });
+                            completeMissingUniformPrices(dataSetName);
                         }
                 );
 
 
+    }
+
+    private static void completeMissingUniformPrices(final String dataSetName) {
+        final var unconstrainedResult = results.get(dataSetName).stream()
+                .filter(r -> r.getResultName().equals("unconstrained.dat"))
+                .findAny()
+                .orElseThrow(NoSuchElementException::new);
+        final var uniformPrice = unconstrainedResult.getUniformPrice();
+        results.get(dataSetName).stream()
+                .filter(r -> !r.getResultName().equals("unconstrained.dat") && !r.getResultName().equals("balanced.dat"))
+                .forEach(result -> result.withUniformPrice(uniformPrice));
     }
 
     private static List<String> getDataFilesNames(final File[] files) {
@@ -680,7 +720,6 @@ public class Ampl {
         Result result = new Result();
 
         final var objective = getObjective(ampl);
-        final var uniformPrice = findUniformPrice(ampl);
         final var totalBalancingCost = findTotalCost(ampl);
 
         final var fileName = Path.of(dataFileDir).getFileName().toString();
@@ -689,10 +728,11 @@ public class Ampl {
             findLoad(ampl, dataSetName);
         }
 
-
         if (fileName.equals("balanced.dat") || fileName.equals("unconstrained.dat")) {
             result.withNodeNumber(0);
             findGeneration(ampl, fileName);
+            final var uniformPrice = findUniformPrice(ampl);
+            result.withUniformPrice(uniformPrice);
         } else {
             final var nodeNumberLMP = fileName.split("\\.")[0];
             result.withNodeNumber(Integer.parseInt(nodeNumberLMP));
@@ -701,7 +741,6 @@ public class Ampl {
         return result
                 .withResultName(fileName)
                 .withObjective(objective)
-                .withUniformPrice(uniformPrice)
                 .withTotalBalancingCost(totalBalancingCost);
     }
 

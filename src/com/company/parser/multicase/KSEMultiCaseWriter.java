@@ -49,8 +49,6 @@ public class KSEMultiCaseWriter {
         KSEPowerNetworkParser unconstrainedParser = new KSEPowerNetworkParser();
         final var size = unconstrainedParser.getNodes().size();
         unconstrainedParser.writeRunScripts(directoryName, size);
-        unconstrainedParser.getNodesWithGenerators().forEach(System.out::println);
-        System.out.println("all distinct generators: " + unconstrainedParser.getNodesWithGenerators().size());
         // wygeneruj plik z danymi niezależnymi od modelu
         // wygeneruj normalny model bez ograniczeń
         unconstrainedParser.parseMultiStageKSECase(directoryName,"unconstrained.dat", true, -1, demandPeak);

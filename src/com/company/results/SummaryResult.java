@@ -73,6 +73,22 @@ public class SummaryResult {
      */
     private Double totalLpPlusProfitOverUP;
 
+    private Integer numberOfCompetitiveNodes;
+
+    public Integer getNumberOfCompetitiveNodes() {
+        return numberOfCompetitiveNodes;
+    }
+
+    public void setNumberOfCompetitiveNodes(final Integer numberOfCompetitiveNodes) {
+        this.numberOfCompetitiveNodes = numberOfCompetitiveNodes;
+    }
+
+    public SummaryResult withNumberOfCompetitiveNodes(final Integer numberOfCompetitiveNodes) {
+        this.numberOfCompetitiveNodes = numberOfCompetitiveNodes;
+        return this;
+
+    }
+
     public Double getSystemProfitUP() {
         return systemProfitUP;
     }
