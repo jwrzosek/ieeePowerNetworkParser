@@ -66,7 +66,7 @@ public class MultiStageModelAmplWriter {
                 .append(busInfo)
                 .append(generatorsInfo)
                 .append(hourlyLoadInfo)
-                .append(generatorVariableCost)
+                //.append(generatorVariableCost)
                 //.append(busParameters)
                 .append(loadParameter)
                 .append(pGenMaxParameter)
