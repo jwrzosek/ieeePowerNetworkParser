@@ -9,7 +9,7 @@ param Ka_gen {GENERATORS} >= 0;
 param V {BUSES} >= 0;
 param Y_ab {BUSES, BUSES} >= 0;
 param Pa_load {BUSES, HOURS} >= 0;
-param p_ajhMax {BUSES, GENS, HOURS} >= 0;
+param p_ajhMax {BUSES, GENERATORS, HOURS} >= 0;
 param p_ajhMin {BUSES, GENERATORS, HOURS} >= 0;
 param Q_ab {BUSES, BUSES} >= 0;
 
@@ -18,7 +18,7 @@ param Q_ab {BUSES, BUSES} >= 0;
 var P_ab {a in BUSES, b in BUSES, h in HOURS};
 var Pa_gen {a in BUSES, h in HOURS} >= 0;
 var theta_a {a in BUSES, h in HOURS};
-var p_ajh {a in BUSES, j in GENS, h in HOURS} >= 0;
+var p_ajh {a in BUSES, j in GENERATORS, h in HOURS} >= 0;
 var generatorOn {GENERATORS, HOURS} binary;
 
 # zmienne pomocnicze
