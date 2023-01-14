@@ -62,8 +62,11 @@ public class Ampl {
             // for testing
             //calculateAll("C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp", ampl);
 
-            // real
-            calculateAll(AmplUtils.DIRECTORY_PATH_KSE, ampl);
+            // for kse:
+            //calculateAll(AmplUtils.DIRECTORY_PATH_KSE, ampl);
+
+            // for test power networks:
+            calculateAll(AmplUtils.DIRECTORY_PATH, ampl);
 
         }
         final var amplCalculationNanoTime = measureTimeSince(startTime, "Ampl calculation time");
@@ -634,7 +637,10 @@ public class Ampl {
 
     private static void saveResultsToFile(final String stringFormatData, final String fileName) {
         final var fileNameWithExtension = fileName + ".txt";
-        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, fileNameWithExtension);
+        // for kse:
+        //final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, fileNameWithExtension);
+        // for test power networks:
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileNameWithExtension);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, stringFormatData, StandardOpenOption.CREATE_NEW);
@@ -646,7 +652,10 @@ public class Ampl {
     private static void calculateAll(final String baseDirectory, AMPL ampl) {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(dataSetName -> {
-                            final var folder = "kse_" + dataSetName;
+                            // for kse:
+                            // final var folder = "kse_" + dataSetName;
+                            // for test power networks:
+                            final var folder = dataSetName;
                             final var directory = baseDirectory + "\\" + folder;
                             File file = new File(directory);
                             final var files = file.listFiles();
@@ -688,7 +697,7 @@ public class Ampl {
                                                final String fileName,
                                                final String dataSetName,
                                                AMPL ampl) throws IOException {
-        final var modelFileDir = directory + "\\" + "model_min_balancing_cost_for_kse.mod";
+        final var modelFileDir = directory + "\\" + PowerNetworkUtils.AMPL_MODEL_NAME;
         final var dataFileDir = directory + "\\" + fileName;
         final var commonDataFileDir = directory + "\\" + "common.dat";
         final var commonUnconstrainedDataFileDir = directory + "\\" + "commonUnconstrained.dat";

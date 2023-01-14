@@ -21,7 +21,7 @@ public class MultiCaseWriter {
 
     public MultiCaseWriter() {
         // todo: make it 24_Hours for getting real results
-        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA_TEMP);
+        readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA_24_HOURS);
         parseHourlyLoadDataLines();
     }
 

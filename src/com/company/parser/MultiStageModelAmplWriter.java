@@ -50,10 +50,10 @@ public class MultiStageModelAmplWriter {
         final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
         final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
         final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
-        if (unconstrained) {
+        //if (unconstrained) {
             final var qBusParameter = generateQBusParameter(nodes, nodeLines);
-            sb.append(qBusParameter);
-        }
+        //    sb.append(qBusParameter);
+        //}
         final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak); //todo: ogarnąć czy okej
         final var pGenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads);
         final var pGenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads);
@@ -66,6 +66,7 @@ public class MultiStageModelAmplWriter {
                 .append(busInfo)
                 .append(generatorsInfo)
                 .append(hourlyLoadInfo)
+                .append(qBusParameter)
                 //.append(generatorVariableCost)
                 //.append(busParameters)
                 .append(loadParameter)
@@ -190,7 +191,7 @@ public class MultiStageModelAmplWriter {
                 final var zBusNumber = j + 1;
                 final var first = links.stream().filter(nodeLine -> nodeLine.getzBusNumber() == zBusNumber).findFirst();
                 if (first.isPresent()) {
-                    final var admittance = first.get().getAdmittance();
+                    final var admittance = first.get().getAdmittance()/100;
                     admittanceArray[i][j] = admittance;
                     admittanceArray[j][i] = admittance;
                 }
@@ -425,9 +426,9 @@ public class MultiStageModelAmplWriter {
                 .orElse(99999);
     }
 
-    private String generateAmplModelInfo(final int numberOfBuses, final int numberOfLines, final double peak) {
+    private String generateAmplModelInfo(final int numberOfNodes, final int numberOfLines, final double peak) {
         DateTimeFormatter dataPattern = DateTimeFormatter.ofPattern(AmplUtils.INFO_SECTION_DATA_PATTERN);
-        return "# " + numberOfBuses + "-nodes power network with " + numberOfLines + " lines\n" +
+        return "# " + numberOfNodes + "-nodes power network with " + numberOfLines + " lines\n" +
                 "# Author: Jakub Wrzosek\n" +
                 "# Created: " + LocalDateTime.now().format(dataPattern) + "\n" +
                 "# with peak: " + peak + "\n\n";
