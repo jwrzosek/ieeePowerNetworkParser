@@ -191,7 +191,7 @@ public class MultiStageModelAmplWriter {
                 final var zBusNumber = j + 1;
                 final var first = links.stream().filter(nodeLine -> nodeLine.getzBusNumber() == zBusNumber).findFirst();
                 if (first.isPresent()) {
-                    final var admittance = first.get().getAdmittance()/100;
+                    final var admittance = first.get().getAdmittance();
                     admittanceArray[i][j] = admittance;
                     admittanceArray[j][i] = admittance;
                 }
