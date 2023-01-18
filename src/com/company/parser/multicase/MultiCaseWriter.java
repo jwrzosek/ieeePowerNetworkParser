@@ -27,8 +27,13 @@ public class MultiCaseWriter {
 
     public void runWithHourlyLoads() {
         hourlyLoads.forEach(hourlyLoad -> {
-            final var peakPerc = hourlyLoad.getSummerPeakLoadPercentageWkdy();
-            final var directoryName =  hourlyLoad.getHour() + "_30nodes";
+            double peakPerc;
+            if (PowerNetworkUtils.IS_SUMMER) {
+                peakPerc = hourlyLoad.getSummerPeakLoadPercentageWkdy();
+            } else { // isWINTER
+                peakPerc = hourlyLoad.getWinterPeakLoadPercentageWkdy();
+            }
+            final var directoryName =  hourlyLoad.getHour() + PowerNetworkUtils.POWER_TEST_NETWORK_DIR;
             writeMultipleCasesLMP(directoryName, peakPerc);
         });
         writeRunScriptForMultiCaseScenario();

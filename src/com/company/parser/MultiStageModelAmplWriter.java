@@ -191,7 +191,7 @@ public class MultiStageModelAmplWriter {
                 final var zBusNumber = j + 1;
                 final var first = links.stream().filter(nodeLine -> nodeLine.getzBusNumber() == zBusNumber).findFirst();
                 if (first.isPresent()) {
-                    final var admittance = first.get().getAdmittance();
+                    final var admittance = first.get().getAdmittance() /100;
                     admittanceArray[i][j] = admittance;
                     admittanceArray[j][i] = admittance;
                 }
@@ -226,7 +226,10 @@ public class MultiStageModelAmplWriter {
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < nodes.size(); j++) {
                 //sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? 77777 : 0));
-                sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? getLineLimit(nodeLines, i+1, j+1) : 0));
+                sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ?
+                        //ormatFPVariables(getLineLimit(nodeLines, i+1, j+1)*0.8)
+                        getLineLimit(nodeLines, i+1, j+1)
+                        : 0));
             }
             sb.append("\n");
         }
@@ -274,9 +277,12 @@ public class MultiStageModelAmplWriter {
             final var bus = nodes.get(i);
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < hourlyLoads.size(); j++) {
-                //final var hourlyLoadPercentage = hourlyLoads.get(j).getSummerPeakLoadPercentageWkdy();
-                //final var load = bus.getLoadMW() * hourlyLoadPercentage;
-                final var load = bus.getLoadMW() * peak;
+                double load;
+                if (PowerNetworkUtils.IS_SUMMER) {
+                    load = bus.getLoadMW() * peak * PowerNetworkUtils.POWER_SUMMER_PERCENTAGE;
+                } else { // isWINTER
+                    load = bus.getLoadMW() * peak ;//* PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
+                }
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,
                         formatFPVariables(i == lmpNode ? load + 1.0 : load))

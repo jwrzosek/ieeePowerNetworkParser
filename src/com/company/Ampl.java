@@ -60,13 +60,13 @@ public class Ampl {
             ampl.setOption("cplex_options", "mipgap 0");
 
             // for testing
-            //calculateAll("C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp", ampl);
+//            calculateAll("C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp", ampl);
 
             // for kse:
-            calculateAll(AmplUtils.DIRECTORY_PATH_KSE, ampl);
+//            calculateAll(AmplUtils.DIRECTORY_PATH_KSE, ampl);
 
             // for test power networks:
-//            calculateAll(AmplUtils.DIRECTORY_PATH, ampl);
+            calculateAll(AmplUtils.DIRECTORY_PATH, ampl);
 
         }
         final var amplCalculationNanoTime = measureTimeSince(startTime, "Ampl calculation time");
@@ -429,11 +429,11 @@ public class Ampl {
                         //final var diff = balanced.getGenerationValue() - unconstrained.getGenerationValue();
                         if (balanced.getGenerationValue() > unconstrained.getGenerationValue()) {
                             //theoretically should be UP
-                            result.withLpPlusPrice(result.getLmpPrice());
+                            result.withLpPlusPrice((double) result.getUniformPrice());
                             result.setCompetitive(true);
                         } else {
                             //theoretically should be LP+
-                            result.withLpPlusPrice((double) result.getUniformPrice());
+                            result.withLpPlusPrice(result.getLmpPrice());
                             result.setCompetitive(false);
                         }
                     }
@@ -469,7 +469,7 @@ public class Ampl {
         sb.append("Summary Result file:")
                 .append("# Time: ").append(LocalDateTime.now().toString()).append("\n\n");
 
-        sb.append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "dataSetName"))
+        sb.append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "dataSetName"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "total_load"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP_u"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP_c"))
@@ -510,7 +510,7 @@ public class Ampl {
         summaryResults.values().stream()
                 .sorted(Comparator.comparing(summaryResult -> Integer.parseInt(summaryResult.getDataSetName().split("_")[0])))
                 .forEach(summaryResult -> sb
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getDataSetName()))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getDataSetName()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalLoad())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceUnconstrained()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceConstrained()))
@@ -552,7 +552,7 @@ public class Ampl {
         summaryResults.values().stream()
                 .sorted(Comparator.comparing(SummaryResult::getTotalLoad))
                 .forEach(summaryResult -> sb
-                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getDataSetName()))
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getDataSetName()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalLoad())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceUnconstrained()))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, summaryResult.getUniformPriceConstrained()))
@@ -639,9 +639,9 @@ public class Ampl {
     private static void saveResultsToFile(final String stringFormatData, final String fileName) {
         final var fileNameWithExtension = fileName + ".txt";
         // for kse:
-        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, fileNameWithExtension);
+//        final var path = Paths.get(AmplUtils.DIRECTORY_PATH_KSE, fileNameWithExtension);
         // for test power networks:
-//        final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileNameWithExtension);
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH, fileNameWithExtension);
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, stringFormatData, StandardOpenOption.CREATE_NEW);
@@ -654,9 +654,9 @@ public class Ampl {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(dataSetName -> {
                             // for kse:
-                             final var folder = "kse_" + dataSetName;
+//                             final var folder = "kse_" + dataSetName;
                             // for test power networks:
-//                            final var folder = dataSetName;
+                            final var folder = dataSetName;
                             final var directory = baseDirectory + "\\" + folder;
                             File file = new File(directory);
                             final var files = file.listFiles();
