@@ -1,24 +1,43 @@
- 70
- 70
- 72
- 72
- 72
- 73
- 84
- 94
- 97
- 99
- 98
- 99
-100
-100
- 99
- 98
- 99
- 97
- 94
- 94
- 90
- 84
- 78
- 71
+\begin{table}[H]
+\begin{center}
+\caption{Zapotrzebowanie na moc dla 5-węzłowej oraz 9-cio węzłowej sieci testowej według danych \cite{matpower_5nodes_network} oraz \cite{matpower_9nodes_network} dla procentowego godzinowego obciążenia zgodnego z danymi systemu RTS PSTCA \cite{pstca_hourlyloads_rts}.}
+\begingroup
+%\setlength{\tabcolsep}{10pt} % Default value: 6pt
+\renewcommand{\arraystretch}{1} % Default value: 1
+\scalebox{0.8}{
+\begin{tabular}{| l | c | c | c | c |} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+\cline{2-5}
+\multicolumn{1}{ c |}{} & \multicolumn{2}{|c|}{Sieć 5-cio węzłowa} & \multicolumn{2}{|c|}{Sieć 9-cio węzłowa} \\ \hline
+Godzina & \makecell[tl]{Zapotrzebowanie na\\moc (lato) [MWh]} & \makecell[tl]{Zapotrzebowanie na\\moc (zima) [MWh]} & \makecell[tl]{Zapotrzebowanie na\\moc (lato) [MWh]} & \makecell[tl]{Zapotrzebowanie na\\moc (zima) [MWh]} \\ \hline
+%------------------------------------------------------
+1       &   823,404   &   1026,245      &   259,372   &   259,372      \\  %\hline
+2       &   764,571   &   1031,065      &   240,840   &   240,840      \\  %\hline
+3       &   757,489   &   1052,610      &   238,609   &   238,609      \\  %\hline
+4       &   768,048   &   1047,888      &   241,935   &   241,935      \\  %\hline
+5       &   766,643   &   1053,688      &   241,493   &   241,493      \\  %\hline
+6       &   790,484   &   1072,167      &   249,002   &   249,002      \\  %\hline
+7       &   914,800   &   1223,351      &   288,162   &   288,162      \\  %\hline
+8       &   1000,000  &   1370,271      &   315,000   &   315,000      \\  %\hline
+9       &   975,574   &   1422,550      &   307,306   &   307,306      \\  %\hline
+10      &   859,772   &   1441,796      &   270,828   &   270,828      \\  %\hline
+11      &   772,107   &   1434,206      &   243,214   &   243,214      \\  %\hline
+12      &   757,546   &   1447,219      &   238,627   &   238,627      \\  %\hline
+13      &   769,272   &   1457,966      &   242,321   &   242,321      \\  %\hline
+14      &   745,006   &   1462,770      &   234,677   &   234,677      \\  %\hline
+15      &   723,133   &   1451,614      &   227,787   &   227,787      \\  %\hline
+16      &   724,316   &   1430,385      &   228,160   &   228,160      \\  %\hline
+17      &   736,163   &   1444,844      &   231,891   &   231,891      \\  %\hline
+18      &   771,163   &   1417,929      &   242,916   &   242,916      \\  %\hline
+19      &   830,780   &   1382,298      &   261,696   &   261,696      \\  %\hline
+20      &   916,500   &   1371,142      &   288,698   &   288,698      \\  %\hline
+21      &   976,754   &   1320,706      &   307,678   &   307,678      \\  %\hline
+22      &   963,637   &   1225,100      &   303,546   &   303,546      \\  %\hline
+23      &   859,639   &   1136,893      &   270,786   &   270,786      \\  %\hline
+24      &   783,984   &   1038,342      &   246,955   &   246,955      \\  \hline
+%------------------------------------------------------
+\end{tabular}
+}
+\endgroup
+\label{tab:zapotrzebowanie_matpower5_matpower9}
+\end{center}
+\end{table}

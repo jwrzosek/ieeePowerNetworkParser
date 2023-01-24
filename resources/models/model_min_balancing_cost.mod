@@ -26,6 +26,7 @@ var sum_gen {h in HOURS} >= 0;
 var sum_load {h in HOURS} >= 0;
 var total_cost >= 0;
 var prices {GENERATORS, HOURS} >= 0;
+var nodal_generation_cost {BUSES, HOURS} >= 0;
 
 # FUNKCJA CELU
 maximize Q:
@@ -80,3 +81,6 @@ total_cost = sum {a in BUSES} (sum {j in GENERATORS} (Ka_gen[j] * p_ajh[a,j,h]))
 #12
 subject to prices_on_working_generators {j in GENERATORS, h in HOURS}:
 prices[j,h] = Ka_gen[j] * generatorOn[j,h];
+
+subject to nodal_generation_costs {a in BUSES, h in HOURS}:
+nodal_generation_cost[a,h] = sum {j in GENERATORS} p_ajh[a,j,h] * Ka_gen[j];

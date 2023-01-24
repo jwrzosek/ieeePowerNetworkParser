@@ -39,6 +39,8 @@ public class SummaryResult {
 
     private Double totalBalancingCostUnconstrained;
     private Double totalBalancingCostConstrained;
+    private Double totalBalancingCostLMP;
+    private Double totalBalancingCostLpPlus;
     /**
      * Cost of getting constraints into account while balancing the system
      */
@@ -488,4 +490,31 @@ public class SummaryResult {
         this.suppliersProfitLpPlus = suppliersProfitLpPlus;
         return this;
     }
+
+    public Double getTotalBalancingCostLMP() {
+        return totalBalancingCostLMP;
+    }
+
+    public void setTotalBalancingCostLMP(final Double totalBalancingCostLMP) {
+        this.totalBalancingCostLMP = totalBalancingCostLMP;
+    }
+
+    public Double getTotalBalancingCostLpPlus() {
+        return totalBalancingCostLpPlus;
+    }
+
+    public void setTotalBalancingCostLpPlus(final Double totalBalancingCostLpPlus) {
+        this.totalBalancingCostLpPlus = totalBalancingCostLpPlus;
+    }
+
+    public SummaryResult withTotalBalancingCostLMP(final Double totalBalancingCostLMP) {
+        this.totalBalancingCostLMP = totalBalancingCostLMP;
+        return this;
+    }
+
+    public SummaryResult withTotalBalancingCostLpPlus(final Double totalBalancingCostLpPlus) {
+        this.totalBalancingCostLpPlus = totalBalancingCostLpPlus;
+        return this;
+    }
+
 }

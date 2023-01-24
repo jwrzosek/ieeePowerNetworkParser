@@ -1,11 +1,12 @@
 package com.company.results;
 
-public class PowerGeneration {
+public class NodeGeneration {
 
     private String nodeName;
     private Integer nodeNumber;
     private String periodName;
     private Double generationValue;
+    private Double nodalGenerationCost;
 
     public Integer getNodeNumber() {
         return nodeNumber;
@@ -39,21 +40,34 @@ public class PowerGeneration {
         this.generationValue = generationValue;
     }
 
-    public PowerGeneration withNodeName(final String nodeName) {
+    public Double getNodalGenerationCost() {
+        return nodalGenerationCost;
+    }
+
+    public void setNodalGenerationCost(final Double nodalGenerationCost) {
+        this.nodalGenerationCost = nodalGenerationCost;
+    }
+
+    public NodeGeneration withNodalGenerationCost(final Double nodalGenerationCost) {
+        this.nodalGenerationCost = nodalGenerationCost;
+        return this;
+    }
+
+    public NodeGeneration withNodeName(final String nodeName) {
         this.nodeName = nodeName;
         return this;
     }
 
-    public PowerGeneration withPeriodName(final String periodName) {
+    public NodeGeneration withPeriodName(final String periodName) {
         this.periodName = periodName;
         return this;
     }
 
-    public PowerGeneration withGenerationValue(final Double generationValue) {
+    public NodeGeneration withGenerationValue(final Double generationValue) {
         this.generationValue = generationValue;
         return this;
     }
-    public PowerGeneration withNodeNumber(final Integer nodeNumber) {
+    public NodeGeneration withNodeNumber(final Integer nodeNumber) {
         this.nodeNumber = nodeNumber;
         return this;
     }

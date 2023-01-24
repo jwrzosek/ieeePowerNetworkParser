@@ -189,24 +189,24 @@ public class IEEEPowerNetworkParser {
         final var loadMVAR = busDataLine.substring(49, 59).trim();
         node.withLoadMVAR(Double.parseDouble(loadMVAR));
         final var generationMW = busDataLine.substring(59, 67).trim();
-//        if (node.getBusNumber() == 1) {
-//            node.withGenerator(new Generator()
-//                    .withBusNumber(Integer.parseInt(busNumber))
-//                    .withGenerationMW(40.0)
-//                    .withVariableCost(310)
-//            );
-//            node.withGenerator(new Generator()
-//                    .withBusNumber(Integer.parseInt(busNumber))
-//                    .withGenerationMW(170.0)
-//                    .withVariableCost(612)
-//            );
-//        } else {
-//            node.withGenerator(new Generator()
-//                    .withBusNumber(Integer.parseInt(busNumber))
-//                    .withGenerationMW(Double.parseDouble(generationMW))
-//                    .withVariableCost(getRandomInteger(300, 900))
-//            );
-//        }
+        //if (node.getBusNumber() == 1) {
+        //    node.withGenerator(new Generator()
+        //            .withBusNumber(Integer.parseInt(busNumber))
+        //            .withGenerationMW(40.0)
+        //            .withVariableCost(310)
+        //    );
+        //    node.withGenerator(new Generator()
+        //            .withBusNumber(Integer.parseInt(busNumber))
+        //            .withGenerationMW(170.0)
+        //            .withVariableCost(612)
+        //    );
+        //} else {
+        //    node.withGenerator(new Generator()
+        //            .withBusNumber(Integer.parseInt(busNumber))
+        //            .withGenerationMW(Double.parseDouble(generationMW))
+        //            .withVariableCost(getRandomInteger(300, 900))
+        //    );
+        //}
 
         node.withGenerator(new Generator()
                 .withBusNumber(Integer.parseInt(busNumber))

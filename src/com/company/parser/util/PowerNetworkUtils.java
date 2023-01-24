@@ -70,8 +70,8 @@ public class PowerNetworkUtils {
 //    public static final String AMPL_MODEL_NAME = "model_min_balancing_cost_for_kse.mod";
     // for test power networks
     public static final String AMPL_MODEL_NAME = "model_min_balancing_cost.mod";
-    public static final String POWER_TEST_NETWORK_DATA_SOURCE ="resources/powernetworkdata/ieee30matpower.txt";
-    public static final String POWER_TEST_NETWORK_DIR = "_30nodes_winter";
+    public static final String POWER_TEST_NETWORK_DATA_SOURCE ="resources/powernetworkdata/ieee39matpower.txt";
+    public static final String POWER_TEST_NETWORK_DIR = "_39nodes_winter";
     public static final boolean IS_SUMMER = false;
     public static final Double POWER_SUMMER_PERCENTAGE = 0.683636122;
     public static final Double POWER_WINTER_PERCENTAGE = 1.462766475;

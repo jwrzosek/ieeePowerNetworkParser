@@ -40,26 +40,39 @@
 #    J10         456
 #    ;
 
-# 39-nodes better
-#param:          Ka_gen       :=
-#    J1          315
-#    J2          261
-#    J3          392
-#    J4          744
-#    J5          310
-#    J6          811
-#    J7          481
-#    J8          811
-#    J9          612
-#    J10         306
-#    ;
+
 
 # 30-nodes second prices set
+#param:          Ka_gen       :=
+#    J1          744
+#    J2          378
+#    J3          322
+#    J4          315
+#    J5          310
+#    J6          811
+#    ;
+
+# 5-nodes
+#param:          Ka_gen       :=
+#    J1          310
+#    J2          612
+#    #J3          812
+#    J3          561
+#    J4          892
+#    J5          374
+#    ;
+
+
+# 39-nodes better
 param:          Ka_gen       :=
-    J1          744
-    J2          378
-    J3          322
-    J4          315
+    J1          315
+    J2          261
+    J3          392
+    J4          744
     J5          310
     J6          811
+    J7          481
+    J8          811
+    J9          612
+    J10         306
     ;

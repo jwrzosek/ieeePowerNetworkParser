@@ -281,7 +281,7 @@ public class MultiStageModelAmplWriter {
                 if (PowerNetworkUtils.IS_SUMMER) {
                     load = bus.getLoadMW() * peak * PowerNetworkUtils.POWER_SUMMER_PERCENTAGE;
                 } else { // isWINTER
-                    load = bus.getLoadMW() * peak ;//* PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
+                    load = bus.getLoadMW() * peak;// * PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
                 }
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,

@@ -8,7 +8,7 @@ import com.ampl.Variable;
 import com.company.parser.exceptions.DataNotFoundException;
 import com.company.parser.util.AmplUtils;
 import com.company.parser.util.PowerNetworkUtils;
-import com.company.results.PowerGeneration;
+import com.company.results.NodeGeneration;
 import com.company.results.Result;
 import com.company.results.ResultUtil;
 import com.company.results.SummaryResult;
@@ -32,13 +32,17 @@ import java.util.stream.DoubleStream;
 
 public class Ampl {
 
-    private static Map<String, List<PowerGeneration>> generations = new HashMap<>();
+    private static Map<String, Map<String, List<NodeGeneration>>> generations = new HashMap<>();
     private static Map<String, SummaryResult> summaryResults = new HashMap<>();
     private static Map<String, Map<String, Double>> loads = new HashMap<>();
 
     static {
         PowerNetworkUtils.kseDemandPeaks.keySet()
                 .forEach(key -> loads.put(key, new HashMap<>())
+                );
+
+        PowerNetworkUtils.kseDemandPeaks.keySet()
+                .forEach(key -> generations.put(key, new HashMap<>())
                 );
     }
 
@@ -140,6 +144,19 @@ public class Ampl {
                     summary.withTotalBalancingCostConstrained(balancedResult.getTotalBalancingCost());
                     summary.withUniformPriceConstrained(balancedResult.getUniformPrice());
 
+
+                    // LMP and LpPlus balancing cost
+                    summary.withTotalBalancingCostLMP(getTotalBalancingCostLMP(results, key));
+                    summary.withTotalBalancingCostLpPlus(getTotalBalancingCostLpPlus(results, key));
+
+
+                    // total income
+                    final var totalSystemIncomeUP = results.stream()
+                            .filter(Ampl::isNodeResult)
+                            .mapToDouble(r -> calculatePartialSystemIncomeUP(r, summary))
+                            .sum();
+                    summary.withTotalSystemIncomeUP(totalSystemIncomeUP);
+
                     final var totalSystemIncomeLMP = results.stream()
                             .filter(Ampl::isNodeResult)
                             .mapToDouble(Ampl::calculatePartialSystemIncomeLMP)
@@ -153,16 +170,6 @@ public class Ampl {
                             .sum();
                     summary.withTotalSystemIncomeLpPlus(totalSystemIncomeLpPlus);
 
-                    final var totalSystemIncomeUP = results.stream()
-                            .filter(Ampl::isNodeResult)
-                            .mapToDouble(r -> calculatePartialSystemIncomeUP(r, summary))
-                            .sum();
-                    summary.withTotalSystemIncomeUP(totalSystemIncomeUP);
-
-
-                    summary.withTotalLMPProfitOverUP(findTotalLMPProfitOverUP(results));
-
-                    summary.withTotalLpPlusProfitOverUP(findTotalLpPlusProfitOverUP(results));
 
                     summary.withAverageBuyerLmpPrice(findAverageBuyerLmpPrice((summary)));
                     summary.withAverageBuyerLpPlusPrice(findAverageBuyerLpPlusPrice(summary));
@@ -174,33 +181,128 @@ public class Ampl {
                     summary.withSystemSurplusLpPlus(calculateSystemSurplusLpPlus(summary));
 
 
-                    summary.withSuppliersProfitUP(summary.getTotalSystemIncomeUP() - summary.getTotalBalancingCostUnconstrained());
-                    summary.withSuppliersProfitLMP(0.0);
-                    summary.withSuppliersProfitLpPlus(calculateSuppliersProfitLpPlus(results));
+                    summary.withSuppliersProfitUP(calculateSuppliersProfitUP(results, key));
+                    summary.withSuppliersProfitLMP(calculateSuppliersProfitLmp(results, key));
+                    summary.withSuppliersProfitLpPlus(calculateSuppliersProfitLpPlus(results, key));
 
-                    summary.withSystemProfitUP(0.0);
-                    summary.withSystemProfitLMP(summary.getTotalSystemIncomeLMP() - summary.getTotalBalancingCostConstrained());
-                    summary.withSystemProfitLpPlus(calculateSystemProfitLpPlus(summary));
+                    //summary.withSystemProfitUP(0.0); //todo: fix
+                    summary.withSystemProfitUP(
+                            summary.getTotalSystemIncomeUP() - summary.getTotalBalancingCostUnconstrained() - summary.getSuppliersProfitUP()
+                                    - (summary.getTotalBalancingCostConstrained() - summary.getTotalBalancingCostUnconstrained())
+                    );
+                    summary.withSystemProfitLMP(
+                            summary.getTotalSystemIncomeLMP() - summary.getTotalBalancingCostConstrained() - summary.getSuppliersProfitLMP()
+                    );
+                    summary.withSystemProfitLpPlus(
+                            summary.getTotalSystemIncomeLpPlus() - summary.getTotalBalancingCostConstrained() - summary.getSuppliersProfitLpPlus()
+                    );
+
+                    // profit over
+                    summary.withTotalLMPProfitOverUP(findTotalLMPProfitOverUP(results));
+                    summary.withTotalLpPlusProfitOverUP(findTotalLpPlusProfitOverUP(results));
+
 
                     summary.withNumberOfCompetitiveNodes(calculateNumberOfCompetitiveNodes(results));
 
-
                     summaryResults.put(key, summary);
                 });
+    }
+
+    private static Double getTotalBalancingCostLpPlus(final List<Result> results, String key) {
+        return generations.get(key).get("balanced.dat").stream()
+                .map(generation -> {
+                    final var result = results.stream()
+                            .filter(r -> r.getNodeNumber().equals(generation.getNodeNumber()))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    return generation.getGenerationValue() * result.getLpPlusPrice();
+                })
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    private static Double getTotalBalancingCostLMP(final List<Result> results, final String key) {
+        return generations.get(key).get("balanced.dat").stream()
+                .map(generation -> {
+                    final var result = results.stream()
+                            .filter(r -> r.getNodeNumber().equals(generation.getNodeNumber()))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    return generation.getGenerationValue() * result.getLmpPrice();
+                })
+                .mapToDouble(Double::doubleValue)
+                .sum();
     }
 
     private static Integer calculateNumberOfCompetitiveNodes(final List<Result> results) {
         return (int) results.stream().filter(Result::isCompetitive).count();
     }
 
-    private static Double calculateSystemProfitLpPlus(final SummaryResult summary) {
-        return summary.getTotalSystemIncomeLpPlus() - summary.getTotalBalancingCostConstrained() - summary.getSuppliersProfitLpPlus();
+    private static Double calculateSuppliersProfitLpPlus(final List<Result> results, final String key) {
+        final var nodeGenerations = generations.get(key).get("balanced.dat");
+        return results.stream()
+                .filter(Ampl::isNodeResult)
+                .map(result -> {
+                    final var nodeGeneration = nodeGenerations.stream()
+                            .filter(n -> n.getNodeNumber().equals(result.getNodeNumber()))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    if (nodeGeneration.getGenerationValue() > 0.01) {
+                        final var nodalGenCost = nodeGeneration.getNodalGenerationCost();
+                        final var nodalGenProfit = (nodeGeneration.getGenerationValue() * result.getLpPlusPrice());
+                        final var value = nodalGenProfit - nodalGenCost;
+                        return value;
+                    } else {
+                        return 0.0;
+                    }
+
+                })
+                .mapToDouble(Double::doubleValue)
+                .sum();
     }
 
-    private static Double calculateSuppliersProfitLpPlus(final List<Result> results) {
+    private static Double calculateSuppliersProfitUP(final List<Result> results, final String key) {
+        final var nodeGenerations = generations.get(key).get("balanced.dat");
         return results.stream()
-                .filter(Result::isCompetitive)
-                .mapToDouble(r -> r.getUniformPrice() * r.getLoad())
+                .filter(Ampl::isNodeResult)
+                .map(result -> {
+                    final var nodeGeneration = nodeGenerations.stream()
+                            .filter(n -> n.getNodeNumber().equals(result.getNodeNumber()))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    if (nodeGeneration.getGenerationValue() > 0.01) {
+                        final var nodalGenCost = nodeGeneration.getNodalGenerationCost();
+                        final var nodalGenProfit = (nodeGeneration.getGenerationValue() * result.getUniformPrice());
+                        final var value = nodalGenProfit - nodalGenCost;
+                        return value;
+                    } else {
+                        return 0.0;
+                    }
+                })
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    private static Double calculateSuppliersProfitLmp(final List<Result> results, final String key) {
+        final var nodeGenerations = generations.get(key).get("balanced.dat");
+        return results.stream()
+                .filter(Ampl::isNodeResult)
+                .map(result -> {
+                    final var nodeGeneration = nodeGenerations.stream()
+                            .filter(n -> n.getNodeNumber().equals(result.getNodeNumber()))
+                            .findAny()
+                            .orElseThrow(NoSuchElementException::new);
+                    if (nodeGeneration.getGenerationValue() > 0.01) {
+                        final var nodalGenCost = nodeGeneration.getNodalGenerationCost();
+                        final var nodalGenProfit = (nodeGeneration.getGenerationValue() * result.getLmpPrice());
+                        final var value = nodalGenProfit - nodalGenCost;
+                        return value;
+                    } else {
+                        return 0.0;
+                    }
+
+                })
+                .mapToDouble(Double::doubleValue)
                 .sum();
     }
 
@@ -214,13 +316,17 @@ public class Ampl {
 
     private static Double calculateSystemSurplusLMP(final SummaryResult summary) {
         final var totalIncome = summary.getTotalSystemIncomeLMP();
+        // todo: should be balancing cost LMP?
         final var balancingCost = summary.getTotalBalancingCostConstrained();
+        //final var balancingCost = summary.getTotalBalancingCostLMP();
         return totalIncome - balancingCost;
     }
 
     private static Double calculateSystemSurplusLpPlus(final SummaryResult summary) {
         final var totalIncome = summary.getTotalSystemIncomeLpPlus();
+        // todo: should be balancing cost lp plus?
         final var balancingCost = summary.getTotalBalancingCostConstrained();
+        //final var balancingCost = summary.getTotalBalancingCostLpPlus();
         return totalIncome - balancingCost;
     }
 
@@ -416,12 +522,12 @@ public class Ampl {
         results.get(key).forEach(result -> {
                     final var nodeNumber = result.getNodeNumber();
                     if (!nodeNumber.equals(0)) {
-                        final var balanced = generations.get("balanced.dat")
+                        final var balanced = generations.get(key).get("balanced.dat")
                                 .stream()
                                 .filter(g -> g.getNodeNumber().equals(nodeNumber))
                                 .findAny()
                                 .orElseThrow(NoSuchElementException::new);
-                        final var unconstrained = generations.get("unconstrained.dat")
+                        final var unconstrained = generations.get(key).get("unconstrained.dat")
                                 .stream()
                                 .filter(g -> g.getNodeNumber().equals(nodeNumber))
                                 .findAny()
@@ -501,9 +607,14 @@ public class Ampl {
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sup_profit_LMP"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "sup_profit_LP+"))
 
+
+                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "num_of_comp_nodes"))
+
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lmp_prof_over_up"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "lp+_prof_over_up"))
-                .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "num_of_comp_nodes"))
+
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_lmp"))
+                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "bal_cost_lp+"))
                 .append("\n");
 
         sb.append("Sorted by default (by data set name):").append("\n");
@@ -526,6 +637,7 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMaxLpPlusPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostConstrained())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
+
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getConstraintsCost())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
@@ -542,9 +654,13 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
 
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getNumberOfCompetitiveNodes()))
+
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
-                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getNumberOfCompetitiveNodes()))
+
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostLpPlus())))
                         .append("\n"));
         sb.append("End of summary sorted by total load").append("\n\n\n");
 
@@ -568,6 +684,7 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getMaxLpPlusPrice())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostConstrained())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostUnconstrained())))
+
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getConstraintsCost())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeUP())))
                         .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalSystemIncomeLMP())))
@@ -584,9 +701,13 @@ public class Ampl {
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLMP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getSuppliersProfitLpPlus())))
 
+                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getNumberOfCompetitiveNodes()))
+
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLMPProfitOverUP())))
                         .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, String.format("%.2f", summaryResult.getTotalLpPlusProfitOverUP())))
-                        .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, summaryResult.getNumberOfCompetitiveNodes()))
+
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostLMP())))
+                        .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, String.format("%.2f", summaryResult.getTotalBalancingCostLpPlus())))
                         .append("\n"));
         sb.append("End of summary sorted by total load").append("\n\n");
 
@@ -740,7 +861,8 @@ public class Ampl {
 
         if (fileName.equals("balanced.dat") || fileName.equals("unconstrained.dat")) {
             result.withNodeNumber(0);
-            findGeneration(ampl, fileName);
+            findGeneration(ampl, fileName, dataSetName);
+            findNodalGenerationCost(ampl, fileName, dataSetName); // needs to be after findGeneration method
             final var uniformPrice = findUniformPrice(ampl);
             result.withUniformPrice(uniformPrice);
         } else {
@@ -792,8 +914,8 @@ public class Ampl {
         }
     }
 
-    private static void findGeneration(final AMPL ampl, final String fileName) {
-        List<PowerGeneration> powerGenerations = new ArrayList<>();
+    private static void findGeneration(final AMPL ampl, final String fileName, String dataSetName) {
+        List<NodeGeneration> nodeGenerations = new ArrayList<>();
         Variable Pa_gen = ampl.getVariable("Pa_gen");
         DataFrame df = Pa_gen.getValues();
         for (int i = 0; i < df.getNumRows(); i++) {
@@ -801,13 +923,31 @@ public class Ampl {
             final var nodeName = (String) rowByIndex[0];
             final var periodName = (String) rowByIndex[1];
             final var value = (Double) rowByIndex[2];
-            powerGenerations.add(new PowerGeneration()
+            nodeGenerations.add(new NodeGeneration()
                     .withNodeName(nodeName)
                     .withNodeNumber(Integer.parseInt(nodeName.substring(1)))
                     .withPeriodName(periodName)
                     .withGenerationValue(value)
             );
         }
-        generations.put(fileName, powerGenerations);
+        generations.get(dataSetName).put(fileName, nodeGenerations);
+    }
+
+
+    private static void findNodalGenerationCost(final AMPL ampl, final String fileName, String dataSetName) {
+        Variable nodalGenCost = ampl.getVariable("nodal_generation_cost");
+        DataFrame df = nodalGenCost.getValues();
+        for (int i = 0; i < df.getNumRows(); i++) {
+            final var rowByIndex = df.getRowByIndex(i);
+            final var nodeName = (String) rowByIndex[0];
+            final var periodName = (String) rowByIndex[1];
+            final var value = (Double) rowByIndex[2];
+            final var generation = generations.get(dataSetName).get(fileName)
+                    .stream()
+                    .filter(nodeGeneration -> nodeGeneration.getNodeName().equals(nodeName) && nodeGeneration.getPeriodName().equals(periodName))
+                    .findAny()
+                    .orElseThrow(NoSuchElementException::new);
+            generation.withNodalGenerationCost(value);
+        }
     }
 }
