@@ -729,8 +729,7 @@ public class Ampl {
                 .stream()
                 .sorted(Comparator.comparing(Result::getNodeNumber))
                 .collect(Collectors.toList());
-        sb
-                .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "node_nr"))
+        sb.append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "node_nr"))
                 .append(String.format(ResultUtil.RESULT_SET_NAME_FORMAT, "result_name"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "objective"))
                 .append(String.format(ResultUtil.RESULT_VARIABLE_FORMAT, "UP"))

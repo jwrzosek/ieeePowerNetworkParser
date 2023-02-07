@@ -396,8 +396,8 @@ public class MultiStageModelAmplWriter {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + ":"));
-        sb.append(AmplUtils.PARAM_BEGIN);
-        for (String param : params) {
+            sb.append(AmplUtils.PARAM_BEGIN);
+            for (String param : params) {
             sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
