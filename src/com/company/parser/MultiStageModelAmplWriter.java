@@ -51,7 +51,7 @@ public class MultiStageModelAmplWriter {
         final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
         final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
         //if (unconstrained) {
-            final var qBusParameter = generateQBusParameter(nodes, nodeLines);
+        final var qBusParameter = generateQBusParameter(nodes, nodeLines);
         //    sb.append(qBusParameter);
         //}
         final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak); //todo: ogarnąć czy okej
@@ -77,7 +77,7 @@ public class MultiStageModelAmplWriter {
                 .toString();
     }
 
-    public void writeRunScriptForBatchToFile(final String directory, final int size) {
+    void writeRunScriptForBatchToFile(final String directory, final int size) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, directory, "batch.run");
         final var runScript = createRunScript(size, directory);
         try {
@@ -90,7 +90,7 @@ public class MultiStageModelAmplWriter {
 
     public String createRunScript(int size, final String directory) {
         StringBuilder sb = new StringBuilder();
-        sb.append("printf \"Results:\\n\" >> "+ directory +"/results.out;\n\n");
+        sb.append("printf \"Results:\\n\" >> " + directory + "/results.out;\n\n");
 
         sb.append("reset;\n")
                 .append("model " + directory + "/model_min_balancing_cost.mod\n")
@@ -104,19 +104,19 @@ public class MultiStageModelAmplWriter {
                 .append("data " + directory + "/balanced").append(".dat\n")
                 .append("solve;\n")
                 .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> " + directory + "/results.out;\n\n");
-        for (int i = 0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             sb.append("reset;\n")
                     .append("model " + directory + "/model_min_balancing_cost.mod\n")
                     .append("data " + directory + "/common.dat\n")
                     .append("data " + directory + "/").append(i + 1).append(".dat\n")
                     .append("solve;\n")
-                    .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> " + directory + "/results.out;\n\n");
+                    .append("printf \"%-12s %.2f\\n\", \"Q" + (i + 1) + ":\", Q >> " + directory + "/results.out;\n\n");
         }
         sb.append("printf \"----> RESULT SET END\\n\\n\" >> " + directory + "/results.out;\n");
         return sb.toString();
     }
 
-    public void writeSingleRunScriptToFile(final String directoryName, final int size) {
+    void writeSingleRunScriptToFile(final String directoryName, final int size) {
         final var path = Paths.get(AmplUtils.DIRECTORY_PATH, directoryName, "single.run");
         final var runScript = createSingleRunScript(size, directoryName);
         try {
@@ -127,7 +127,7 @@ public class MultiStageModelAmplWriter {
         }
     }
 
-    public String createSingleRunScript(int size, final String directory) {
+    private String createSingleRunScript(int size, final String directory) {
         StringBuilder sb = new StringBuilder();
         sb.append("printf \"Results for KSE power network:\\n\" >> results_single.out;\n\n");
 
@@ -145,14 +145,14 @@ public class MultiStageModelAmplWriter {
                 .append("option solver cplex ;")
                 .append("solve;\n")
                 .append("printf \"%-12s %.2f\\n\", \"balanced:\", Q >> results_single.out;\n\n");
-        for (int i = 0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             sb.append("reset;\n")
                     .append("model model_min_balancing_cost.mod\n")
                     .append("data common.dat\n")
                     .append("data ").append(i + 1).append(".dat\n")
                     .append("option solver cplex ;")
                     .append("solve;\n")
-                    .append("printf \"%-12s %.2f\\n\", \"Q"+ (i+1) + ":\", Q >> results_single.out;\n\n");
+                    .append("printf \"%-12s %.2f\\n\", \"Q" + (i + 1) + ":\", Q >> results_single.out;\n\n");
         }
         sb.append("printf \"----> RESULT SET END FOR KSE POWER NETWORK\\n\\n\" >> results_single.out;\n");
         return sb.toString();
@@ -191,7 +191,7 @@ public class MultiStageModelAmplWriter {
                 final var zBusNumber = j + 1;
                 final var first = links.stream().filter(nodeLine -> nodeLine.getzBusNumber() == zBusNumber).findFirst();
                 if (first.isPresent()) {
-                    final var admittance = first.get().getAdmittance() /100;
+                    final var admittance = first.get().getAdmittance() / 100;
                     admittanceArray[i][j] = admittance;
                     admittanceArray[j][i] = admittance;
                 }
@@ -202,8 +202,8 @@ public class MultiStageModelAmplWriter {
 
     private Double[][] initializeAdmittanceArray(int numberOfBuses) {
         Double[][] admittanceArray = new Double[numberOfBuses][numberOfBuses];
-        for (int i = 0; i<numberOfBuses; i++) {
-            for (int j = 0; j<numberOfBuses; j++) {
+        for (int i = 0; i < numberOfBuses; i++) {
+            for (int j = 0; j < numberOfBuses; j++) {
                 admittanceArray[i][j] = null;
             }
         }
@@ -225,10 +225,8 @@ public class MultiStageModelAmplWriter {
             final var tapBusNumber = i + 1;
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < nodes.size(); j++) {
-                //sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ? 77777 : 0));
                 sb.append(String.format(AmplUtils.PARAM_FORMAT, admittanceArray[i][j] != null ?
-                        //ormatFPVariables(getLineLimit(nodeLines, i+1, j+1)*0.8)
-                        getLineLimit(nodeLines, i+1, j+1)
+                        getLineLimit(nodeLines, i + 1, j + 1)
                         : 0));
             }
             sb.append("\n");
@@ -253,7 +251,7 @@ public class MultiStageModelAmplWriter {
             final var generation = bus.getGenerators().stream().map(Generator::getGenerationMW).filter(gen -> gen > 0.001).findFirst().orElse(0.0D);
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(i).append("\t\t")
                     .append(String.format(AmplUtils.PARAM_FORMAT, offerPrice))
-                    .append(String.format(AmplUtils.PARAM_FORMAT,  generation > 0.01 ? offerPrice - 20 : 999999))
+                    .append(String.format(AmplUtils.PARAM_FORMAT, generation > 0.01 ? offerPrice - 20 : 999999))
                     .append(String.format(AmplUtils.PARAM_FORMAT, bus.getFinalVoltage()))
                     .append("\n");
         }
@@ -279,9 +277,9 @@ public class MultiStageModelAmplWriter {
             for (int j = 0; j < hourlyLoads.size(); j++) {
                 double load;
                 if (PowerNetworkUtils.IS_SUMMER) {
-                    load = bus.getLoadMW() * peak * PowerNetworkUtils.POWER_SUMMER_PERCENTAGE;
+                    load = bus.getLoadMW() * peak;// * PowerNetworkUtils.POWER_SUMMER_PERCENTAGE;
                 } else { // isWINTER
-                    load = bus.getLoadMW() * peak;// * PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
+                    load = bus.getLoadMW() * peak * PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
                 }
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,
@@ -300,8 +298,8 @@ public class MultiStageModelAmplWriter {
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MAX_SYMBOL + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN));
 
         final var generators = findGenerators(nodes);
-        for (int h = 0; h<hourlyLoads.size(); h++) {
-            sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h+1)));
+        for (int h = 0; h < hourlyLoads.size(); h++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h + 1)));
 
             for (int i = 1; i < generators.size() + 1; i++) {
                 sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i));
@@ -311,8 +309,7 @@ public class MultiStageModelAmplWriter {
             for (int i = 0; i < nodes.size(); i++) {
                 final var tapBusNumber = i + 1;
                 sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
-                for (int j = 0; j < generators.size(); j++) {
-                    final var generator = generators.get(j);
+                for (final Generator generator : generators) {
                     sb.append(String.format(
                             AmplUtils.PARAM_FORMAT,
                             generator.getBusNumber() - 1 == i ? generator.getGenerationMW() : 0)
@@ -331,8 +328,8 @@ public class MultiStageModelAmplWriter {
                 AmplUtils.PARAM_SYMBOL + " " + AmplUtils.PARAM_PGEN_MIN_SYMBOL + AmplUtils.DEFAULT_PARAM_EQUALS_SIGN));
 
         final var generators = findGenerators(nodes);
-        for (int h = 0; h<hourlyLoads.size(); h++) {
-            sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h+1)));
+        for (int h = 0; h < hourlyLoads.size(); h++) {
+            sb.append(String.format(AmplUtils.PARAM_FORMAT, get3DimHourStartLabel(h + 1)));
 
             for (int i = 1; i < generators.size() + 1; i++) {
                 sb.append(String.format(AmplUtils.PARAM_FORMAT, AmplUtils.GENERATOR_SYMBOL + i));
@@ -342,8 +339,7 @@ public class MultiStageModelAmplWriter {
             for (int i = 0; i < nodes.size(); i++) {
                 final var tapBusNumber = i + 1;
                 sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
-                for (int j = 0; j < generators.size(); j++) {
-                    final var generator = generators.get(j);
+                for (final Generator generator : generators) {
                     final var minGeneration = BigDecimal.valueOf(generator.getGenerationMW() * PowerNetworkUtils.P_MIN_PERCENTAGE)
                             .setScale(2, RoundingMode.DOWN)
                             .doubleValue();
@@ -367,7 +363,6 @@ public class MultiStageModelAmplWriter {
         sb.append(";\n\n");
         return sb.toString();
     }
-
 
     private String generateVariableCost(final List<Generator> generators) {
         final var params = List.of(AmplUtils.PARAM_VARIABLE_COST_SYMBOL);
@@ -396,8 +391,8 @@ public class MultiStageModelAmplWriter {
         StringBuilder sb = new StringBuilder(String.format(
                 AmplUtils.PARAM_FORMAT,
                 AmplUtils.PARAM_SYMBOL + ":"));
-            sb.append(AmplUtils.PARAM_BEGIN);
-            for (String param : params) {
+        sb.append(AmplUtils.PARAM_BEGIN);
+        for (String param : params) {
             sb.append(String.format(AmplUtils.PARAM_FORMAT, param));
         }
         sb.append(AmplUtils.DEFAULT_PARAM_EQUALS_SIGN);
@@ -425,8 +420,9 @@ public class MultiStageModelAmplWriter {
         if (unconstrained) {
             return 9999;
         }
-        return  nodeLines.stream()
-                .filter(nodeLine -> (nodeLine.getTapBusNumber() == node1 && nodeLine.getzBusNumber() == node2) || (nodeLine.getTapBusNumber() == node2 && nodeLine.getzBusNumber() == node1))
+        return nodeLines.stream()
+                .filter(nodeLine -> (nodeLine.getTapBusNumber() == node1 && nodeLine.getzBusNumber() == node2)
+                        || (nodeLine.getTapBusNumber() == node2 && nodeLine.getzBusNumber() == node1))
                 .map(Line::getLineMVARatingNo1)
                 .findAny()
                 .orElse(99999);
@@ -449,6 +445,6 @@ public class MultiStageModelAmplWriter {
     }
 
     private String get3DimHourStartLabel(int hourNumber) {
-        return "[*,*,H" + hourNumber+ "]:";
+        return "[*,*,H" + hourNumber + "]:";
     }
 }

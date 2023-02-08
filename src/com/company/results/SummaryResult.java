@@ -50,17 +50,17 @@ public class SummaryResult {
     private Double totalSystemIncomeUP;
     private Double totalSystemIncomeLpPlus;
 
-    // nadwyżki w sysemie
+    // system surplus
     private Double systemSurplusUP;
     private Double systemSurplusLMP;
     private Double systemSurplusLpPlus;
 
-    // zysk dla systemu
+    // system profit
     private Double systemProfitUP;
     private Double systemProfitLMP;
     private Double systemProfitLpPlus;
 
-    // zysk dla wytwórców
+    // suppliers profit
     private Double suppliersProfitUP;
     private Double suppliersProfitLMP;
     private Double suppliersProfitLpPlus;

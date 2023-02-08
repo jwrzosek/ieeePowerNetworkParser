@@ -3,12 +3,7 @@ package com.company.parser.util;
 public class AmplUtils {
 
     public static final String DIRECTORY_PATH = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\test";
-    //public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse";
-    //public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_v2";
     public static final String DIRECTORY_PATH_KSE = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_v2";
-    //todo:delete after testing
-    public static final String DIRECTORY_PATH_KSE_TEMP = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\kse_temp";
-    public static final String DIRECTORY_PATH_TEMP = "C:\\Users\\wrzos\\Desktop\\Moje\\PW\\_MGR\\ampl\\model\\book\\temp";
 
     public static final boolean DC_MODEL_ON = false;
 
@@ -38,7 +33,11 @@ public class AmplUtils {
     public static final String PARAM_PLOAD_SYMBOL = "Pa_load";
     public static final String PARAM_VOLTAGE_SYMBOL = "V";
     public static final String PARAM_VARIABLE_COST_SYMBOL = "Ka_gen";
-    public static final boolean UNCONSTRAINED = false;
+
+    public static final String COMMON_DAT_FILE = "common.dat";
+    public static final String COMMON_UNCONSTRAINED_DAT_FILE = "commonUnconstrained.dat";
+    public static final String UNCONSTRAINED_DAT_FILE = "unconstrained.dat";
+    public static final String BALANCED_DAT_FILE = "balanced.dat";
 
     private AmplUtils() {
         // private constructor for Util class

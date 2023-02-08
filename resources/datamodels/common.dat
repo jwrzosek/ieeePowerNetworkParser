@@ -2,60 +2,32 @@
 #param:          Ka_gen       :=
 #    J1          310
 #    J2          612
-#    #J3          812
-#    J3          561
-#    J4          892
-#    J5          374
+#    J3          861
+#    J4          561
+#    J5          892
+#    J6          374
 #    ;
 
-# 30-nodes
-#param:          Ka_gen       :=
-#    J1          315
-#    J2          378
-#    J3          322
-#    J4          744
-#    J5          310
-#    J6          811
-#    ;
-
-# 39-nodes worse
-#param:          Ka_gen       :=
-#    J1          215
-#    J2          361
-#    J3          492
-#    J4          544
-#    J5          610
-#    J6          411
-#    J7          281
-#    J8          411
-#    J9          812
-#    J10         456
-#    ;
-
-
-
-# 30-nodes second prices set
-#param:          Ka_gen       :=
-#    J1          744
-#    J2          378
-#    J3          322
-#    J4          315
-#    J5          310
-#    J6          811
-#    ;
-
-# 5-nodes
+# 9-nodes
 #param:          Ka_gen       :=
 #    J1          310
-#    J2          612
-#    #J3          812
+#    J2          712
 #    J3          561
-#    J4          892
-#    J5          374
+#    J4          861
 #    ;
 
 
-# 39-nodes better
+# 30-nodes
+param:          Ka_gen       :=
+    J1          644
+    J2          731
+    J3          382
+    J4          574
+    J5          310
+    J6          425
+    ;
+
+# 39-nodes
 #param:          Ka_gen       :=
 #    J1          315
 #    J2          261
@@ -69,30 +41,12 @@
 #    J10         306
 #    ;
 
-# 9-nodes
-#param:          Ka_gen       :=
-#    J1          310
-#    J2          712
-#    J3          561
-#    J4          861
-#    ;
-
 # 5-nodes
-#param:          Ka_gen       :=
-#    J1          310
-#    J2          612
-#    J3          861
-#    J4          561
-#    J5          892
-#    J6          374
-#    ;
-
-# 30-nodes second prices set
 param:          Ka_gen       :=
-    J1          644
-    J2          731
-    J3          382
-    J4          574
-    J5          310
-    J6          425
+    J1          310
+    J2          612
+    J3          861
+    J4          561
+    J5          892
+    J6          374
     ;

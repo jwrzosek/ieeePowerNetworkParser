@@ -24,10 +24,8 @@ public class IEEEPowerNetworkParser {
     private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
     public IEEEPowerNetworkParser() {
-        //readDataFile(PowerNetworkUtils.DIR_30_NODES);
         powerNetworkDataLines = readDataLinesFromFile(PowerNetworkUtils.POWER_TEST_NETWORK_DATA_SOURCE);
 
-        // parsing hourly load data file
         hourlyLoadDataLines = readDataLinesFromFile(PowerNetworkUtils.HOURLY_LOAD_DATA_TEMP);
 
         parseHourlyLoadDataLines();
@@ -140,7 +138,7 @@ public class IEEEPowerNetworkParser {
 
     private Double calculateAdmittanceDC(Line nodeLine) {
         Double r = nodeLine.getBranchResistanceR();
-        return 1/r;
+        return 1 / r;
     }
 
     private Double calculateAdmittanceAC(Line nodeLine) {
@@ -189,30 +187,32 @@ public class IEEEPowerNetworkParser {
         final var loadMVAR = busDataLine.substring(49, 59).trim();
         node.withLoadMVAR(Double.parseDouble(loadMVAR));
         final var generationMW = busDataLine.substring(59, 67).trim();
-//        if (node.getBusNumber() == 1) {
-//            node.withGenerator(new Generator()
-//                    .withBusNumber(Integer.parseInt(busNumber))
-//                    .withGenerationMW(40.0)
-//                    .withVariableCost(310)
-//            );
-//            node.withGenerator(new Generator()
-//                    .withBusNumber(Integer.parseInt(busNumber))
-//                    .withGenerationMW(170.0)
-//                    .withVariableCost(612)
-//            );
-//        } else {
-//            node.withGenerator(new Generator()
-//                    .withBusNumber(Integer.parseInt(busNumber))
-//                    .withGenerationMW(Double.parseDouble(generationMW))
-//                    .withVariableCost(getRandomInteger(300, 900))
-//            );
-//        }
-
-        node.withGenerator(new Generator()
-                .withBusNumber(Integer.parseInt(busNumber))
-                .withGenerationMW(Double.parseDouble(generationMW))
-                .withVariableCost(getRandomInteger(300, 900))
-        );
+        if (PowerNetworkUtils.POWER_TEST_NETWORK_DATA_SOURCE.contains("ieee5matpower")) {
+            if (node.getBusNumber() == 1) {
+                node.withGenerator(new Generator()
+                        .withBusNumber(Integer.parseInt(busNumber))
+                        .withGenerationMW(40.0)
+                        .withVariableCost(310)
+                );
+                node.withGenerator(new Generator()
+                        .withBusNumber(Integer.parseInt(busNumber))
+                        .withGenerationMW(170.0)
+                        .withVariableCost(612)
+                );
+            } else {
+                node.withGenerator(new Generator()
+                        .withBusNumber(Integer.parseInt(busNumber))
+                        .withGenerationMW(Double.parseDouble(generationMW))
+                        .withVariableCost(getRandomInteger(300, 900))
+                );
+            }
+        } else {
+            node.withGenerator(new Generator()
+                    .withBusNumber(Integer.parseInt(busNumber))
+                    .withGenerationMW(Double.parseDouble(generationMW))
+                    .withVariableCost(getRandomInteger(300, 900))
+            );
+        }
         final var generationMVAR = busDataLine.substring(67, 75).trim();
         node.withGenerationMVAR(Double.parseDouble(generationMVAR));
         final var baseKV = busDataLine.substring(76, 84).trim();
