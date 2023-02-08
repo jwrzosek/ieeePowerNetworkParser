@@ -50,11 +50,8 @@ public class MultiStageModelAmplWriter {
         final var busInfo = generateSet(AmplUtils.BUS_NAME, nodes.size(), AmplUtils.BUS_SYMBOL);
         final var generatorsInfo = generateSet(AmplUtils.GENERATOR_NAME, (int) numberOfGenerators, AmplUtils.GENERATOR_SYMBOL);
         final var hourlyLoadInfo = generateSet(AmplUtils.TIME_PERIOD_NAME, hourlyLoads.size(), AmplUtils.TIME_PERIOD_SYMBOL);
-        //if (unconstrained) {
         final var qBusParameter = generateQBusParameter(nodes, nodeLines);
-        //    sb.append(qBusParameter);
-        //}
-        final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak); //todo: ogarnąć czy okej
+        final var loadParameter = generateMultiStageLoadMWData(nodes, hourlyLoads, lmpNode, peak);
         final var pGenMaxParameter = generateGeneratorsPgenMaxParameter(nodes, hourlyLoads);
         final var pGenMinParameter = generateGeneratorsPgenMinParameter(nodes, hourlyLoads);
         final var voltageParameter = generateVParameter(nodes);

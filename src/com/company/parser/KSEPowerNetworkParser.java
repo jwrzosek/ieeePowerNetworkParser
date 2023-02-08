@@ -30,7 +30,7 @@ public class KSEPowerNetworkParser {
         powerNetworkNodesDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_NODES_DATA);
         powerNetworkLinesDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_LINES_DATA);
         powerNetworkGeneratorsDataLines = readDataLinesFromFile(PowerNetworkUtils.DIR_KSE_POWER_NETWORK_GENERATORS_WORKING_WITH_COST_DATA);
-        powerNetworkHourlyLoadDataLines = readDataLinesFromFile(PowerNetworkUtils.HOURLY_LOAD_DATA_10HOURS);
+        powerNetworkHourlyLoadDataLines = readDataLinesFromFile(PowerNetworkUtils.HOURLY_LOAD_DATA_24_HOURS);
 
         // parse data loaded from files
         parseHourlyLoadDataLines();

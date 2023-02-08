@@ -38,6 +38,7 @@ public class AmplUtils {
     public static final String COMMON_UNCONSTRAINED_DAT_FILE = "commonUnconstrained.dat";
     public static final String UNCONSTRAINED_DAT_FILE = "unconstrained.dat";
     public static final String BALANCED_DAT_FILE = "balanced.dat";
+    public static final String ALL_RUN_FILE = "all.run";
 
     private AmplUtils() {
         // private constructor for Util class

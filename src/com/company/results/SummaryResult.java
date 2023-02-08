@@ -7,7 +7,6 @@ public class SummaryResult {
     private Integer uniformPriceUnconstrained;
     private Integer uniformPriceConstrained;
 
-
     //---------- LMP Stuff
     private Double minLmpPrice;
     /**
@@ -20,7 +19,6 @@ public class SummaryResult {
      * Average price that is payed by buyer in lmp prices system (totalSystemIncomeLMP / totalLoad)
      */
     private Double averageBuyerLmpPrice;
-
 
     //---------- LP+ Stuff
     private Double minLpPlusPrice;
@@ -64,7 +62,6 @@ public class SummaryResult {
     private Double suppliersProfitUP;
     private Double suppliersProfitLMP;
     private Double suppliersProfitLpPlus;
-
 
     /**
      * Total money difference between uniform prices and lmp

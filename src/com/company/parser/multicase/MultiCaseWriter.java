@@ -20,7 +20,6 @@ public class MultiCaseWriter {
     private List<HourlyLoad> hourlyLoads = new ArrayList<>();
 
     public MultiCaseWriter() {
-        // todo: make it 24_Hours for getting real results
         readHourlyLoadDataFile(PowerNetworkUtils.HOURLY_LOAD_DATA_24_HOURS);
         parseHourlyLoadDataLines();
     }
@@ -39,28 +38,6 @@ public class MultiCaseWriter {
         writeRunScriptForMultiCaseScenario();
     }
 
-    public void writeMultipleCasesLMP2(final String directoryName, double peak) {
-        IEEEPowerNetworkParser unconstrainedParser = new IEEEPowerNetworkParser();
-        final var size = unconstrainedParser.getTransmissionNodes().size();
-        createMultiCaseDirectory(directoryName);
-        //write model to a directory
-        writeModelFile(directoryName);
-        writeCommonDataFile(directoryName);
-        //unconstrainedParser.writeCommonData(directoryName);
-        unconstrainedParser.writeRunScripts(directoryName, size);
-        // wygeneruj plik z danymi niezależnymi od modelu
-        // wygeneruj normalny model bez ograniczeń
-        unconstrainedParser.parseMultiStageCase(directoryName,"unconstrained.dat", true, 1000, peak);
-        // wygeneruj model z ograniczeniami
-        IEEEPowerNetworkParser balancedParser = new IEEEPowerNetworkParser();
-        balancedParser.parseMultiStageCase(directoryName, "balanced.dat", false, 1000, peak);
-        // wygeneruj 1..N modeli dla każdego węzła
-
-        for (int i = 0; i<size; i++) {
-            IEEEPowerNetworkParser parser = new IEEEPowerNetworkParser();
-            parser.parseMultiStageCase(directoryName, (i+1 + ".dat"), false, i, peak);
-        }
-    }
 
     public void writeMultipleCasesLMP(final String directoryName, double peak) {
         // create directory for a lmp case
@@ -73,19 +50,17 @@ public class MultiCaseWriter {
         writeCommonDataFile(directoryName);
         writeCommonDataFileUnconstrained(directoryName);
 
+        // generate model without constraints
         IEEEPowerNetworkParser unconstrainedParser = new IEEEPowerNetworkParser();
         final var size = unconstrainedParser.getTransmissionNodes().size();
         unconstrainedParser.writeRunScripts(directoryName, size);
+        unconstrainedParser.parseMultiStageCase(directoryName, AmplUtils.UNCONSTRAINED_DAT_FILE, true, -1, peak);
 
-        // wygeneruj plik z danymi niezależnymi od modelu
-        // wygeneruj normalny model bez ograniczeń
-        unconstrainedParser.parseMultiStageCase(directoryName,"unconstrained.dat", true, -1, peak);
-
-        // wygeneruj model z ograniczeniami
+        // generate model with constraints
         IEEEPowerNetworkParser balancedParser = new IEEEPowerNetworkParser();
-        balancedParser.parseMultiStageCase(directoryName, "balanced.dat", false, -1, peak);
+        balancedParser.parseMultiStageCase(directoryName, AmplUtils.BALANCED_DAT_FILE, false, -1, peak);
 
-        // wygeneruj 1..N modeli dla każdego węzła
+        // generate 1..N models for each node
         for (int i = 0; i<size; i++) {
             IEEEPowerNetworkParser parser = new IEEEPowerNetworkParser();
             parser.parseMultiStageCase(directoryName, (i+1 + ".dat"), false, i, peak);
@@ -93,7 +68,7 @@ public class MultiCaseWriter {
     }
 
     private void createMultiCaseDirectory(String dirName) {
-        File multiCaseDirectory = new File(AmplUtils.DIRECTORY_PATH + "\\" + dirName);
+        File multiCaseDirectory = new File(AmplUtils.DIRECTORY_PATH + File.separator + dirName);
         if (multiCaseDirectory.exists()) {
             System.out.println("Directory already exists");
             return;
@@ -102,7 +77,6 @@ public class MultiCaseWriter {
             System.out.println("Directory already exists");
         }
     }
-
 
     private void writeModelFile(final String directory) {
         final var origin = Path.of(PowerNetworkUtils.MULTI_STAGE_MIN_BALANCING_COST_MODEL_DIR);
@@ -153,7 +127,7 @@ public class MultiCaseWriter {
     }
 
     private void writeRunScriptForMultiCaseScenario() {
-        final var path = Paths.get(AmplUtils.DIRECTORY_PATH,  "all.run");
+        final var path = Paths.get(AmplUtils.DIRECTORY_PATH,  AmplUtils.ALL_RUN_FILE);
         final var runScript = createRunScriptForMultiCaseScenario();
         try {
             Files.deleteIfExists(path);
@@ -191,25 +165,19 @@ public class MultiCaseWriter {
 
     private HourlyLoad parseHourlyLoad(final String hourlyLoadDataLine) {
         HourlyLoad hourlyLoad = new HourlyLoad();
+
         final var period = hourlyLoadDataLine.substring(0, 9).trim();
         hourlyLoad.withPeriod(period);
-
         final var hour = period.split("-")[1];
         hourlyLoad.withHour(Integer.parseInt(hour));
-
-        // winter 9,12 -> 18,21
-        // summer 27,30 -> 36,39
-        // spring 45,48 -> 54,57
         final var winterPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(9, 12).trim();
         hourlyLoad.withWinterPeakLoadPercentageWkdy(getHourlyLoadValue(winterPeakLoadPercentageWkdy));
         final var winterPeakLoadPercentageWknd = hourlyLoadDataLine.substring(18, 21).trim();
         hourlyLoad.withWinterPeakLoadPercentageWknd(getHourlyLoadValue(winterPeakLoadPercentageWknd));
-
         final var summerPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(27, 30).trim();
         hourlyLoad.withSummerPeakLoadPercentageWkdy(getHourlyLoadValue(summerPeakLoadPercentageWkdy));
         final var summerPeakLoadPercentageWknd = hourlyLoadDataLine.substring(36, 39).trim();
         hourlyLoad.withSummerPeakLoadPercentageWknd(getHourlyLoadValue(summerPeakLoadPercentageWknd));
-
         final var springFallPeakLoadPercentageWkdy = hourlyLoadDataLine.substring(45, 48).trim();
         hourlyLoad.withSpringFallPeakLoadPercentageWkdy(getHourlyLoadValue(springFallPeakLoadPercentageWkdy));
         final var springFallPeakLoadPercentageWknd = hourlyLoadDataLine.substring(54, 57).trim();

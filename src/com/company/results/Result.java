@@ -63,7 +63,6 @@ public class Result {
         this.nodeNumber = nodeNumber;
     }
 
-
     public Double getLoad() {
         return load;
     }
@@ -71,6 +70,7 @@ public class Result {
     public void setLoad(final Double load) {
         this.load = load;
     }
+
     public void withLoad(final Double load) {
         this.load = load;
     }
