@@ -272,12 +272,7 @@ public class MultiStageModelAmplWriter {
             final var bus = nodes.get(i);
             sb.append(AmplUtils.DEFAULT_PARAM_SEPARATOR).append(AmplUtils.BUS_SYMBOL).append(tapBusNumber).append("\t\t");
             for (int j = 0; j < hourlyLoads.size(); j++) {
-                double load;
-                if (PowerNetworkUtils.IS_SUMMER) {
-                    load = bus.getLoadMW() * peak;// * PowerNetworkUtils.POWER_SUMMER_PERCENTAGE;
-                } else { // isWINTER
-                    load = bus.getLoadMW() * peak * PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
-                }
+                double load = calculateLoad(bus, peak);
                 sb.append(String.format(
                         AmplUtils.PARAM_FORMAT,
                         formatFPVariables(i == lmpNode ? load + 1.0 : load))
@@ -287,6 +282,36 @@ public class MultiStageModelAmplWriter {
         }
 
         return sb.append(AmplUtils.DEFAULT_PARAM_END_SEPARATOR).toString();
+    }
+
+    private double calculateLoad(final Node bus, double peak) {
+        double load;
+        switch (PowerNetworkUtils.POWER_TEST_NETWORK_DATA_SOURCE) {
+            case "ieee5matpower.txt":
+            case "ieee9matpower.txt":
+                load = calculateLoadFor5And9NodeNetworks(bus, peak);
+                break;
+            default:
+                load = calculateLoadFor30And39NodeNetworks(bus, peak);
+                break;
+        }
+        return load;
+    }
+
+    private double calculateLoadFor5And9NodeNetworks(final Node bus, double peak) {
+        if (PowerNetworkUtils.IS_SUMMER) {
+            return bus.getLoadMW() * peak;
+        } else { // isWINTER
+            return bus.getLoadMW() * peak * PowerNetworkUtils.POWER_WINTER_PERCENTAGE;
+        }
+    }
+
+    private double calculateLoadFor30And39NodeNetworks(final Node bus, double peak) {
+        if (PowerNetworkUtils.IS_SUMMER) {
+            return bus.getLoadMW() * peak * PowerNetworkUtils.POWER_SUMMER_PERCENTAGE;
+        } else { // isWINTER
+            return bus.getLoadMW() * peak;
+        }
     }
 
     private String generateGeneratorsPgenMaxParameter(List<Node> nodes, List<HourlyLoad> hourlyLoads) {
